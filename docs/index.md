@@ -1,3 +1,19 @@
+## Weight Progression Model
+
+<iframe src="https://www.desmos.com/calculator/bwofu0pidu?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+
+##Set and Rep Scheme
+
+<iframe src="https://www.desmos.com/calculator/dgo4od1fnh?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+
+##Max Prediction
+
+TODO
+
+##Volume
+
+<iframe src="https://www.desmos.com/calculator/cniaskasnp?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/carmichaeljr/powerlifting-engine/edit/gh-pages/docs/index.md) to maintain and preview the content for your website in Markdown files.
