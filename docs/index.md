@@ -4,7 +4,7 @@ To interact with the graphs below click on the "edit graph on desmos" button on 
 
 ## Weight Progression Model
 
-<iframe src="https://www.desmos.com/calculator/bwofu0pidu?embed" width="832" height="832" style="border: 1px solid #ccc" frameborder=0></iframe>
+<iframe src="https://www.desmos.com/calculator/wdppw9igla?embed" width="832" height="832" style="border: 1px solid #ccc" frameborder=0></iframe>
 
 ## Set and Rep Scheme
 
