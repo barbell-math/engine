@@ -1,5 +1,5 @@
-.vim
-.exe
-.o
-.db
+*.vim
+*.exe
+*.o
+*.db
 dbEnv.sh
