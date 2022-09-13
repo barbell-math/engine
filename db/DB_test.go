@@ -4,6 +4,7 @@ import (
     "fmt"
     "database/sql"
     "testing"
+    "github.com/carmichaeljr/powerlifting-engine/util"
 )
 
 var testDB CRUD;
@@ -17,12 +18,13 @@ func TestMain(m *testing.M){
 func setup(){
     var err error=nil;
     testDB,err=NewCRUD("localhost",5432,"carmichaeljr","test");
-    if err!=nil && fmt.Sprint(err)!="Could not get data version!" {
+    if err!=nil && err!=util.DataVersionNotAvailable {
         panic("Could not open database for testing.");
     }
     err=testDB.execSQLScript("../sql/globalInit.sql");
-    fmt.Println(err);
-    fmt.Println("HERE");
+    if err!=nil && util.IsSqlScriptNotFound(err) {
+        panic("Could not find 'globalInit.sql' file for testing.");
+    }
 }
 
 func teardown(){
@@ -38,6 +40,7 @@ func TestVersion(t *testing.T){
             sql.ErrNoRows,
         );
     }
+
     testDB.addDataVersion(-1);
 }
 

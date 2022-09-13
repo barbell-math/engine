@@ -12,9 +12,9 @@ func TestErrorEquality(t *testing.T){
         "NoKnownDataConversion": NoKnownDataConversion,
     };
     isErrs:=map[string]isErrorType{
-        "SqlScriptNotFound": isSqlScriptNotFound,
-        "DataConversion": isDataConversion,
-        "NoKnownDataConversion": isNoKnownDataConversion,
+        "SqlScriptNotFound": IsSqlScriptNotFound,
+        "DataConversion": IsDataConversion,
+        "NoKnownDataConversion": IsNoKnownDataConversion,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");

@@ -20,12 +20,12 @@ func errorFactory(base string) (errorType,isErrorType) {
     return errorTypeRv,isErrorTypeRv;
 }
 
-var SqlScriptNotFound,isSqlScriptNotFound=errorFactory(
+var SqlScriptNotFound,IsSqlScriptNotFound=errorFactory(
     "Could not open SQL script to run queries.",
 );
-var DataConversion,isDataConversion=errorFactory(
+var DataConversion,IsDataConversion=errorFactory(
     "An error occurred converting data between versions.",
 );
-var NoKnownDataConversion,isNoKnownDataConversion=errorFactory(
+var NoKnownDataConversion,IsNoKnownDataConversion=errorFactory(
     "No known data conversion.",
 );
