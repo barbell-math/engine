@@ -1,0 +1,31 @@
+package util;
+
+import (
+    "fmt"
+    "errors"
+    "strings"
+)
+
+var DataVersionNotAvailable=errors.New("Data version could not be selected.");
+
+type errorType func(addendum string) error;
+type isErrorType func(err error) bool;
+func errorFactory(base string) (errorType,isErrorType) {
+    errorTypeRv:=func(addendum string) error {
+        return errors.New(fmt.Sprintf("%s | %s",base,addendum));
+    }
+    isErrorTypeRv:=func(err error) bool {
+        return strings.Contains(fmt.Sprint(err),base);
+    }
+    return errorTypeRv,isErrorTypeRv;
+}
+
+var SqlScriptNotFound,isSqlScriptNotFound=errorFactory(
+    "Could not open SQL script to run queries.",
+);
+var DataConversion,isDataConversion=errorFactory(
+    "An error occurred converting data between versions.",
+);
+var NoKnownDataConversion,isNoKnownDataConversion=errorFactory(
+    "No known data conversion.",
+);

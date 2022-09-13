@@ -4,7 +4,6 @@ import (
     "os"
     "fmt"
     "bufio"
-    "errors"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
 
@@ -40,13 +39,13 @@ func (c *CRUD)implicitDataConversion(check bool) error {
     cont:=true;
     dbDataVersion,err:=c.getDataVersion();
     if err!=nil {
-        return errors.New("Could not get data version!");
+        return util.DataVersionNotAvailable;
     }
-    for i:=dbDataVersion+1; i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
+    for i:=dbDataVersion+1;
+        dbDataVersion!=-1 && i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
         if check {
             prompt:=fmt.Sprintf(
-                "Moving data from version %d to %d, continue",
-                i-1,i,
+                "Moving data from version v%d to v%d, continue",i-1,i,
             );
             cont=util.YNQuestion(prompt);
         }
@@ -63,19 +62,13 @@ func (c *CRUD)execDataConversion(toVersion int, fromVersion int) error {
         if err=f(c); err==nil {
             err=c.setDataVersion(toVersion);
         } else {
-            err=errors.New(
-                fmt.Sprintf(
-                    "An error occurred converting from data version v%d to v%d",
-                    fromVersion,toVersion,
-                ),
+            err=util.DataConversion(
+                fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
             );
         }
     } else {
-        err=errors.New(
-            fmt.Sprintf(
-                "No known data conversion from v%d to v%d",
-                fromVersion,toVersion,
-            ),
+        err=util.NoKnownDataConversion(
+            fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
         );
     }
     return err;
@@ -90,14 +83,16 @@ func (c *CRUD)setDataVersion(v int) error {
     _,err:=c.db.Exec("UPDATE Version SET num=$1",v);
     return err;
 }
+//TODO - check to make sure one is not already present
 func (c *CRUD)addDataVersion(v int) error {
     _,err:=c.db.Exec("INSERT INTO Version(num) VALUES ($1);",v);
     return err;
 }
 
 //TODO - read file locations from json file??
-func (c *CRUD)ResetDB(){
-    c.execSQLScript("./sql/globalInit.sql");
+func (c *CRUD)ResetDB() error {
+    err:=c.execSQLScript("./sql/globalInit.sql");
+    return err;
 }
 
 func (c *CRUD)execSQLScript(src string) error {
@@ -108,15 +103,10 @@ func (c *CRUD)execSQLScript(src string) error {
         scanner:=bufio.NewScanner(globalInit);
         scanner.Split(util.Splitter(";"));
         for scanner.Scan() {
-            fmt.Println(scanner.Text());
             _,err=c.db.Exec(scanner.Text()+";");
         }
     } else {
-        return errors.New(
-            fmt.Sprintf("Could not open SQL script to run queries. Given file: %s",
-                src,
-            ),
-        );
+        return util.SqlScriptNotFound(fmt.Sprintf("Given file: %s",src));
      }
     return err;
 }
