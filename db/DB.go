@@ -80,12 +80,12 @@ func (c *CRUD)getDataVersion() (int,error) {
     return rv,err;
 }
 func (c *CRUD)setDataVersion(v int) error {
-    _,err:=c.db.Exec("UPDATE Version SET num=$1",v);
-    return err;
-}
-//TODO - check to make sure one is not already present
-func (c *CRUD)addDataVersion(v int) error {
-    _,err:=c.db.Exec("INSERT INTO Version(num) VALUES ($1);",v);
+    val,err:=c.getDataVersion();
+    if err==sql.ErrNoRows {
+        _,err=c.db.Exec("INSERT INTO Version(num) VALUES ($1);",v);
+    } else if err==nil && val!=v {
+        _,err=c.db.Exec("UPDATE Version SET num=$1",v);
+    }
     return err;
 }
 
@@ -115,6 +115,13 @@ func (c *CRUD)CreateExerciseType(e ExerciseType) (int,error) {
     var rv int;
     stmt:="INSERT INTO ExerciseTypes(_type,description) VALUES ($1,$2) RETURNING id;";
     err:=c.db.QueryRow(stmt,e._type,e.description).Scan(&rv);
+    return rv,err;
+}
+func (c *CRUD)ReadExerciseType(id int) (ExerciseType,error) {
+    var rv ExerciseType;
+    stmt:="SELECT * FROM ExerciseTypes WHERE id=$1";
+    row:=c.db.QueryRow(stmt,id);
+    err:=row.Scan(&rv.id,rv._type,rv.description);
     return rv,err;
 }
 

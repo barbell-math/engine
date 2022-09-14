@@ -10,7 +10,7 @@ type DataVersionConversion func(crud *CRUD) error;
 var DataVersionOps map[int]DataVersionConversion=map[int]DataVersionConversion{
     1: func (crud *CRUD) error {
         crud.ResetDB();
-        crud.addDataVersion(1);
+        crud.setDataVersion(1);
         typeMap:=make(map[string]int);
         focusMap:=make(map[string]int);
         util.CSVFileSplitter("./sql/ExerciseTypesInit.csv",',',true,func(columns []string){
