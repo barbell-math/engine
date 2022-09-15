@@ -67,7 +67,7 @@ func CSVFileSplitter(src string, delim byte, hasHeaders bool, rowCallback func(c
     }
 }
 
-func CSVGenerator(sep byte, callback func(iter int) (string,bool)) string {
+func CSVGenerator(sep string, callback func(iter int) (string,bool)) string {
     var sb strings.Builder;
     var temp string;
     cont:=true;
@@ -75,7 +75,7 @@ func CSVGenerator(sep byte, callback func(iter int) (string,bool)) string {
         temp,cont=callback(i);
         sb.WriteString(temp);
         if cont {
-            sb.WriteString(fmt.Sprintf("%c ",sep));
+            sb.WriteString(sep);
         }
     }
     return sb.String();

@@ -34,21 +34,21 @@ type Exercise struct {
 
 type Rotation struct {
     Id int;
-    UserID int;
+    ClientID int;
     StartDate time.Time;
     EndDate time.Time;
 };
 
 type BodyWeight struct {
     Id int;
-    UserID int;
+    ClientID int;
     Weight float32;
     Date time.Time;
 };
 
 type TrainingLog struct {
     Id int;
-    UserID int;
+    ClientID int;
     ExerciseID int;
     DatePerformed time.Time;
     Weight float32;
