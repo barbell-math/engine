@@ -16,24 +16,24 @@ var DataVersionOps map[int]DataVersionConversion=map[int]DataVersionConversion{
         util.CSVFileSplitter("./sql/ExerciseTypesInit.csv",',',true,func(columns []string){
             typeMap[columns[0]],_=crud.CreateExerciseType(
                 ExerciseType{
-                    _type: columns[0],
-                    description: columns[1],
+                    T: columns[0],
+                    Description: columns[1],
                 },
             );
         });
         util.CSVFileSplitter("./sql/ExerciseFocusInit.csv",',',true,func(columns []string){
             focusMap[columns[0]],_=crud.CreateExerciseFocus(
                 ExerciseFocus{
-                    focus: columns[0],
+                    Focus: columns[0],
                 },
             );
         });
         util.CSVFileSplitter("./sql/ExercisesInit.csv",',',true,func(columns []string){
             crud.CreateExercise(
                 Exercise{
-                    name: columns[0],
-                    typeID: typeMap[columns[1]],
-                    focusID: focusMap[columns[2]],
+                    Name: columns[0],
+                    TypeID: typeMap[columns[1]],
+                    FocusID: focusMap[columns[2]],
                 },
             );
         });

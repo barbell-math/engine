@@ -6,6 +6,7 @@ import (
     "bytes"
     "bufio"
     "strings"
+    "reflect"
 )
 
 func Splitter(token string) func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -63,5 +64,26 @@ func CSVFileSplitter(src string, delim byte, hasHeaders bool, rowCallback func(c
             columns=append(columns,strings.TrimSpace(row[prevIndex:]));
             rowCallback(columns);
         }
+    }
+}
+
+func CSVGenerator(sep byte, callback func(iter int) (string,bool)) string {
+    var sb strings.Builder;
+    var temp string;
+    cont:=true;
+    for i:=0; cont; i++ {
+        temp,cont=callback(i);
+        sb.WriteString(temp);
+        if cont {
+            sb.WriteString(fmt.Sprintf("%c ",sep));
+        }
+    }
+    return sb.String();
+}
+
+func GetErrorFromReflectValue(in *reflect.Value) error {
+    switch in.Interface().(type) {
+        case error: return in.Interface().(error);
+        default: return nil;
     }
 }

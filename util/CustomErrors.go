@@ -29,3 +29,6 @@ var DataConversion,IsDataConversion=errorFactory(
 var NoKnownDataConversion,IsNoKnownDataConversion=errorFactory(
     "No known data conversion.",
 );
+var FilterRemovedAllColumns,IsFilterRemovedAllColumns=errorFactory(
+    "The filter passed resulted in no columns being selected.",
+);

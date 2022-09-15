@@ -4,49 +4,62 @@ import (
     "time"
 )
 
+type DBTable  interface {
+    ExerciseType |
+    ExerciseFocus |
+    Exercise |
+    Rotation |
+    BodyWeight |
+    TrainingLog |
+    Client
+};
+
 type ExerciseType struct {
-    id int;
-    _type string;
-    description string;
+    Id int;
+    T string;
+    Description string;
 };
 
 type ExerciseFocus struct {
-    id int;
-    focus string;
+    Id int;
+    Focus string;
 };
 
 type Exercise struct {
-    id int;
-    name string;
-    typeID int;
-    focusID int;
+    Id int;
+    Name string;
+    TypeID int;
+    FocusID int;
 };
 
 type Rotation struct {
-    id int;
-    userID int;
-    startDate time.Time;
-    endData time.Time;
+    Id int;
+    UserID int;
+    StartDate time.Time;
+    EndDate time.Time;
 };
 
 type BodyWeight struct {
-    userID int;
-    weight float64;
+    Id int;
+    UserID int;
+    Weight float32;
+    Date time.Time;
 };
 
 type TrainingLog struct {
-    userID int;
-    exerciseID int;
-    datePerformed time.Time;
-    weight float64;
-    sets int;
-    reps int;
-    intensity float64;
+    Id int;
+    UserID int;
+    ExerciseID int;
+    DatePerformed time.Time;
+    Weight float32;
+    Sets float32;
+    Reps int;
+    Intensity float64;
 };
 
 type Client struct {
-    id int;
-    fName string;
-    lName string;
-    email string;
+    Id int;
+    FirstName string;
+    LastName string;
+    Email string;
 };

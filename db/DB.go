@@ -42,7 +42,7 @@ func (c *CRUD)implicitDataConversion(check bool) error {
         return util.DataVersionNotAvailable;
     }
     for i:=dbDataVersion+1;
-        dbDataVersion!=-1 && i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
+        dbDataVersion>=0 && i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
         if check {
             prompt:=fmt.Sprintf(
                 "Moving data from version v%d to v%d, continue",i-1,i,
@@ -113,29 +113,31 @@ func (c *CRUD)execSQLScript(src string) error {
 
 func (c *CRUD)CreateExerciseType(e ExerciseType) (int,error) {
     var rv int;
-    stmt:="INSERT INTO ExerciseTypes(_type,description) VALUES ($1,$2) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e._type,e.description).Scan(&rv);
+    stmt:="INSERT INTO ExerciseType(T,Description) VALUES ($1,$2) RETURNING id;";
+    err:=c.db.QueryRow(stmt,e.T,e.Description).Scan(&rv);
     return rv,err;
 }
 func (c *CRUD)ReadExerciseType(id int) (ExerciseType,error) {
     var rv ExerciseType;
-    stmt:="SELECT * FROM ExerciseTypes WHERE id=$1";
-    row:=c.db.QueryRow(stmt,id);
-    err:=row.Scan(&rv.id,rv._type,rv.description);
+    row:=c.db.QueryRow("SELECT * FROM ExerciseType WHERE id=$1",id);
+    err:=row.Scan(&rv.Id,&rv.T,&rv.Description);
     return rv,err;
+}
+func (c *CRUD)ReadExerciseTypes(options ...func()) error {
+    return nil;
 }
 
 func (c *CRUD)CreateExerciseFocus(e ExerciseFocus) (int,error) {
     var rv int;
-    stmt:="INSERT INTO ExerciseFocus(focus) VALUES ($1) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e.focus).Scan(&rv);
+    stmt:="INSERT INTO ExerciseFocus(Focus) VALUES ($1) RETURNING id;";
+    err:=c.db.QueryRow(stmt,e.Focus).Scan(&rv);
     return rv,err;
 }
 
 func (c *CRUD)CreateExercise(e Exercise) (int,error) {
     var rv int;
-    stmt:="INSERT INTO Exercises(name,typeID,focusID) VALUES ($1,$2,$3) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e.name,e.typeID,e.focusID).Scan(&rv);
+    stmt:="INSERT INTO Exercises(Name,TypeID,FocusID) VALUES ($1,$2,$3) RETURNING id;";
+    err:=c.db.QueryRow(stmt,e.Name,e.TypeID,e.FocusID).Scan(&rv);
     return rv,err;
 }
 
