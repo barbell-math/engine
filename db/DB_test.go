@@ -59,38 +59,35 @@ func TestVersion(t *testing.T){
 }
 
 func createTestHelper[R DBTable](row1 R, row2 R, t *testing.T){
-    var id1, id2, cnt int=0, 0, 0;
-    //;_,err:=testDB.ReadExerciseType(id1);
-    //;testUtil.BasicTest(
-    //;    sql.ErrNoRows,err,
-    //;    "Reading exercise type before any were added was successful.",t,
-    //;);
+    var cnt int=0;
+    var id1, id2, id3 []int;
     id1,err:=Create(&testDB,row1);
-    //row1.Id=id1;
-    testUtil.BasicTest(nil,err,"Could not create exercise type.",t);
-    testUtil.BasicTest(1 ,id1,"Exercise was not created correctly.",t);
+    testUtil.BasicTest(nil,err,"Could not create value in database.",t);
+    testUtil.BasicTest(1 ,id1[0],"Value was not created correctly.",t);
+    testUtil.BasicTest(
+        1,len(id1),"More values were created than should have been.",t,
+    );
     id2,err=Create(&testDB,row2);
-    //row2.Id=id2;
-    testUtil.BasicTest(nil,err,"Could not create exercise type.",t);
-    testUtil.BasicTest(2 ,id2,"Exercise was not created correctly.",t);
-    //val,err:=testDB.ReadExerciseType(id1);
-    //testUtil.BasicTest(
-    //    nil,err,
-    //    "Could not read exercise type that was previously inserted.",t,
-    //);
-    //testUtil.BasicTest(val,row1,"Did not return the correct value.",t);
-    //testUtil.BasicTest(val.T,row1.T,"Type in exercise types doe not match",t);
-    //val,err=testDB.ReadExerciseType(id2);
-    //testUtil.BasicTest(
-    //    nil,err,
-    //    "Could not read exercise type that was previously inserted.",t,
-    //);
-    //testUtil.BasicTest(val,row2,"Did not return the correct value.",t);
+    testUtil.BasicTest(nil,err,"Could not create value in database.",t);
+    testUtil.BasicTest(2 ,id2[0],"Value was not created correctly.",t);
+    testUtil.BasicTest(
+        1,len(id2),"More values were created than should have been.",t,
+    );
     err=testDB.db.QueryRow(
         fmt.Sprintf("SELECT COUNT(*) FROM %s;",getTableName(&row1)),
     ).Scan(&cnt);
-    testUtil.BasicTest(nil,err,"Could not access exercise types for counting.",t);
-    testUtil.BasicTest(2,cnt,"Wrong number of rows were in exercise types.",t);
+    testUtil.BasicTest(nil,err,"Could not access table for counting.",t);
+    testUtil.BasicTest(2,cnt,"Wrong number of rows were in table.",t);
+    id3,err=Create(&testDB,row1,row1,row2);
+    testUtil.BasicTest(nil,err,"Could not create value in database.",t);
+    testUtil.BasicTest(3,id3[0],"Value was not created correctly.",t);
+    testUtil.BasicTest(4,id3[1],"Value was not created correctly.",t);
+    testUtil.BasicTest(5,id3[2],"Value was not created correctly.",t);
+    err=testDB.db.QueryRow(
+        fmt.Sprintf("SELECT COUNT(*) FROM %s;",getTableName(&row1)),
+    ).Scan(&cnt);
+    testUtil.BasicTest(nil,err,"Could not access table for counting.",t);
+    testUtil.BasicTest(5,cnt,"Wrong number of rows were in table.",t);
 }
 
 func TestCreate(t *testing.T){
@@ -133,8 +130,7 @@ func TestCreate(t *testing.T){
         TrainingLog{
             ClientID: 1, ExerciseID: 1, DatePerformed: time.Now(),
             Weight: 2.00, Sets: 2.00, Reps: 2, Intensity: 0.60,
-        },
-        t,
+        },t,
     );
 }
 
@@ -305,9 +301,9 @@ func TestRead(t *testing.T){
         testUtil.BasicTest(
             1,b.ClientID,"Bodyweight selected was not correct.",t,
         );
-        //testUtil.BasicTest(
-        //    1,b.Weight,"Bodyweight selected was not correct.",t,
-        //);
+        testUtil.BasicTest(
+            float32(1),b.Weight,"Bodyweight selected was not correct.",t,
+        );
         testUtil.BasicTest(
             time.Now().Format("00-00-0000"),b.Date.Format("00-00-0000"),
             "BodyWeight selected was not correct.",t,
@@ -317,9 +313,9 @@ func TestRead(t *testing.T){
         testUtil.BasicTest(
             2,b.ClientID,"Bodyweight selected was not correct.",t,
         );
-        //testUtil.BasicTest(
-        //    2,b.Weight,"Bodyweight selected was not correct.",t,
-        //);
+        testUtil.BasicTest(
+            float32(2),b.Weight,"Bodyweight selected was not correct.",t,
+        );
         testUtil.BasicTest(
             time.Now().Format("00-00-0000"),b.Date.Format("00-00-0000"),
             "BodyWeight selected was not correct.",t,
@@ -367,7 +363,7 @@ func TestRead(t *testing.T){
             "Training log selected was not correct.",t,
         );
         testUtil.BasicTest(
-            1,b.Reps,"Bodyweight selected was not correct.",t,
+            1,b.Reps,"Training log selected was not correct.",t,
         );
     },t);
     cntr:=0;
@@ -381,4 +377,70 @@ func TestRead(t *testing.T){
     });
     testUtil.BasicTest(nil,err,"Read was unsuccessful.",t);
     testUtil.BasicTest(2,cntr,"Read selected values it was not supposed to.",t);
+}
+
+func TestUpdate(t *testing.T){
+    setup();
+    numRows,err:=Update(
+        &testDB,ExerciseType{},NoFilter,ExerciseType{},AllButIDFilter,
+    );
+    testUtil.BasicTest(int64(0), numRows,"Update created rows.",t);
+    testUtil.BasicTest(nil,err,"Updating 0 rows resulted in an error.",t);
+    Create(&testDB,ExerciseType{T: "test", Description: "testing"});
+    Create(&testDB,ExerciseType{T: "test1", Description: "testing"});
+    Create(&testDB,ExerciseType{T: "test2", Description: "testing"});
+    numRows,err=Update(
+        &testDB,
+        ExerciseType{},
+        GenColFilter(false),
+        ExerciseType{},
+        AllButIDFilter,
+    );
+    testUtil.BasicTest(
+        int64(0), numRows,"Update updated rows it wasn't supposed to.",t,
+    );
+    if !util.IsFilterRemovedAllColumns(err) {
+        testUtil.FormatError(
+            util.FilterRemovedAllColumns(""),err,
+            "Filtering all columns did not result in the appropriate error.",t,
+        );
+    }
+    numRows,err=Update(
+        &testDB,
+        ExerciseType{},
+        AllButIDFilter,
+        ExerciseType{},
+        GenColFilter(false),
+    );
+    testUtil.BasicTest(
+        int64(0), numRows,"Update updated rows it wasn't supposed to.",t,
+    );
+    if !util.IsFilterRemovedAllColumns(err) {
+        testUtil.FormatError(
+            util.FilterRemovedAllColumns(""),err,
+            "Filtering all columns did not result in the appropriate error.",t,
+        );
+    }
+    numRows,err=Update(
+        &testDB,
+        ExerciseType{T: "test"},
+        GenColFilter(false,"T"),
+        ExerciseType{T: "updatedTest", Description: "updatedTesting"},
+        AllButIDFilter,
+    );
+    testUtil.BasicTest(
+        int64(1),numRows,"Update did not update the correct number of rows.",t,
+    );
+    testUtil.BasicTest(nil,err,"Updating rows resulted in an error.",t);
+    numRows,err=Update(
+        &testDB,
+        ExerciseType{T: "test1", Description: "testing"},
+        GenColFilter(false,"Description"),
+        ExerciseType{Description: "updatedDescription"},
+        GenColFilter(false,"Description"),
+    );
+    testUtil.BasicTest(
+        int64(2),numRows,"Update did not update the correct number of rows.",t,
+    );
+    testUtil.BasicTest(nil,err,"Updating rows resulted in an error.",t);
 }

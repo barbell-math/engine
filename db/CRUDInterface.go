@@ -7,17 +7,33 @@ import (
     "github.com/carmichaeljr/powerlifting-engine/util"
 )
 
-type FilterType func(col string) bool;
+type ColumnFilter func(col string) bool;
 
 func NoFilter(col string) bool { return true; }
 func OnlyIDFilder(col string) bool { return col=="Id"; }
 func AllButIDFilter(col string) bool { return col!="Id"; }
 
-func Create[R DBTable](c *CRUD, row R) (int,error) {
-    var rv int=0;
-    columns:=getTableColumns(&row,AllButIDFilter);
+func GenColFilter(inverse bool, cols ...string) ColumnFilter {
+    return func(col string) bool {
+        rv:=inverse;
+        for i:=0; (inverse && rv) || (!inverse && !rv) && i<len(cols); i++ {
+            if inverse {
+                rv=(rv && col!=cols[i]);
+            } else {
+                rv=(col==cols[i]);
+            }
+        }
+        return rv;
+    }
+}
+
+func Create[R DBTable](c *CRUD, rows ...R) ([]int,error) {
+    if len(rows)==0 {
+        return []int{},sql.ErrNoRows;
+    }
+    columns:=getTableColumns(&rows[0],AllButIDFilter);
     if len(columns)==0 {
-        return -1,util.FilterRemovedAllColumns("Row was not added to database.");
+        return []int{},util.FilterRemovedAllColumns("Row was not added to database.");
     }
     intoStr:=util.CSVGenerator(",",func(iter int) (string,bool) {
         return columns[iter], iter+1<len(columns);
@@ -27,21 +43,25 @@ func Create[R DBTable](c *CRUD, row R) (int,error) {
     });
     sqlStmt:=fmt.Sprintf(
         "INSERT INTO %s(%s) VALUES (%s) RETURNING Id;",
-        getTableName(&row),intoStr,valuesStr,
+        getTableName(&rows[0]),intoStr,valuesStr,
     );
-    vals:=append(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
-        getTableVals(&row,AllButIDFilter)...
-    );
-    rowValue:=reflect.ValueOf(c.db).MethodByName("QueryRow").Call(vals)[0];
-    err:=rowValue.Interface().(*sql.Row).Scan(&rv);
+    var err error=nil;
+    rv:=make([]int,len(rows));
+    for i:=0; err==nil && i<len(rows); i++ {
+        vals:=util.AppendWithPreallocation(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+            getTableVals(&rows[i],AllButIDFilter),
+        );
+        rowValue:=reflect.ValueOf(c.db).MethodByName("QueryRow").Call(vals)[0];
+        err=rowValue.Interface().(*sql.Row).Scan(&rv[i]);
+    }
     return rv,err;
 }
 
 func Read[R DBTable](
         c *CRUD,
         rowVals R,
-        filter FilterType,
+        filter ColumnFilter,
         callback func(val *R)) error {
     columns:=getTableColumns(&rowVals,filter);
     if len(columns)==0 {
@@ -53,32 +73,81 @@ func Read[R DBTable](
     sqlStmt:=fmt.Sprintf(
         "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr,
     );
-    vals:=append(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
-        getTableVals(&rowVals,filter)...
+    vals:=util.AppendWithPreallocation(
+        []reflect.Value{reflect.ValueOf(sqlStmt)},getTableVals(&rowVals,filter),
     );
     callVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(vals);
-    rows,err:=callVals[0].Interface().(*sql.Rows),
-        util.GetErrorFromReflectValue(&callVals[1]);
-    defer rows.Close();
+    err:=util.GetErrorFromReflectValue(&callVals[1]);
+    if err==nil {
+        rows:=callVals[0].Interface().(*sql.Rows);
+        defer rows.Close();
+        var iter R;
+        rowPntrs:=getTablePntrs(&iter,NoFilter);
+        for err==nil && rows.Next() {
+            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
+            err=util.GetErrorFromReflectValue(&potErr[0]);
+            callback(&iter);
+        }
+    }
+    return err;
+}
+
+func ReadAll[R DBTable](c *CRUD, callback func(val *R)) error {
     var iter R;
-    rowPntrs:=getTablePntrs(&iter,NoFilter);
-    for err==nil && rows.Next() {
-        potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
-        err=util.GetErrorFromReflectValue(&potErr[0]);
-        callback(&iter);
+    sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&iter));
+    callVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(
+        []reflect.Value{reflect.ValueOf(sqlStmt)},
+    );
+    err:=util.GetErrorFromReflectValue(&callVals[1]);
+    if err==nil {
+        rows:=callVals[0].Interface().(*sql.Rows);
+        defer rows.Close();
+        rowPntrs:=getTablePntrs(&iter,NoFilter);
+        for err==nil && rows.Next() {
+            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
+            err=util.GetErrorFromReflectValue(&potErr[0]);
+            callback(&iter);
+        }
     }
     return err;
 }
 
 func Update[R DBTable](
         c *CRUD,
-        rowVals R,
-        rowValsFilter FilterType,
+        searchVals R,
+        searchValsFilter ColumnFilter,
         updateVals R,
-        updateValsFilter FilterType,
-        callback func(val *R)) (int,error) {
-    return 0 ,nil;
+        updateValsFilter ColumnFilter) (int64,error) {
+    updateColumns:=getTableColumns(&updateVals,updateValsFilter);
+    searchColumns:=getTableColumns(&searchVals,searchValsFilter);
+    if len(updateColumns)==0 || len(searchColumns)==0 {
+        return 0, util.FilterRemovedAllColumns(
+            "Either the update or search filter resulted in no columns.",
+        );
+    }
+    setStr:=util.CSVGenerator(", ",func(iter int) (string,bool) {
+        return fmt.Sprintf("%s=$%d",updateColumns[iter],iter+1),
+            iter+1<len(updateColumns);
+    });
+    whereStr:=util.CSVGenerator(" AND ",func(iter int) (string,bool) {
+        return fmt.Sprintf("%s=$%d",searchColumns[iter],iter+1+len(updateColumns)),
+            iter+1<len(searchColumns);
+    });
+    sqlStmt:=fmt.Sprintf(
+        "UPDATE %s SET %s WHERE %s;",getTableName(&searchVals),setStr,whereStr,
+    );
+    vals:=util.AppendWithPreallocation(
+        []reflect.Value{reflect.ValueOf(sqlStmt)},
+        getTableVals(&updateVals,updateValsFilter),
+        getTableVals(&searchVals,searchValsFilter),
+    );
+    callVals:=reflect.ValueOf(c.db).MethodByName("Exec").Call(vals);
+    err:=util.GetErrorFromReflectValue(&callVals[1]);
+    if err==nil {
+        res:=callVals[0].Interface().(sql.Result);
+        return res.RowsAffected();
+    }
+    return 0 ,err;
 }
 
 func getTableName[R DBTable](row *R) string {

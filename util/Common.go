@@ -87,3 +87,15 @@ func GetErrorFromReflectValue(in *reflect.Value) error {
         default: return nil;
     }
 }
+
+func AppendWithPreallocation[T any](slices ...[]T) []T {
+    var totLen,i int=0, 0;
+    for _,s:=range(slices) {
+        totLen+=len(s);
+    }
+    rv:=make([]T,totLen);
+    for _,tmp:=range(slices){
+        i+=copy(rv[i:],tmp);
+    }
+    return rv;
+}
