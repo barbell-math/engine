@@ -444,3 +444,8 @@ func TestUpdate(t *testing.T){
     );
     testUtil.BasicTest(nil,err,"Updating rows resulted in an error.",t);
 }
+
+func TestDelete(t *testing.T){
+    //setup();
+    //Create(&testDB,
+}

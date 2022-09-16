@@ -76,32 +76,30 @@ func Read[R DBTable](
     vals:=util.AppendWithPreallocation(
         []reflect.Value{reflect.ValueOf(sqlStmt)},getTableVals(&rowVals,filter),
     );
-    callVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(vals);
-    err:=util.GetErrorFromReflectValue(&callVals[1]);
-    if err==nil {
-        rows:=callVals[0].Interface().(*sql.Rows);
-        defer rows.Close();
-        var iter R;
-        rowPntrs:=getTablePntrs(&iter,NoFilter);
-        for err==nil && rows.Next() {
-            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
-            err=util.GetErrorFromReflectValue(&potErr[0]);
-            callback(&iter);
-        }
-    }
-    return err;
+    return readRowsFromReflectResult(
+        reflect.ValueOf(c.db).MethodByName("Query").Call(vals),
+        callback,
+    );
 }
 
 func ReadAll[R DBTable](c *CRUD, callback func(val *R)) error {
-    var iter R;
-    sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&iter));
-    callVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
+    var tmp R;
+    sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&tmp));
+    return readRowsFromReflectResult(
+        reflect.ValueOf(c.db).MethodByName("Query").Call(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+        ),callback,
     );
-    err:=util.GetErrorFromReflectValue(&callVals[1]);
+}
+
+func readRowsFromReflectResult[R DBTable](
+        reflectVals []reflect.Value,
+        callback func(val *R)) error {
+    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
     if err==nil {
-        rows:=callVals[0].Interface().(*sql.Rows);
+        rows:=reflectVals[0].Interface().(*sql.Rows);
         defer rows.Close();
+        var iter R;
         rowPntrs:=getTablePntrs(&iter,NoFilter);
         for err==nil && rows.Next() {
             potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
@@ -139,10 +137,37 @@ func Update[R DBTable](
         getTableVals(&updateVals,updateValsFilter),
         getTableVals(&searchVals,searchValsFilter),
     );
-    callVals:=reflect.ValueOf(c.db).MethodByName("Exec").Call(vals);
-    err:=util.GetErrorFromReflectValue(&callVals[1]);
+    return updateRowsFromReflectionResult(
+        reflect.ValueOf(c.db).MethodByName("Exec").Call(vals),
+    );
+}
+
+func UpdateAll[R DBTable](
+        c *CRUD,
+        updateVals R,
+        updateValsFilter ColumnFilter) (int64,error) {
+    updateColumns:=getTableColumns(&updateVals,updateValsFilter);
+    if len(updateColumns)==0 {
+        return 0, util.FilterRemovedAllColumns("No rows were updated.");
+    }
+    setStr:=util.CSVGenerator(", ",func(iter int) (string,bool) {
+        return fmt.Sprintf("%s=$%d",updateColumns[iter],iter+1),
+            iter+1<len(updateColumns);
+    });
+    sqlStmt:=fmt.Sprintf("UPDATE %s SET %s;",getTableName(&updateVals),setStr);
+    vals:=util.AppendWithPreallocation(
+        []reflect.Value{reflect.ValueOf(sqlStmt)},
+        getTableVals(&updateVals,updateValsFilter),
+    );
+    return updateRowsFromReflectionResult(
+        reflect.ValueOf(c.db).MethodByName("Exec").Call(vals),
+    );
+}
+
+func updateRowsFromReflectionResult(reflectVals []reflect.Value) (int64,error) {
+    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
     if err==nil {
-        res:=callVals[0].Interface().(sql.Result);
+        res:=reflectVals[0].Interface().(sql.Result);
         return res.RowsAffected();
     }
     return 0 ,err;
@@ -177,6 +202,8 @@ func Delete[R DBTable](
 
 func DeleteAll[R DBTable](c *CRUD) (int64,error) {
     var tmp R;
+    sqlStmt:=fmt.Sprintf("DELETE FROM %s;",getTableName(&tmp));
+    fmt.Println(sqlStmt);
     return 0, nil;
 }
 
