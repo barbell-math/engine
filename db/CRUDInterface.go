@@ -121,9 +121,7 @@ func Update[R DBTable](
     updateColumns:=getTableColumns(&updateVals,updateValsFilter);
     searchColumns:=getTableColumns(&searchVals,searchValsFilter);
     if len(updateColumns)==0 || len(searchColumns)==0 {
-        return 0, util.FilterRemovedAllColumns(
-            "Either the update or search filter resulted in no columns.",
-        );
+        return 0, util.FilterRemovedAllColumns("No rows were updated.");
     }
     setStr:=util.CSVGenerator(", ",func(iter int) (string,bool) {
         return fmt.Sprintf("%s=$%d",updateColumns[iter],iter+1),
@@ -148,6 +146,38 @@ func Update[R DBTable](
         return res.RowsAffected();
     }
     return 0 ,err;
+}
+
+func Delete[R DBTable](
+        c *CRUD,
+        searchVals R,
+        searchValsFilter ColumnFilter) (int64,error) {
+    columns:=getTableColumns(&searchVals,searchValsFilter);
+    if len(columns)==0 {
+        return 0, util.FilterRemovedAllColumns("No rows were deleted.");
+    }
+    whereStr:=util.CSVGenerator(" AND ",func(iter int)(string,bool) {
+        return fmt.Sprintf("%s=$%d",columns[iter],iter+1),iter+1<len(columns);
+    });
+    sqlStmt:=fmt.Sprintf(
+        "DELETE FROM %s WHERE %s;",getTableName(&searchVals),whereStr,
+    );
+    vals:=util.AppendWithPreallocation(
+        []reflect.Value{reflect.ValueOf(sqlStmt)},
+        getTableVals(&searchVals,searchValsFilter),
+    );
+    callVals:=reflect.ValueOf(c.db).MethodByName("Exec").Call(vals);
+    err:=util.GetErrorFromReflectValue(&callVals[1]);
+    if err==nil {
+        res:=callVals[0].Interface().(sql.Result);
+        return res.RowsAffected();
+    }
+    return 0, err;
+}
+
+func DeleteAll[R DBTable](c *CRUD) (int64,error) {
+    var tmp R;
+    return 0, nil;
 }
 
 func getTableName[R DBTable](row *R) string {
