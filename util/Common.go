@@ -41,14 +41,19 @@ func YNQuestion(question string) bool {
     return (ans[0]=='y' || ans[0]=='Y');
 }
 
-func CSVFileSplitter(src string, delim byte, hasHeaders bool, rowCallback func(columns []string)){
+func CSVFileSplitter(
+        src string,
+        delim byte,
+        hasHeaders bool,
+        rowCallback func(columns []string) bool){
     if f,err:=os.Open(src); err==nil {
         defer f.Close();
         scanner:=bufio.NewScanner(f);
         if hasHeaders {
             scanner.Scan();
         }
-        for scanner.Scan() {
+        cont:=true;
+        for cont && scanner.Scan() {
             prevIndex:=0;
             inQuotes:=false;
             row:=scanner.Text();
@@ -62,7 +67,7 @@ func CSVFileSplitter(src string, delim byte, hasHeaders bool, rowCallback func(c
                 }
             }
             columns=append(columns,strings.TrimSpace(row[prevIndex:]));
-            rowCallback(columns);
+            cont=rowCallback(columns);
         }
     }
 }
