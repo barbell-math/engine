@@ -11,7 +11,8 @@ type DBTable  interface {
     Rotation |
     BodyWeight |
     TrainingLog |
-    Client
+    Client |
+    ModelState
 };
 
 type ExerciseType struct {
@@ -62,4 +63,12 @@ type Client struct {
     FirstName string;
     LastName string;
     Email string;
+};
+
+type ModelState struct {
+    Id int;
+    ClientID int;
+    Date time.Time;
+    A,B,C,D,Eps,Eps2 float32;
+    TimeFrame int;
 };

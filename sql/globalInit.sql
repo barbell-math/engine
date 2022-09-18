@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS Client CASCADE;
 DROP TABLE IF EXISTS BodyWeight CASCADE;
 DROP TABLE IF EXISTS ExerciseType CASCADE;
 DROP TABLE IF EXISTS ExerciseFocus CASCADE;
+DROP TABLE IF EXISTS ModelState CASCADE;
 
 CREATE TABLE IF NOT EXISTS Version (
     num INT NOT NULL
@@ -34,8 +35,8 @@ CREATE TABLE Exercise (
 	Name TEXT NOT NULL,
 	TypeID INT NOT NULL,
 	FocusID INT,
-    FOREIGN KEY (typeID) REFERENCES ExerciseType(id),
-    FOREIGN KEY (focusID) REFERENCES ExerciseFocus(id)
+    FOREIGN KEY (typeID) REFERENCES ExerciseType(Id),
+    FOREIGN KEY (focusID) REFERENCES ExerciseFocus(Id)
 );
 
 CREATE TABLE Rotation (
@@ -43,7 +44,7 @@ CREATE TABLE Rotation (
 	ClientID INTEGER NOT NULL,
 	StartDate DATE NOT NULL,
 	EndDate DATE NOT NULL,
-	FOREIGN KEY (ClientID) REFERENCES Client(id)
+	FOREIGN KEY (ClientID) REFERENCES Client(Id)
 );
 
 CREATE TABLE BodyWeight (
@@ -51,7 +52,7 @@ CREATE TABLE BodyWeight (
 	ClientID INTEGER NOT NULL,
 	Weight FLOAT NOT NULL,
     Date DATE NOT NULL,
-	FOREIGN KEY (ClientID) REFERENCES Client(id)
+	FOREIGN KEY (ClientID) REFERENCES Client(Id)
 );
 
 CREATE TABLE TrainingLog (
@@ -65,4 +66,18 @@ CREATE TABLE TrainingLog (
 	Intensity FLOAT,
 	FOREIGN KEY (ClientID) REFERENCES Client(ID),
 	FOREIGN KEY (exerciseID) REFERENCES Exercise(ID)
+);
+
+CREATE TABLE ModelState (
+    Id SERIAL PRIMARY KEY,
+    ClientID INTEGER NOT NULL,
+    Date DATE NOT NULL,
+    A FLOAT NOT NULL,
+    B FLOAT NOT NULL,
+    C FLOAT NOT NULL,
+    D FLOAT NOT NULL,
+    Eps FLOAT NOT NULL,
+    Eps2 FLOAT NOT NULL,
+    TimeFrame INTEGER NOT NULL,
+    FOREIGN KEY (ClientID) REFERENCES Cliend(Id)
 );

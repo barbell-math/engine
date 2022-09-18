@@ -4,6 +4,7 @@ import (
     "os"
     "fmt"
     "bufio"
+    "errors"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
 
@@ -16,18 +17,18 @@ type CRUD struct {
 
 func NewCRUD(host string, port int, user string, name string) (CRUD,error) {
     var rv CRUD;
-    var err error;
-    rv.db,err=sql.Open("postgres",
-        fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-            user,os.Getenv("DB_PSWD"),host,port,name,
-        ),
-    );
-    if err==nil {
-        err=rv.db.Ping();
-    }
-    if err==nil {
-        err=rv.implicitDataConversion(true);
-    }
+    err:=util.ChainedErrorOps(
+        func(r ...any) (any,error) {
+            return sql.Open("postgres",
+                fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+                    user,os.Getenv("DB_PSWD"),host,port,name,
+            ));
+        },
+        func(r ...any) (any,error) { return nil,r[0].(*sql.DB).Ping(); },
+        func(r ...any) (any,error) {
+            rv.db=r[0].(*sql.DB);
+            return nil,rv.implicitDataConversion(false);
+    });
     return rv,err;
 }
 
@@ -57,21 +58,24 @@ func (c *CRUD)implicitDataConversion(check bool) error {
 }
 
 func (c *CRUD)execDataConversion(toVersion int, fromVersion int) error {
-    var err error=nil;
-    if f,exist:=DataVersionOps[toVersion]; exist {
-        if err=f(c); err==nil {
-            err=c.setDataVersion(toVersion);
-        } else {
-            err=util.DataConversion(
+    return util.ChainedErrorOpsWithCustomErrors(
+        []error{
+            util.NoKnownDataConversion(
                 fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
-            );
-        }
-    } else {
-        err=util.NoKnownDataConversion(
-            fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
-        );
-    }
-    return err;
+            ), util.DataConversion(
+                fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
+            ),
+        }, func(r ...any) (any,error) {
+            if f,e:=DataVersionOps[toVersion]; e {
+                return f,nil;
+            } else {
+                return f,errors.New("");
+            }
+        }, func(r ...any) (any,error) {
+            return nil,r[0].(DataVersionConversion)(c);
+        }, func(r ...any) (any,error) {
+            return nil,c.setDataVersion(toVersion);
+    });
 }
 
 func (c *CRUD)getDataVersion() (int,error) {
