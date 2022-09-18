@@ -111,36 +111,6 @@ func (c *CRUD)execSQLScript(src string) error {
     return err;
 }
 
-func (c *CRUD)CreateExerciseType(e ExerciseType) (int,error) {
-    var rv int;
-    stmt:="INSERT INTO ExerciseType(T,Description) VALUES ($1,$2) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e.T,e.Description).Scan(&rv);
-    return rv,err;
-}
-func (c *CRUD)ReadExerciseType(id int) (ExerciseType,error) {
-    var rv ExerciseType;
-    row:=c.db.QueryRow("SELECT * FROM ExerciseType WHERE id=$1",id);
-    err:=row.Scan(&rv.Id,&rv.T,&rv.Description);
-    return rv,err;
-}
-func (c *CRUD)ReadExerciseTypes(options ...func()) error {
-    return nil;
-}
-
-func (c *CRUD)CreateExerciseFocus(e ExerciseFocus) (int,error) {
-    var rv int;
-    stmt:="INSERT INTO ExerciseFocus(Focus) VALUES ($1) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e.Focus).Scan(&rv);
-    return rv,err;
-}
-
-func (c *CRUD)CreateExercise(e Exercise) (int,error) {
-    var rv int;
-    stmt:="INSERT INTO Exercises(Name,TypeID,FocusID) VALUES ($1,$2,$3) RETURNING id;";
-    err:=c.db.QueryRow(stmt,e.Name,e.TypeID,e.FocusID).Scan(&rv);
-    return rv,err;
-}
-
 func (c *CRUD)Close(){
     if c.db!=nil {
         c.db.Close();

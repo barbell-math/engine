@@ -14,22 +14,24 @@ var DataVersionOps map[int]DataVersionConversion=map[int]DataVersionConversion{
         typeMap:=make(map[string]int);
         focusMap:=make(map[string]int);
         util.CSVFileSplitter("./sql/ExerciseTypesInit.csv",',',true,func(columns []string){
-            typeMap[columns[0]],_=crud.CreateExerciseType(
+            tmp,_:=Create(crud,
                 ExerciseType{
                     T: columns[0],
                     Description: columns[1],
                 },
             );
+            typeMap[columns[0]]=tmp[0];
         });
         util.CSVFileSplitter("./sql/ExerciseFocusInit.csv",',',true,func(columns []string){
-            focusMap[columns[0]],_=crud.CreateExerciseFocus(
+            tmp,_:=Create(crud,
                 ExerciseFocus{
                     Focus: columns[0],
                 },
             );
+            focusMap[columns[0]]=tmp[0];
         });
         util.CSVFileSplitter("./sql/ExercisesInit.csv",',',true,func(columns []string){
-            crud.CreateExercise(
+            Create(crud,
                 Exercise{
                     Name: columns[0],
                     TypeID: typeMap[columns[1]],

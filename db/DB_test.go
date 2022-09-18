@@ -61,7 +61,11 @@ func TestVersion(t *testing.T){
 func createTestHelper[R DBTable](row1 R, row2 R, t *testing.T){
     var cnt int=0;
     var id1, id2, id3 []int;
-    id1,err:=Create(&testDB,row1);
+    _,err:=Create[R](&testDB);
+    testUtil.BasicTest(sql.ErrNoRows,err,
+        "Not creating any rows did not result in appropriate error.",t,
+    );
+    id1,err=Create(&testDB,row1);
     testUtil.BasicTest(nil,err,"Could not create value in database.",t);
     testUtil.BasicTest(1 ,id1[0],"Value was not created correctly.",t);
     testUtil.BasicTest(
@@ -446,6 +450,99 @@ func TestUpdate(t *testing.T){
 }
 
 func TestDelete(t *testing.T){
-    //setup();
-    //Create(&testDB,
+    setup();
+    Create(&testDB,
+        ExerciseType{T: "Test",Description: "testing"},
+        ExerciseType{T: "Test1",Description: "testing"},
+        ExerciseType{T: "Test1",Description: "testing"},
+        ExerciseType{T: "Test1",Description: "testing1"},
+    );
+    res,err:=Delete(&testDB,ExerciseType{},GenColFilter(false));
+    if !util.IsFilterRemovedAllColumns(err) {
+        testUtil.FormatError(
+            util.FilterRemovedAllColumns(""),err,
+            "Filtering all columns did not result in the appropriate error.",t,
+        );
+    }
+    res,err=Delete(
+        &testDB,
+        ExerciseType{T: "Test1",Description: "testing1"},
+        AllButIDFilter,
+    );
+    testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
+    testUtil.BasicTest(int64(1),res,"Delete removed to many rows.",t);
+    res,err=Delete(&testDB,ExerciseType{T: "Test1"},GenColFilter(false,"T"));
+    testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
+    testUtil.BasicTest(int64(2),res,"Delete removed to many rows.",t);
+    res,err=Delete(&testDB,ExerciseType{T: "Test"},GenColFilter(false,"T"));
+    testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
+    testUtil.BasicTest(int64(1),res,"Delete removed to many rows.",t);
+    err=testDB.db.QueryRow(
+        fmt.Sprintf("SELECT COUNT(*) FROM ExerciseType;"),
+    ).Scan(&res);
+    testUtil.BasicTest(nil,err,"Could not access table for counting.",t);
+    testUtil.BasicTest(int64(0) ,res,"Wrong number of rows were in table.",t);
+}
+
+func TestReadAll(t *testing.T){
+    setup();
+    var cntr int=0;
+    err:=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
+    testUtil.BasicTest(nil,err,"ReadAll operations was unsuccessful.",t);
+    testUtil.BasicTest(0 ,cntr,"ReadAll did not select all rows.",t);
+    for i:=0; i<10; i++ {
+        Create(&testDB,ExerciseType{T: "test",Description: "testing"});
+    }
+    cntr=0;
+    err=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
+    testUtil.BasicTest(nil,err,"ReadAll operations was unsuccessful.",t);
+    testUtil.BasicTest(10,cntr,"ReadAll did not select all rows.",t);
+}
+
+func TestUpdateAll(t *testing.T){
+    setup();
+    res,err:=UpdateAll(&testDB,ExerciseType{},GenColFilter(false));
+    if !util.IsFilterRemovedAllColumns(err) {
+        testUtil.FormatError(
+            util.FilterRemovedAllColumns(""),err,
+            "Filtering all columns did not result in the appropriate error.",t,
+        );
+    }
+    testUtil.BasicTest(int64(0),res,"Update updated rows it was not supposed to.",t);
+    res,err=UpdateAll(&testDB,ExerciseType{},GenColFilter(false,"Description"));
+    testUtil.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
+    testUtil.BasicTest(int64(0),res,"UpdateAll did not update all rows.",t);
+    Create(&testDB,ExerciseType{T:"test",Description:"testingDiff"});
+    for i:=0; i<10; i++ {
+        Create(&testDB,ExerciseType{T: "testing",Description: "testing"});
+    }
+    res,err=UpdateAll(&testDB,
+        ExerciseType{Description: "newDesc"},
+        GenColFilter(false,"Description"),
+    );
+    testUtil.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
+    testUtil.BasicTest(int64(11),res,"UpdateAll did not update all rows.",t);
+    ReadAll(&testDB,func(e *ExerciseType){
+        testUtil.BasicTest("newDesc",e.Description,
+            "Description value was not updated properly",t,
+        );
+    });
+}
+
+func TestDeleteAll(t *testing.T){
+    setup();
+    cntr,err:=DeleteAll[ExerciseType](&testDB);
+    testUtil.BasicTest(nil,err,"DeleteAll operations was unsuccessful.",t);
+    testUtil.BasicTest(int64(0) ,cntr,"DeleteAll did not delete all rows.",t);
+    for i:=0; i<10; i++ {
+        Create(&testDB,ExerciseType{T: "test",Description: "testing"});
+    }
+    cntr,err=DeleteAll[ExerciseType](&testDB);
+    testUtil.BasicTest(nil,err,"DeleteAll operations was unsuccessful.",t);
+    testUtil.BasicTest(int64(10),cntr,"DeleteAll did not delete all rows.",t);
+    err=testDB.db.QueryRow(
+        fmt.Sprintf("SELECT COUNT(*) FROM ExerciseType;"),
+    ).Scan(&cntr);
+    testUtil.BasicTest(nil,err,"Could not access table for counting.",t);
+    testUtil.BasicTest(int64(0) ,cntr,"Table was not empty.",t);
 }

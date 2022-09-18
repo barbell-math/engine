@@ -7,26 +7,6 @@ import (
     "github.com/carmichaeljr/powerlifting-engine/util"
 )
 
-type ColumnFilter func(col string) bool;
-
-func NoFilter(col string) bool { return true; }
-func OnlyIDFilder(col string) bool { return col=="Id"; }
-func AllButIDFilter(col string) bool { return col!="Id"; }
-
-func GenColFilter(inverse bool, cols ...string) ColumnFilter {
-    return func(col string) bool {
-        rv:=inverse;
-        for i:=0; (inverse && rv) || (!inverse && !rv) && i<len(cols); i++ {
-            if inverse {
-                rv=(rv && col!=cols[i]);
-            } else {
-                rv=(col==cols[i]);
-            }
-        }
-        return rv;
-    }
-}
-
 func Create[R DBTable](c *CRUD, rows ...R) ([]int,error) {
     if len(rows)==0 {
         return []int{},sql.ErrNoRows;
@@ -48,12 +28,10 @@ func Create[R DBTable](c *CRUD, rows ...R) ([]int,error) {
     var err error=nil;
     rv:=make([]int,len(rows));
     for i:=0; err==nil && i<len(rows); i++ {
-        vals:=util.AppendWithPreallocation(
-            []reflect.Value{reflect.ValueOf(sqlStmt)},
-            getTableVals(&rows[i],AllButIDFilter),
-        );
-        rowValue:=reflect.ValueOf(c.db).MethodByName("QueryRow").Call(vals)[0];
-        err=rowValue.Interface().(*sql.Row).Scan(&rv[i]);
+        rv[i],err=getQueryRowReflectResults(c,util.AppendWithPreallocation(
+                []reflect.Value{reflect.ValueOf(sqlStmt)},
+                getTableVals(&rows[i],AllButIDFilter),
+        ));
     }
     return rv,err;
 }
@@ -73,41 +51,21 @@ func Read[R DBTable](
     sqlStmt:=fmt.Sprintf(
         "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr,
     );
-    vals:=util.AppendWithPreallocation(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},getTableVals(&rowVals,filter),
-    );
-    return readRowsFromReflectResult(
-        reflect.ValueOf(c.db).MethodByName("Query").Call(vals),
-        callback,
+    return getQueryReflectResults(c,
+        util.AppendWithPreallocation(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+            getTableVals(&rowVals,filter),
+        ), callback,
     );
 }
 
 func ReadAll[R DBTable](c *CRUD, callback func(val *R)) error {
     var tmp R;
     sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&tmp));
-    return readRowsFromReflectResult(
-        reflect.ValueOf(c.db).MethodByName("Query").Call(
-            []reflect.Value{reflect.ValueOf(sqlStmt)},
-        ),callback,
+    return getQueryReflectResults(c,
+        []reflect.Value{reflect.ValueOf(sqlStmt)},
+        callback,
     );
-}
-
-func readRowsFromReflectResult[R DBTable](
-        reflectVals []reflect.Value,
-        callback func(val *R)) error {
-    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
-    if err==nil {
-        rows:=reflectVals[0].Interface().(*sql.Rows);
-        defer rows.Close();
-        var iter R;
-        rowPntrs:=getTablePntrs(&iter,NoFilter);
-        for err==nil && rows.Next() {
-            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
-            err=util.GetErrorFromReflectValue(&potErr[0]);
-            callback(&iter);
-        }
-    }
-    return err;
 }
 
 func Update[R DBTable](
@@ -132,13 +90,12 @@ func Update[R DBTable](
     sqlStmt:=fmt.Sprintf(
         "UPDATE %s SET %s WHERE %s;",getTableName(&searchVals),setStr,whereStr,
     );
-    vals:=util.AppendWithPreallocation(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
-        getTableVals(&updateVals,updateValsFilter),
-        getTableVals(&searchVals,searchValsFilter),
-    );
-    return updateRowsFromReflectionResult(
-        reflect.ValueOf(c.db).MethodByName("Exec").Call(vals),
+    return getExecReflectResults(c,
+        util.AppendWithPreallocation(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+            getTableVals(&updateVals,updateValsFilter),
+            getTableVals(&searchVals,searchValsFilter),
+        ),
     );
 }
 
@@ -155,22 +112,12 @@ func UpdateAll[R DBTable](
             iter+1<len(updateColumns);
     });
     sqlStmt:=fmt.Sprintf("UPDATE %s SET %s;",getTableName(&updateVals),setStr);
-    vals:=util.AppendWithPreallocation(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
-        getTableVals(&updateVals,updateValsFilter),
+    return getExecReflectResults(c,
+        util.AppendWithPreallocation(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+            getTableVals(&updateVals,updateValsFilter),
+        ),
     );
-    return updateRowsFromReflectionResult(
-        reflect.ValueOf(c.db).MethodByName("Exec").Call(vals),
-    );
-}
-
-func updateRowsFromReflectionResult(reflectVals []reflect.Value) (int64,error) {
-    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
-    if err==nil {
-        res:=reflectVals[0].Interface().(sql.Result);
-        return res.RowsAffected();
-    }
-    return 0 ,err;
 }
 
 func Delete[R DBTable](
@@ -187,24 +134,56 @@ func Delete[R DBTable](
     sqlStmt:=fmt.Sprintf(
         "DELETE FROM %s WHERE %s;",getTableName(&searchVals),whereStr,
     );
-    vals:=util.AppendWithPreallocation(
-        []reflect.Value{reflect.ValueOf(sqlStmt)},
-        getTableVals(&searchVals,searchValsFilter),
+    return getExecReflectResults(c,
+        util.AppendWithPreallocation(
+            []reflect.Value{reflect.ValueOf(sqlStmt)},
+            getTableVals(&searchVals,searchValsFilter),
+        ),
     );
-    callVals:=reflect.ValueOf(c.db).MethodByName("Exec").Call(vals);
-    err:=util.GetErrorFromReflectValue(&callVals[1]);
-    if err==nil {
-        res:=callVals[0].Interface().(sql.Result);
-        return res.RowsAffected();
-    }
-    return 0, err;
 }
 
 func DeleteAll[R DBTable](c *CRUD) (int64,error) {
     var tmp R;
     sqlStmt:=fmt.Sprintf("DELETE FROM %s;",getTableName(&tmp));
-    fmt.Println(sqlStmt);
-    return 0, nil;
+    return getExecReflectResults(c,[]reflect.Value{reflect.ValueOf(sqlStmt)});
+}
+
+func getQueryReflectResults[R DBTable](
+        c *CRUD,
+        vals []reflect.Value,
+        callback func(val *R)) error {
+    reflectVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(vals);
+    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
+    if err==nil {
+        rows:=reflectVals[0].Interface().(*sql.Rows);
+        defer rows.Close();
+        var iter R;
+        rowPntrs:=getTablePntrs(&iter,NoFilter);
+        for err==nil && rows.Next() {
+            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
+            err=util.GetErrorFromReflectValue(&potErr[0]);
+            callback(&iter);
+        }
+    }
+    return err;
+}
+
+func getExecReflectResults(c *CRUD, vals []reflect.Value) (int64,error) {
+    reflectVals:=reflect.ValueOf(c.db).MethodByName("Exec").Call(vals);
+    err:=util.GetErrorFromReflectValue(&reflectVals[1]);
+    if err==nil {
+        res:=reflectVals[0].Interface().(sql.Result);
+        return res.RowsAffected();
+    }
+    return 0 ,err;
+}
+
+func getQueryRowReflectResults(c *CRUD, vals []reflect.Value) (int,error) {
+    var rv int;
+    reflectVal:=reflect.ValueOf(c.db).MethodByName("QueryRow").Call(vals)[0]
+    rowVal:=reflectVal.Interface().(*sql.Row);
+    err:=rowVal.Scan(&rv);
+    return rv,err;
 }
 
 func getTableName[R DBTable](row *R) string {
