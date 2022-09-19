@@ -22,11 +22,9 @@ func readSettings() settings {
         func(r ...any) (any,error) {
             defer r[0].(*os.File).Close();
             return ioutil.ReadAll(r[0].(*os.File));
-        },
-        func(r ...any) (any,error) {
+        }, func(r ...any) (any,error) {
             return nil,json.Unmarshal(r[1].([]byte),&rv);
-        },
-    );
+    });
     if err!=nil {
         log.Fatalf("An error occurred reading the settings file.\n %s",err);
     }

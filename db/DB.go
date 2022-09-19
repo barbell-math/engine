@@ -38,23 +38,44 @@ func (c *CRUD)RunDataConversion() error {
 
 func (c *CRUD)implicitDataConversion(check bool) error {
     cont:=true;
-    dbDataVersion,err:=c.getDataVersion();
-    if err!=nil {
-        return util.DataVersionNotAvailable;
-    }
-    for i:=dbDataVersion+1;
-        dbDataVersion>=0 && i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
-        if check {
-            prompt:=fmt.Sprintf(
-                "Moving data from version v%d to v%d, continue",i-1,i,
-            );
-            cont=util.YNQuestion(prompt);
-        }
-        if cont {
-            err=c.execDataConversion(i,i-1);
-        }
-    }
-    return err;
+    return util.ChainedErrorOpsWithCustomErrors([]error{
+            util.DataVersionNotAvailable,
+        }, func(r ...any) (any,error) {
+            return c.getDataVersion();
+        }, func(r ...any) (any,error) {
+            var err error=nil;
+            for i:=r[0].(int)+1;
+                r[0].(int)>=0 && i<=CURRENT_DATA_VERSION && err==nil && cont;
+                i++ {
+                if check {
+                    prompt:=fmt.Sprintf(
+                        "Moving data from version v%d to v%d, continue",i-1,i,
+                    );
+                    cont=util.YNQuestion(prompt);
+                }
+                if cont {
+                    err=c.execDataConversion(i,i-1);
+                }
+            }
+            return nil,err;
+    });
+    //dbDataVersion,err:=c.getDataVersion();
+    //if err!=nil {
+    //    return util.DataVersionNotAvailable;
+    //}
+    //for i:=dbDataVersion+1;
+    //    dbDataVersion>=0 && i<=CURRENT_DATA_VERSION && err==nil && cont; i++ {
+    //    if check {
+    //        prompt:=fmt.Sprintf(
+    //            "Moving data from version v%d to v%d, continue",i-1,i,
+    //        );
+    //        cont=util.YNQuestion(prompt);
+    //    }
+    //    if cont {
+    //        err=c.execDataConversion(i,i-1);
+    //    }
+    //}
+    //return err;
 }
 
 func (c *CRUD)execDataConversion(toVersion int, fromVersion int) error {

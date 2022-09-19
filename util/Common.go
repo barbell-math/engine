@@ -26,8 +26,8 @@ func ChainedErrorOpsWithCustomErrors(errs []error, ops ...ErrorOp) error {
     for ; err==nil && i<len(ops); i++ {
         res[i],err=ops[i](res[:i]...);
     }
-    if err!=nil && i!=len(ops) {
-        return errs[i];
+    if err!=nil && i!=len(ops) && i-1<len(errs) {
+        return errs[i-1];
     }
     return err;
 }
