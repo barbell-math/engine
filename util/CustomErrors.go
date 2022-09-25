@@ -36,3 +36,7 @@ var FilterRemovedAllColumns,IsFilterRemovedAllColumns=errorFactory(
 var DataVersionMalformed,IsDataVersionMalformed=errorFactory(
     "Data version is malformed.",
 );
+
+var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=errorFactory(
+    "Matrix dimensions do not agree.",
+);
