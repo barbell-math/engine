@@ -7,6 +7,7 @@ import (
     "errors"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
+    "github.com/carmichaeljr/powerlifting-engine/settings"
 
     _ "github.com/lib/pq"
 )
@@ -45,7 +46,7 @@ func (c *CRUD)implicitDataConversion(check bool) error {
         }, func(r ...any) (any,error) {
             var err error=nil;
             for i:=r[0].(int)+1;
-                r[0].(int)>=0 && i<=CURRENT_DATA_VERSION && err==nil && cont;
+                r[0].(int)>=0 && i<=settings.DataVersion() && err==nil && cont;
                 i++ {
                 if check {
                     prompt:=fmt.Sprintf(

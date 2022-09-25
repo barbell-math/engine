@@ -32,3 +32,7 @@ var NoKnownDataConversion,IsNoKnownDataConversion=errorFactory(
 var FilterRemovedAllColumns,IsFilterRemovedAllColumns=errorFactory(
     "The filter passed resulted in no columns being selected.",
 );
+
+var DataVersionMalformed,IsDataVersionMalformed=errorFactory(
+    "Data version is malformed.",
+);

@@ -4,8 +4,6 @@ import (
     "github.com/carmichaeljr/powerlifting-engine/util"
 )
 
-const CURRENT_DATA_VERSION int=1;
-
 type DataVersionConversion func(crud *CRUD) error;
 var DataVersionOps map[int]DataVersionConversion=map[int]DataVersionConversion{
     1: zeroToOne,
