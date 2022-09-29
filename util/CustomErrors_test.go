@@ -12,6 +12,10 @@ func TestErrorEquality(t *testing.T){
         "NoKnownDataConversion": NoKnownDataConversion,
         "FilterRemovedAllColumns": FilterRemovedAllColumns,
         "DataVersionMalformed": DataVersionMalformed,
+        "MatrixDimensionsDoNotAgree": MatrixDimensionsDoNotAgree,
+        "InverseOfNonSquareMatrix": InverseOfNonSquareMatrix,
+        "SingularMatrix": SingularMatrix,
+        "MatrixSingularToWorkingPrecision": MatrixSingularToWorkingPrecision,
     };
     isErrs:=map[string]isErrorType{
         "SqlScriptNotFound": IsSqlScriptNotFound,
@@ -19,6 +23,10 @@ func TestErrorEquality(t *testing.T){
         "NoKnownDataConversion": IsNoKnownDataConversion,
         "FilterRemovedAllColumns": IsFilterRemovedAllColumns,
         "DataVersionMalformed": IsDataVersionMalformed,
+        "MatrixDimensionsDoNotAgree": IsMatrixDimensionsDoNotAgree,
+        "InverseOfNonSquareMatrix": IsInverseOfNonSquareMatrix,
+        "SingularMatrix": IsSingularMatrix,
+        "MatrixSingularToWorkingPrecision": IsMatrixSingularToWorkingPrecision,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");

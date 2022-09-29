@@ -23,12 +23,15 @@ func errorFactory(base string) (errorType,isErrorType) {
 var SqlScriptNotFound,IsSqlScriptNotFound=errorFactory(
     "Could not open SQL script to run queries.",
 );
+
 var DataConversion,IsDataConversion=errorFactory(
     "An error occurred converting data between versions.",
 );
+
 var NoKnownDataConversion,IsNoKnownDataConversion=errorFactory(
     "No known data conversion.",
 );
+
 var FilterRemovedAllColumns,IsFilterRemovedAllColumns=errorFactory(
     "The filter passed resulted in no columns being selected.",
 );
@@ -39,4 +42,16 @@ var DataVersionMalformed,IsDataVersionMalformed=errorFactory(
 
 var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=errorFactory(
     "Matrix dimensions do not agree.",
+);
+
+var InverseOfNonSquareMatrix,IsInverseOfNonSquareMatrix=errorFactory(
+    "Only square matrices have inverses.",
+);
+
+var SingularMatrix,IsSingularMatrix=errorFactory(
+    "The det of the matrix is zero. Some operations like inverse will produce erroneous results.",
+);
+
+var MatrixSingularToWorkingPrecision,IsMatrixSingularToWorkingPrecision=errorFactory(
+    "Calculations resulted in a matrix that is <= working precision.",
 );
