@@ -1,5 +1,7 @@
 package util;
 
+import "reflect"
+
 type ErrorOp func(results ...any) (any,error);
 func ChainedErrorOps(ops ...ErrorOp) error {
     var err error=nil;
@@ -30,3 +32,9 @@ func ErrorOnBool(in bool, e error) error {
     return e;
 }
 
+func GetErrorFromReflectValue(in *reflect.Value) error {
+    switch in.Interface().(type) {
+        case error: return in.Interface().(error);
+        default: return nil;
+    }
+}

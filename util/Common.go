@@ -6,7 +6,6 @@ import (
     "bytes"
     "bufio"
     "strings"
-    "reflect"
 )
 
 func Splitter(token string) func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -84,13 +83,6 @@ func CSVGenerator(sep string, callback func(iter int) (string,bool)) string {
         }
     }
     return sb.String();
-}
-
-func GetErrorFromReflectValue(in *reflect.Value) error {
-    switch in.Interface().(type) {
-        case error: return in.Interface().(error);
-        default: return nil;
-    }
 }
 
 func AppendWithPreallocation[T any](slices ...[]T) []T {
