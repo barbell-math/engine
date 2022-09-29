@@ -87,12 +87,7 @@ func (m *Matrix[N])Equals(other *Matrix[N], tol N) (bool,error) {
     }
     for i:=0; i<len(m.V) && rv; i++ {
         for j:=0; j<len(m.V[i]) && rv; j++ {
-            res:=m.V[i][j]-other.V[i][j];
-            if res>=0 {
-                rv=(res<=tol);
-            } else {
-                rv=(res>=-tol);
-            }
+            rv=(Abs(m.V[i][j]-other.V[i][j])<=tol);
         }
     }
     return rv,nil;
