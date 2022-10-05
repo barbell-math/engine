@@ -72,6 +72,12 @@ func TestFill(t *testing.T){
     m.Iter(func(r int, c int, v int){
         testUtil.BasicTest(5, v,"Value is not correct.",t);
     });
+    m=NewMatrix[int](4,1,ArrayFill([][]int{{1},{2},{3},{4}}));
+    testUtil.BasicTest(4,len(m.V),"Rows are not correct.",t);
+    testUtil.BasicTest(1,len(m.V[0]),"Columns are not correct.",t);
+    m.Iter(func(r int, c int, v int){
+        testUtil.BasicTest(r+1,v,"Value is not correct.",t);
+    });
 }
 
 func TestAdd(t *testing.T){

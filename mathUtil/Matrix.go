@@ -22,10 +22,13 @@ func ConstFill[N Number](v N) RowColOps[N] {
         return v;
     }
 }
-func DuplicateFill[N Number](m *Matrix[N]) RowColOps[N] {
+func ArrayFill[N Number](vals [][]N) RowColOps[N] {
     return func(r int, c int) N {
-        return m.V[r][c];
+        return vals[r][c];
     }
+}
+func DuplicateFill[N Number](m *Matrix[N]) RowColOps[N] {
+    return ArrayFill(m.V);
 }
 
 func NewMatrix[N Number](r int, c int, fill RowColOps[N]) Matrix[N] {

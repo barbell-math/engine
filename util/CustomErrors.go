@@ -55,3 +55,7 @@ var SingularMatrix,IsSingularMatrix=errorFactory(
 var MatrixSingularToWorkingPrecision,IsMatrixSingularToWorkingPrecision=errorFactory(
     "Calculations resulted in a matrix that is <= working precision.",
 );
+
+var MissingVariable,IsMissingVariable=errorFactory(
+    "The requested independent variable is not present.",
+);

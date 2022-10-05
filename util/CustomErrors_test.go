@@ -16,6 +16,7 @@ func TestErrorEquality(t *testing.T){
         "InverseOfNonSquareMatrix": InverseOfNonSquareMatrix,
         "SingularMatrix": SingularMatrix,
         "MatrixSingularToWorkingPrecision": MatrixSingularToWorkingPrecision,
+        "MissingVariable": MissingVariable,
     };
     isErrs:=map[string]isErrorType{
         "SqlScriptNotFound": IsSqlScriptNotFound,
@@ -27,6 +28,7 @@ func TestErrorEquality(t *testing.T){
         "InverseOfNonSquareMatrix": IsInverseOfNonSquareMatrix,
         "SingularMatrix": IsSingularMatrix,
         "MatrixSingularToWorkingPrecision": IsMatrixSingularToWorkingPrecision,
+        "MissingVariable": IsMissingVariable,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");

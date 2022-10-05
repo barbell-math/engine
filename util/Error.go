@@ -38,3 +38,11 @@ func GetErrorFromReflectValue(in *reflect.Value) error {
         default: return nil;
     }
 }
+
+//func safeMapAcc[K comparable, V any](m map[K]V, _var K, err error) (V,error) {
+//    var i interface{};
+//    if v,ok:=m[_var]; ok {
+//        return v,nil;
+//    }
+//    return V(i),err;
+//}
