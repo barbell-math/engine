@@ -5,6 +5,7 @@ import (
     "fmt"
     "bytes"
     "bufio"
+    "errors"
     "strings"
 )
 
@@ -44,7 +45,7 @@ func CSVFileSplitter(
         src string,
         delim byte,
         hasHeaders bool,
-        rowCallback func(columns []string) bool){
+        rowCallback func(columns []string) bool) error {
     if f,err:=os.Open(src); err==nil {
         defer f.Close();
         scanner:=bufio.NewScanner(f);
@@ -68,6 +69,9 @@ func CSVFileSplitter(
             columns=append(columns,strings.TrimSpace(row[prevIndex:]));
             cont=rowCallback(columns);
         }
+        return nil;
+    } else {
+        return err;
     }
 }
 
@@ -95,4 +99,15 @@ func AppendWithPreallocation[T any](slices ...[]T) []T {
         i+=copy(rv[i:],tmp);
     }
     return rv;
+}
+
+func FileExists(f string) (bool,error) {
+    info,err:=os.Stat(f);
+    if err==nil {
+        return !info.IsDir(),nil;
+    }
+    if errors.Is(err,os.ErrNotExist) {
+        return false,nil;
+    }
+    return false,err;
 }

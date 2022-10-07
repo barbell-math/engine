@@ -165,20 +165,16 @@ func Test2DLinearRegWithError(t *testing.T){
         []float64{180},
         []float64{55},
     };
-    for i:=0; i<l.a.Rows(); i++ {
-        for j:=0; j<l.a.Cols(); j++ {
-            testUtil.BasicTest(correctA[i][j],l.a.V[i][j],
-                "A summation was not run properly.",t,
-            );
-        }
-    }
-    for i:=0; i<l.b.Rows(); i++ {
-        for j:=0; j<l.b.Cols(); j++ {
-            testUtil.BasicTest(correctB[i][j],l.b.V[i][j],
-                "A summation was not run properly.",t,
-            );
-        }
-    }
+    l.IterLHS(func(r int, c int, v float64){
+         testUtil.BasicTest(correctA[r][c],l.a.V[r][c],
+             "A summation was not run properly.",t,
+         );
+    });
+    l.IterRHS(func(r int, c int, v float64){
+         testUtil.BasicTest(correctB[r][c],l.b.V[r][c],
+             "A summation was not run properly.",t,
+         );
+    });
     res,_,err:=l.Run();
     testUtil.BasicTest(nil,err,
         "Linear reg returned error when it shouldn't have.",t,

@@ -7,12 +7,12 @@ import (
 )
 
 func main(){
-    settings.ReadSettings();
-    test,err:=db.NewCRUD("localhost",5432,"carmichaeljr","research");
+    settings.ReadSettings("./settings.json");
+    test,err:=db.NewCRUD(settings.DBHost(),settings.DBPort(),settings.DBName());
     defer test.Close();
     if err!=nil {
-        panic(err);
         fmt.Println("Err connecting to DB");
+        test.ResetDB();
     } else {
         fmt.Println("Connected to DB!");
     }

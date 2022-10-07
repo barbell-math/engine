@@ -3,7 +3,7 @@ package settings;
 import (
     "os"
     "log"
-    //"fmt"
+    "fmt"
     "sync"
     "io/ioutil"
     "encoding/json"
@@ -11,17 +11,30 @@ import (
 )
 
 var mu sync.Mutex;
-var settingsSrc string="./settings.json";
+
+type DatabaseInfo struct {
+    DataVersion int `json:"dataVersion"`;
+    Host string `json:"host"`;
+    Port int `json:"port"`;
+    Name string `json:"name"`;
+};
+type SqlScripts struct {
+    GlobalInit string `json:"globalInit"`;
+    ExerciseFocusInit string `json:"exerciseFocusInit"`;
+    ExerciseTypeInit string `json:"exerciseTypeInit"`;
+    ExerciseInit string `json:"exerciseInit"`;
+};
 
 type Settings struct {
-    DataVersion int `json:"dataVersion"`;
+    DBInfo DatabaseInfo `json:"database"`;
+    SqlFiles SqlScripts `json:"sqlScripts"`;
 };
 var s Settings;
 
-func ReadSettings(){
+func ReadSettings(src string){
     var rv Settings;
     err:=util.ChainedErrorOps(
-        func(r ...any) (any,error) { return os.Open(settingsSrc); },
+        func(r ...any) (any,error) { return os.Open(src); },
         func(r ...any) (any,error) {
             defer r[0].(*os.File).Close();
             return ioutil.ReadAll(r[0].(*os.File));
@@ -54,15 +67,39 @@ func Modify(ops ...SettingsMod) error {
 }
 
 func DataVersion() int {
-    return s.DataVersion;
+    return s.DBInfo.DataVersion;
+}
+func DBHost() string {
+    return s.DBInfo.Host;
+}
+func DBPort() int {
+    return s.DBInfo.Port;
+}
+func DBName() string {
+    return s.DBInfo.Name;
+}
+func SQLGlobalInitScript() string {
+    return s.SqlFiles.GlobalInit;
+}
+func ExerciseFocusInitData() string {
+    return s.SqlFiles.ExerciseFocusInit;
+}
+func ExerciseTypeInitData() string {
+    return s.SqlFiles.ExerciseTypeInit;
+}
+func ExerciseInitData() string {
+    return s.SqlFiles.ExerciseInit;
 }
 
 func valid(set *Settings) (bool,error) {
     var rv bool=true;
     err:=util.ChainedErrorOps(
         func(r ...any) (any,error) {
-            rv=(set.DataVersion>0);
-            return rv,util.ErrorOnBool(rv,util.DataVersionMalformed(""));
+            rv=(set.DBInfo.DataVersion>=0);
+            return rv,util.ErrorOnBool(rv,util.DataVersionMalformed("Should be >=0."));
+        }, func(r ...any) (any,error) {
+            rv,err:=util.FileExists(set.SqlFiles.GlobalInit);
+            return rv,util.ErrorOnBool(rv,util.SQLGlobalInitNotFound(fmt.Sprintf("%s",err)));
         },
     );
     return rv,err;
@@ -70,6 +107,17 @@ func valid(set *Settings) (bool,error) {
 
 func _copy() Settings {
     var rv Settings;
-    rv.DataVersion=s.DataVersion;
+    rv.DBInfo=DatabaseInfo{
+        DataVersion: s.DBInfo.DataVersion,
+        Host: s.DBInfo.Host,
+        Port: s.DBInfo.Port,
+        Name: s.DBInfo.Name,
+    };
+    rv.SqlFiles=SqlScripts{
+        GlobalInit: s.SqlFiles.GlobalInit,
+        ExerciseFocusInit: s.SqlFiles.ExerciseFocusInit,
+        ExerciseTypeInit: s.SqlFiles.ExerciseTypeInit,
+        ExerciseInit: s.SqlFiles.ExerciseInit,
+    };
     return rv;
 }

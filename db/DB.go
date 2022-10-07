@@ -16,13 +16,13 @@ type CRUD struct {
     db *sql.DB;
 };
 
-func NewCRUD(host string, port int, user string, name string) (CRUD,error) {
+func NewCRUD(host string, port int, name string) (CRUD,error) {
     var rv CRUD;
     err:=util.ChainedErrorOps(
         func(r ...any) (any,error) {
             return sql.Open("postgres",
                 fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-                    user,os.Getenv("DB_PSWD"),host,port,name,
+                    os.Getenv("DB_USER"),os.Getenv("DB_PSWD"),host,port,name,
             ));
         },
         func(r ...any) (any,error) { return nil,r[0].(*sql.DB).Ping(); },
@@ -115,13 +115,12 @@ func (c *CRUD)setDataVersion(v int) error {
     return err;
 }
 
-//TODO - read file locations from json file??
 func (c *CRUD)ResetDB() error {
-    err:=c.execSQLScript("./sql/globalInit.sql");
+    err:=c.ExecSQLScript(settings.SQLGlobalInitScript());
     return err;
 }
 
-func (c *CRUD)execSQLScript(src string) error {
+func (c *CRUD)ExecSQLScript(src string) error {
     var err error=nil;
     var globalInit *os.File=nil;
     if globalInit,err=os.Open(src); err==nil {

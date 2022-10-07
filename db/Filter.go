@@ -3,7 +3,7 @@ package db;
 type ColumnFilter func(col string) bool;
 
 func NoFilter(col string) bool { return true; }
-func OnlyIDFilder(col string) bool { return col=="Id"; }
+func OnlyIDFilter(col string) bool { return col=="Id"; }
 func AllButIDFilter(col string) bool { return col!="Id"; }
 
 func GenColFilter(inverse bool, cols ...string) ColumnFilter {

@@ -9,14 +9,14 @@ DROP TABLE IF EXISTS ExerciseFocus CASCADE;
 DROP TABLE IF EXISTS ModelState CASCADE;
 
 CREATE TABLE IF NOT EXISTS Version (
-    num INT NOT NULL
+    Num INT NOT NULL
 );
 
 CREATE TABLE Client (
 	id SERIAL PRIMARY KEY,
-	firstName TEXT NOT NULL,
-	lastName TEXT NOT NULL,
-	email TEXT NOT NULL
+	FirstName TEXT NOT NULL,
+	LastName TEXT NOT NULL,
+	Email TEXT NOT NULL
 );
 
 CREATE TABLE ExerciseType (
@@ -83,3 +83,5 @@ CREATE TABLE ModelState (
     TimeFrame INTEGER NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES Cliend(Id)
 );
+
+INSERT INTO Version(num) VALUES (0);

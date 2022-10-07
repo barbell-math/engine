@@ -2,6 +2,7 @@ package db;
 
 import (
     "github.com/carmichaeljr/powerlifting-engine/util"
+    "github.com/carmichaeljr/powerlifting-engine/settings"
 )
 
 type DataVersionConversion func(crud *CRUD) error;
@@ -14,7 +15,7 @@ func zeroToOne(crud *CRUD) error {
     crud.setDataVersion(1);
     var err error=nil;
     typeMap, focusMap:=make(map[string]int), make(map[string]int);
-    util.CSVFileSplitter("./sql/ExerciseTypesInit.csv",',',true,
+    if fError:=util.CSVFileSplitter(settings.ExerciseTypeInitData(),',',true,
         func(columns []string) bool {
             tmp,err:=Create(crud,ExerciseType{
                 T: columns[0], Description: columns[1],
@@ -22,15 +23,19 @@ func zeroToOne(crud *CRUD) error {
             typeMap[columns[0]]=tmp[0];
             return err==nil;
         },
-    );
-    util.CSVFileSplitter("./sql/ExerciseFocusInit.csv",',',true,
+    ); fError!=nil {
+        return fError;
+    }
+    if fError:=util.CSVFileSplitter(settings.ExerciseFocusInitData(),',',true,
         func(columns []string) bool {
             tmp,err:=Create(crud,ExerciseFocus{Focus: columns[0]});
             focusMap[columns[0]]=tmp[0];
             return err==nil;
         },
-    );
-    util.CSVFileSplitter("./sql/ExercisesInit.csv",',',true,
+    ); fError!=nil {
+        return fError;
+    }
+    if fError:=util.CSVFileSplitter(settings.ExerciseInitData(),',',true,
         func(columns []string) bool {
             _,err:=Create(crud,Exercise{
                 Name: columns[0],
@@ -39,6 +44,8 @@ func zeroToOne(crud *CRUD) error {
             });
             return err==nil;
         },
-    );
+    ); fError!=nil {
+        return fError;
+    }
     return err;
 }
