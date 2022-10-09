@@ -22,8 +22,7 @@ func zeroToOne(crud *CRUD) error {
             });
             typeMap[columns[0]]=tmp[0];
             return err==nil;
-        },
-    ); fError!=nil {
+        }); fError!=nil {
         return fError;
     }
     if fError:=util.CSVFileSplitter(settings.ExerciseFocusInitData(),',',true,
@@ -31,8 +30,7 @@ func zeroToOne(crud *CRUD) error {
             tmp,err:=Create(crud,ExerciseFocus{Focus: columns[0]});
             focusMap[columns[0]]=tmp[0];
             return err==nil;
-        },
-    ); fError!=nil {
+        }); fError!=nil {
         return fError;
     }
     if fError:=util.CSVFileSplitter(settings.ExerciseInitData(),',',true,
@@ -43,8 +41,7 @@ func zeroToOne(crud *CRUD) error {
                 FocusID: focusMap[columns[2]],
             });
             return err==nil;
-        },
-    ); fError!=nil {
+        }); fError!=nil {
         return fError;
     }
     return err;

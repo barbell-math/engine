@@ -81,7 +81,7 @@ CREATE TABLE ModelState (
     Eps FLOAT NOT NULL,
     Eps2 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
-    FOREIGN KEY (ClientID) REFERENCES Cliend(Id)
+    FOREIGN KEY (ClientID) REFERENCES Client(Id)
 );
 
 INSERT INTO Version(num) VALUES (0);

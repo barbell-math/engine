@@ -70,6 +70,6 @@ type ModelState struct {
     Id int;
     ClientID int;
     Date time.Time;
-    A,B,C,D,Eps,Eps2 float32;
+    A,B,C,D,Eps,Eps2 float64;
     TimeFrame int;
 };

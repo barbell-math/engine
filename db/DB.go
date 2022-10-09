@@ -127,7 +127,7 @@ func (c *CRUD)ExecSQLScript(src string) error {
         defer globalInit.Close();
         scanner:=bufio.NewScanner(globalInit);
         scanner.Split(util.Splitter(";"));
-        for scanner.Scan() {
+        for err==nil && scanner.Scan() {
             _,err=c.db.Exec(scanner.Text()+";");
         }
     } else {

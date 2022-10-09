@@ -39,7 +39,7 @@ func InitClient(
             Intensity: float64(1),
         };
     }
-    err:=util.ChainedErrorOps(
+    return util.ChainedErrorOps(
         func(r ...any) (any,error) { return GetExerciseID(crud,"Squat"); },
         func(r ...any) (any,error) { return GetExerciseID(crud,"Bench"); },
         func(r ...any) (any,error) { return GetExerciseID(crud,"Deadlift"); },
@@ -57,9 +57,38 @@ func InitClient(
             return Create(crud,s,d,b);
         },
     );
-    return err;
 }
 
-//func AddToTrainingLog(c *Client, e *Exercise, r *Rotation, m float32) (int,error) {
+func RmClient(crud *CRUD, c *Client) (int64,error) {
+    var rv int64=0;
+    err:=util.ChainedErrorOps(
+        func(r ...any) (any,error) {
+            return Delete(
+                crud,TrainingLog{ClientID: c.Id},GenColFilter(false,"ClientID"),
+            );
+        }, func(r ...any) (any,error) {
+            return Delete(
+                crud,Rotation{ClientID: c.Id},GenColFilter(false,"ClientID"),
+            );
+        }, func(r ...any) (any,error) {
+            return Delete(
+                crud,BodyWeight{ClientID: c.Id},GenColFilter(false,"ClientID"),
+            );
+        }, func(r ...any) (any,error) {
+            return Delete(
+                crud,ModelState{ClientID: c.Id},GenColFilter(false,"ClientID"),
+            );
+        }, func(r ...any) (any,error) { return Delete(crud,*c,OnlyIDFilter); },
+        func(r ...any) (any,error) {
+            for _,v:=range(r) {
+                rv+=v.(int64);
+            }
+            return nil,nil;
+        },
+    );
+    return rv,err;
+}
+
+//func UpdateTrainingLogUsingCurRot(c *Client, e *Exercise, t *TrainingLog) (int,error) {
 //
 //}

@@ -26,7 +26,7 @@ func setup(){
         panic("Could not open database for testing.");
     }
     if err=testDB.ResetDB(); err!=nil {
-        panic("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/dbTestSettings.json file.");
+        panic(fmt.Sprintf("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/dbTestSettings.json file. \n  | Given err: %v",err));
     }
 }
 
@@ -638,4 +638,34 @@ func TestInitClient(t *testing.T){
         );
     });
     testUtil.BasicTest(nil,err,"An error occurred reading the training log.",t);
+}
+
+func TestRmClient(t *testing.T){
+    setup();
+    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
+    testDB.RunDataConversion();
+    c:=Client{
+        Id: 1,
+        FirstName: "test",
+        LastName: "testl",
+        Email: "test@test.com",
+    };
+    err:=util.ChainedErrorOps(
+        func(r ...any) (any,error) {
+            return nil,InitClient(&testDB,&c,455,286,545);
+        }, func(r ...any) (any,error) {
+            return Create(&testDB,BodyWeight{
+                ClientID: 1, Weight: 148.0, Date: time.Now(),
+            });
+        }, func (r ...any) (any,error) {
+            return Create(&testDB,ModelState{
+                ClientID: 1, Date: time.Now(), TimeFrame: 100,
+                A: 1, B: 1, C: 1, D: 1, Eps: 1, Eps2: 1,
+            });
+        },
+    );
+    testUtil.BasicTest(nil,err,"Database was not setup correctly to run test.",t);
+    val,err:=RmClient(&testDB,&c);
+    testUtil.BasicTest(nil,err,"RmClient created an error when it shouldn't have.",t);
+    testUtil.BasicTest(int64(7),val,"RmClient did not delete all client data.",t);
 }
