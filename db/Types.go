@@ -33,6 +33,7 @@ type Exercise struct {
     FocusID int;
 };
 
+//State and end dates are inclusive
 type Rotation struct {
     Id int;
     ClientID int;

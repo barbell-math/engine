@@ -34,7 +34,7 @@ CREATE TABLE Exercise (
 	Id SERIAL PRIMARY KEY,
 	Name TEXT NOT NULL,
 	TypeID INT NOT NULL,
-	FocusID INT,
+	FocusID INT NOT NULL,
     FOREIGN KEY (typeID) REFERENCES ExerciseType(Id),
     FOREIGN KEY (focusID) REFERENCES ExerciseFocus(Id)
 );
@@ -64,7 +64,7 @@ CREATE TABLE TrainingLog (
 	Weight FLOAT NOT NULL,
 	Sets SMALLINT NOT NULL,
 	Reps SMALLINT NOT NULL,
-	Intensity FLOAT,
+	Intensity FLOAT NOT NULL,
 	FOREIGN KEY (ClientID) REFERENCES Client(ID),
 	FOREIGN KEY (ExerciseID) REFERENCES Exercise(ID),
 	FOREIGN KEY (RotationID) REFERENCES Rotation(ID)

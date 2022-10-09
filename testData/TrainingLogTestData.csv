@@ -1,0 +1,719 @@
+Exercise,Weight,Sets,Reps,Date,RPE,% of Current 1RM,Volume,Type,Rotation ID
+Deadlift,425,1,3,8/27/2021,7.0,85%,1275,Main Compound,1
+Deadlift,385,5,4,8/27/2021,7.0,77%,7700,Main Compound,1
+Heeled Squat,275,3,8,8/27/2021,,68%,6600,Main Compound Accessory,1
+Bench,205,1,1,8/27/2021,7.0,75%,205,Main Compound,1
+Bench,145,3,8,8/27/2021,7.0,53%,3480,Main Compound,1
+Dumbbell RDL,60,4,15,8/27/2021,,,3600,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,4,15,8/27/2021,,,900,Accessory,1
+Heeled Squat,365,1,1,8/29/2021,7.5,90%,365,Main Compound Accessory,1
+Heeled Squat,375,1,1,8/29/2021,7.5,93%,375,Main Compound Accessory,1
+Heeled Squat,335,4,4,8/29/2021,7.5,83%,5360,Main Compound Accessory,1
+Bulgarian Split Squat,55,3,15,8/29/2021,,,2475,Compound Accessory,1
+Larson Press,150,1,7,8/29/2021,7.5,67%,1050,Compound Accessory,1
+Larson Press,135,3,9,8/29/2021,6.0,60%,3645,Compound Accessory,1
+Dumbbell Lateral Side Raise,17.5,3,15,8/29/2021,,,787.5,Accessory,1
+Hamstring Curls,85,3,15,8/29/2021,,,3825,Accessory,1
+Cable Crunches,50,3,15,8/29/2021,,,2250,Accessory,1
+Romanian Deadlift,325,1,1,8/30/2021,7.0,,325,Compound Accessory,1
+Romanian Deadlift,285,4,6,8/30/2021,7.0,,6840,Compound Accessory,1
+Bench,190,1,4,8/30/2021,7.5,69%,760,Main Compound,1
+Bench,175,3,5,8/30/2021,7.5,64%,2625,Main Compound,1
+Bench,165,1,7,8/30/2021,7.5,60%,1155,Main Compound,1
+Lat Pulldown,80,4,10,8/30/2021,,,3200,Accessory,1
+Flat Dumbbell Press,45,3,12,8/30/2021,,,1620,Compound Accessory,1
+YTW's,10,3,10,8/30/2021,,,300,Accessory,1
+Deadbugs,0,3,15,8/30/2021,,,0,Accessory,1
+Paused Squat,335,1,1,8/12/2021,,,335,Main Compound Accessory,1
+Paused Squat,260,3,8,8/12/2021,,,6240,Main Compound Accessory,1
+Narrow Grip Bench,145,1,6,8/12/2021,,,870,Main Compound Accessory,1
+Narrow Grip Bench,130,2,6,8/12/2021,,,1560,Main Compound Accessory,1
+Cable Row,105,4,10,8/12/2021,,,4200,Accessory,1
+Pushup,25,4,15,8/12/2021,,,1500,Compound Accessory,1
+Skull Crusher,45,4,15,8/12/2021,,,2700,Accessory,1
+Plank,25,3,1,8/12/2021,,,75,Accessory,1
+Deadlift,405,1,3,8/13/2021,6.0,81%,1215,Main Compound,1
+Deadlift,365,3,4,8/13/2021,6.0,73%,4380,Main Compound,1
+Bench,200,1,1,8/13/2021,6.0,73%,200,Main Compound,1
+Bench,140,3,8,8/13/2021,5.0,51%,3360,Main Compound,1
+Heeled Squat,275,3,7,8/13/2021,,68%,5775,Main Compound Accessory,1
+Dumbbell RDL,60,4,12,8/13/2021,,,2880,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,4,15,8/13/2021,,,900,Accessory,1
+Heeled Squat,355,1,4,8/15/2021,6.0,88%,1420,Main Compound Accessory,1
+Heeled Squat,320,4,4,8/15/2021,6.0,79%,5120,Main Compound Accessory,1
+Larson Press,145,1,7,8/15/2021,6.5,64%,1015,Compound Accessory,1
+Larson Press,130,3,9,8/15/2021,5.0,58%,3510,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,3,15,8/15/2021,,,675,Accessory,1
+Bulgarian Split Squat,45,3,15,8/15/2021,,,2025,Compound Accessory,1
+Hamstring Curls,75,3,15,8/15/2021,,,3375,Accessory,1
+Cable Crunches,35,3,20,8/15/2021,,,2100,Accessory,1
+Bench,180,1,4,8/16/2021,6.0,65%,720,Main Compound,1
+Bench,165,3,5,8/16/2021,6.0,60%,2475,Main Compound,1
+Bench,165,1,7,8/16/2021,6.0,60%,1155,Main Compound,1
+Romanian Deadlift,315,1,1,8/16/2021,6.0,,315,Compound Accessory,1
+Romanian Deadlift,285,4,6,8/16/2021,6.0,,6840,Compound Accessory,1
+Flat Dumbbell Press,40,4,12,8/16/2021,,,1920,Compound Accessory,1
+Lat Pulldown,80,5,10,8/16/2021,,,4000,Accessory,1
+YTW's,10,3,10,8/16/2021,,,300,Accessory,1
+Deadbugs,0,3,15,8/16/2021,,,0,Accessory,1
+Paused Squat,350,1,1,8/18/2021,,,350,Main Compound Accessory,1
+Paused Squat,275,4,8,8/18/2021,,,8800,Main Compound Accessory,1
+Narrow Grip Bench,145,1,6,8/18/2021,,,870,Main Compound Accessory,1
+Narrow Grip Bench,30,3,6,8/18/2021,,,540,Main Compound Accessory,1
+Cable Row,110,4,10,8/18/2021,,,4400,Accessory,1
+Pushup,25,4,15,8/18/2021,,,1500,Compound Accessory,1
+Skull Crusher,45,4,15,8/18/2021,,,2700,Accessory,1
+Plank,25,3,1,8/18/2021,,,75,Accessory,1
+Deadlift,405,1,3,8/20/2021,6.0,81%,1215,Main Compound,1
+Deadlift,365,5,4,8/20/2021,6.0,73%,7300,Main Compound,1
+Bench,200,1,1,8/20/2021,6.0,73%,200,Main Compound,1
+Bench,138,3,8,8/20/2021,6.0,50%,3312,Main Compound,1
+Heeled Squat,275,3,7,8/20/2021,,68%,5775,Main Compound Accessory,1
+Dumbbell RDL,60,4,12,8/20/2021,,,2880,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,4,15,8/20/2021,,,900,Accessory,1
+Heeled Squat,365,1,4,8/22/2021,6.5,90%,1460,Main Compound Accessory,1
+Heeled Squat,330,4,4,8/22/2021,6.5,81%,5280,Main Compound Accessory,1
+Larson Press,150,1,7,8/22/2021,7.0,67%,1050,Compound Accessory,1
+Larson Press,135,3,9,8/22/2021,6.0,60%,3645,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,3,15,8/22/2021,,,675,Accessory,1
+Bulgarian Split Squat,45,3,15,8/22/2021,,,2025,Compound Accessory,1
+Hamstring Curls,75,3,15,8/22/2021,,,3375,Accessory,1
+Cable Crunches,35,3,20,8/22/2021,,,2100,Accessory,1
+Bench,180,1,4,8/23/2021,6.5,65%,720,Main Compound,1
+Bench,165,3,5,8/23/2021,6.5,60%,2475,Main Compound,1
+Bench,165,1,9,8/23/2021,7.0,60%,1485,Main Compound,1
+Romanian Deadlift,325,1,1,8/23/2021,7.0,,325,Compound Accessory,1
+Romanian Deadlift,275,4,6,8/23/2021,7.0,,6600,Compound Accessory,1
+Flat Dumbbell Press,45,4,12,8/23/2021,,,2160,Compound Accessory,1
+Lat Pulldown,80,5,10,8/23/2021,,,4000,Accessory,1
+YTW's,10,3,10,8/23/2021,,,300,Accessory,1
+Deadbugs,0,3,15,8/23/2021,,,0,Accessory,1
+Paused Squat,325,1,1,8/25/2021,,,325,Main Compound Accessory,1
+Heeled Squat,275,4,8,8/25/2021,5.5,68%,8800,Main Compound Accessory,1
+Narrow Grip Bench,155,1,6,8/25/2021,,,930,Main Compound Accessory,1
+Narrow Grip Bench,135,3,6,8/25/2021,,,2430,Main Compound Accessory,1
+Cable Row,110,4,10,8/25/2021,,,4400,Accessory,1
+Pushup,0,4,15,8/25/2021,,,0,Compound Accessory,1
+Skull Crusher,45,4,15,8/25/2021,,,2700,Accessory,1
+Paused Squat,325,1,1,9/1/2021,,,325,Main Compound Accessory,1
+Paused Squat,260,2,8,9/1/2021,,,4160,Main Compound Accessory,1
+Heeled Squat,260,2,8,9/1/2021,,64%,4160,Main Compound Accessory,1
+Narrow Grip Bench,155,1,6,9/1/2021,,,930,Main Compound Accessory,1
+Narrow Grip Bench,135,3,6,9/1/2021,,,2430,Main Compound Accessory,1
+Cable Row,110,4,10,9/1/2021,,,4400,Accessory,1
+Pushup,0,4,15,9/1/2021,,,0,Compound Accessory,1
+Skull Crusher,45,4,15,9/1/2021,,,2700,Accessory,1
+Heeled Squat,375,1,4,9/5/2021,8.5,93%,1500,Main Compound Accessory,1
+Heeled Squat,335,4,4,9/5/2021,8.0,83%,5360,Main Compound Accessory,1
+Larson Press,155,1,7,9/5/2021,8.0,69%,1085,Compound Accessory,1
+Larson Press,135,3,9,9/5/2021,7.0,60%,3645,Compound Accessory,1
+Dumbbell Lateral Side Raise,17.5,3,15,9/5/2021,,,787.5,Accessory,1
+Bulgarian Split Squat,65,3,15,9/5/2021,,,2925,Compound Accessory,1
+Hamstring Curls,90,3,15,9/5/2021,,,4050,Accessory,1
+Cable Crunches,57,3,20,9/5/2021,,,3420,Accessory,1
+Bench,195,1,4,9/6/2021,8.5,71%,780,Main Compound,1
+Bench,175,3,5,9/6/2021,8.0,64%,2625,Main Compound,1
+Bench,170,1,7,9/6/2021,8.0,62%,1190,Main Compound,1
+Deficit Romanian Deadlift,325,1,1,9/6/2021,7.0,89%,325,Compound Accessory,1
+Deficit Romanian Deadlift,285,4,6,9/6/2021,7.0,78%,6840,Compound Accessory,1
+Flat Dumbbell Press,45,3,12,9/6/2021,,,1620,Compound Accessory,1
+Lat Pulldown,70,5,10,9/6/2021,,,3500,Accessory,1
+YTW's,10,3,10,9/6/2021,,,300,Accessory,1
+Deadbugs,0,3,15,9/6/2021,,,0,Accessory,1
+Heeled Squat,325,1,2,9/8/2021,6.5,80%,650,Main Compound Accessory,1
+Heeled Squat,275,4,8,9/8/2021,5.0,68%,8800,Main Compound Accessory,1
+Narrow Grip Bench,155,1,6,9/8/2021,,,930,Main Compound Accessory,1
+Narrow Grip Bench,135,3,6,9/8/2021,,,2430,Main Compound Accessory,1
+Cable Row,110,4,10,9/8/2021,,,4400,Accessory,1
+Skull Crusher,45,4,15,9/8/2021,,,2700,Accessory,1
+Pushup,0,4,15,9/8/2021,,,0,Compound Accessory,1
+Deadlift,425,1,3,9/10/2021,7.5,85%,1275,Main Compound,1
+Deadlift,385,5,4,9/10/2021,7.5,77%,7700,Main Compound,1
+Heeled Squat,300,3,7,9/10/2021,,74%,6300,Main Compound Accessory,1
+Bench,205,1,1,9/10/2021,7.0,75%,205,Main Compound,1
+Bench,155,3,8,9/10/2021,7.0,56%,3720,Main Compound,1
+Dumbbell RDL,70,4,12,9/10/2021,,,3360,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,4,15,9/10/2021,,,900,Accessory,1
+Heeled Squat,385,1,3,9/12/2021,9.0,95%,1155,Main Compound Accessory,1
+Larson Press,155,1,7,9/12/2021,8.0,69%,1085,Compound Accessory,1
+Larson Press,135,3,9,9/12/2021,8.0,60%,3645,Compound Accessory,1
+Deficit Romanian Deadlift,335,1,1,9/13/2021,8.0,92%,335,Compound Accessory,1
+Deficit Romanian Deadlift,300,4,5,9/13/2021,7.5,82%,6000,Compound Accessory,1
+Heeled Squat,315,7,4,9/13/2021,,78%,8820,Main Compound Accessory,1
+Bench,205,1,4,9/13/2021,8.5,75%,820,Main Compound,1
+Bench,185,3,5,9/13/2021,8.0,67%,2775,Main Compound,1
+Bench,165,1,9,9/13/2021,8.0,60%,1485,Main Compound,1
+Bulgarian Split Squat,75,3,15,9/14/2021,,,3375,Compound Accessory,1
+Flat Dumbbell Press,45,3,12,9/14/2021,,,1620,Compound Accessory,1
+YTW's,10,3,10,9/14/2021,,,300,Accessory,1
+Cable Crunches,65,3,20,9/14/2021,,,3900,Accessory,1
+Hamstring Curls,100,3,15,9/14/2021,,,4500,Accessory,1
+Deadbugs,0,3,15,9/14/2021,,,0,Accessory,1
+Deadlift,455,1,3,9/17/2021,8.5,91%,1365,Main Compound,1
+Deadlift,405,5,4,9/17/2021,8.5,81%,8100,Main Compound,1
+Heeled Squat,315,3,7,9/17/2021,,78%,6615,Main Compound Accessory,1
+Bench,205,1,1,9/17/2021,7.0,75%,205,Main Compound,1
+Bench,155,3,8,9/17/2021,7.0,56%,3720,Main Compound,1
+Dumbbell RDL,70,4,12,9/17/2021,,,3360,Compound Accessory,1
+Heeled Squat,315,5,4,9/19/2021,6.0,78%,6300,Main Compound Accessory,1
+Bulgarian Split Squat,85,3,15,9/19/2021,,,3825,Compound Accessory,1
+Larson Press,135,1,7,9/19/2021,6.0,60%,945,Compound Accessory,1
+Larson Press,135,3,9,9/19/2021,6.0,60%,3645,Compound Accessory,1
+Cable Crunches,57,3,20,9/19/2021,,,3420,Accessory,1
+Dumbbell Lateral Side Raise,17.5,3,15,9/19/2021,,,787.5,Accessory,1
+Hamstring Curls,100,3,15,9/19/2021,,,4500,Accessory,1
+Deficit Romanian Deadlift,345,1,1,9/20/2021,7.0,95%,345,Compound Accessory,1
+Deficit Romanian Deadlift,315,3,5,9/20/2021,7.0,86%,4725,Compound Accessory,1
+Bench,185,1,4,9/20/2021,6.0,67%,740,Main Compound,1
+Bench,165,3,5,9/20/2021,6.0,60%,2475,Main Compound,1
+Flat Dumbbell Press,50,4,12,9/20/2021,,,2400,Compound Accessory,1
+YTW's,10,3,10,9/20/2021,,,300,Accessory,1
+Lat Pulldown,50,3,10,9/20/2021,,,1500,Accessory,1
+Deadlift,405,1,3,9/24/2021,6.0,81%,1215,Main Compound,1
+Deadlift,365,4,4,9/24/2021,6.0,73%,5840,Main Compound,1
+Heeled Squat,315,2,7,9/24/2021,,78%,4410,Main Compound Accessory,1
+Squat,315,1,6,9/24/2021,6.0,69%,1890,Main Compound,1
+Bench,205,1,1,9/24/2021,7.0,75%,205,Main Compound,1
+Bench,135,2,8,9/24/2021,7.0,49%,2160,Main Compound,1
+Dumbbell RDL,70,4,12,9/24/2021,,,3360,Compound Accessory,1
+Dumbbell Lateral Side Raise,15,3,15,9/24/2021,,,675,Accessory,1
+Squat,335,6,3,9/25/2021,6.0,74%,6030,Main Compound,1
+Bulgarian Split Squat,95,3,15,9/25/2021,,,4275,Compound Accessory,1
+Larson Press,185,1,5,9/25/2021,6.0,82%,925,Compound Accessory,1
+Larson Press,150,3,7,9/25/2021,6.0,67%,3150,Compound Accessory,1
+Cable Crunches,67,3,20,9/25/2021,,,4020,Accessory,1
+Incline Dumbbell Press,35,3,12,9/25/2021,,,1260,Compound Accessory,1
+Hamstring Curls,105,1,15,9/25/2021,,,1575,Accessory,1
+Hamstring Curls,110,2,15,9/25/2021,,,3300,Accessory,1
+Deficit Romanian Deadlift,355,1,1,9/27/2021,7.0,97%,355,Compound Accessory,1
+Deficit Romanian Deadlift,325,4,6,9/27/2021,7.0,89%,7800,Compound Accessory,1
+Bench,205,1,3,9/27/2021,6.0,75%,615,Main Compound,1
+Bench,185,1,3,9/27/2021,6.0,67%,555,Main Compound,1
+Bench,175,4,4,9/27/2021,6.0,64%,2800,Main Compound,1
+Flat Dumbbell Press,55,3,12,9/27/2021,,,1980,Compound Accessory,1
+Pullup,0,3,7,9/27/2021,,,0,Compound Accessory,1
+YTW's,10,2,10,9/27/2021,,,200,Accessory,1
+Heeled Squat,335,1,1,9/29/2021,7.0,83%,335,Main Compound Accessory,1
+Heeled Squat,315,3,7,9/29/2021,7.0,78%,6615,Main Compound Accessory,1
+Cable Row,80,4,8,9/29/2021,,,2560,Accessory,1
+Bench,225,1,4,9/29/2021,8.0,82%,900,Main Compound,1
+Bench,185,3,5,9/29/2021,7.0,67%,2775,Main Compound,1
+Deadlift,455,1,1,10/1/2021,8.5,91%,455,Main Compound,1
+Deadlift,365,6,3,10/1/2021,6.0,73%,6570,Main Compound,1
+Squat,315,3,7,10/1/2021,6.0,69%,6615,Main Compound,1
+Bench,225,1,1,10/1/2021,8.0,82%,225,Main Compound,1
+Bench,155,3,8,10/1/2021,6.0,56%,3720,Main Compound,1
+Dumbbell RDL,80,3,12,10/1/2021,,,2880,Compound Accessory,1
+Incline Dumbbell Press,35,2,10,10/1/2021,,,700,Compound Accessory,1
+Incline Dumbbell Press,25,1,8,10/1/2021,,,200,Compound Accessory,1
+Squat,355,3,6,10/2/2021,6.5,78%,6390,Main Compound,1
+Bulgarian Split Squat,115,3,10,10/2/2021,,,3450,Compound Accessory,1
+Larson Press,155,1,5,10/2/2021,6.5,69%,775,Compound Accessory,1
+Larson Press,135,3,7,10/2/2021,6.5,60%,2835,Compound Accessory,1
+Cable Crunches,67,3,20,10/2/2021,,,4020,Accessory,1
+Seated Dumbbell Overhead Press,35,3,10,10/2/2021,,,1050,Compound Accessory,1
+Deficit Romanian Deadlift,365,1,1,10/4/2021,7.0,100%,365,Compound Accessory,1
+Deficit Romanian Deadlift,325,4,5,10/4/2021,7.0,89%,6500,Compound Accessory,1
+Pullup,0,3,10,10/4/2021,,,0,Compound Accessory,1
+YTW's,10,2,10,10/4/2021,,,200,Accessory,1
+Bench,205,2,3,10/4/2021,7.5,75%,1230,Main Compound,1
+Bench,185,4,4,10/4/2021,7.0,67%,2960,Main Compound,1
+Flat Dumbbell Press,60,3,12,10/4/2021,,,2160,Compound Accessory,1
+Deadlift,435,1,3,10/8/2021,6.5,87%,1305,Main Compound,1
+Deadlift,405,6,3,10/8/2021,6.5,81%,7290,Main Compound,1
+Squat,365,1,1,10/8/2021,8.0,80%,365,Main Compound,1
+Squat,315,1,7,10/8/2021,6.0,69%,2205,Main Compound,1
+Bench,225,1,1,10/8/2021,8.0,82%,225,Main Compound,1
+Bench,185,3,8,10/8/2021,7.0,67%,4440,Main Compound,1
+Dumbbell RDL,80,4,12,10/8/2021,,,3840,Compound Accessory,1
+Squat,365,6,2,10/9/2021,7.5,80%,4380,Main Compound,1
+Bulgarian Split Squat,125,3,10,10/9/2021,,,3750,Compound Accessory,1
+Seated Dumbbell Overhead Press,35,3,10,10/9/2021,,,1050,Compound Accessory,1
+Cable Crunches,65,3,20,10/9/2021,,,3900,Accessory,1
+Larson Press,185,1,4,10/9/2021,7.0,82%,740,Compound Accessory,1
+Larson Press,155,3,6,10/9/2021,6.0,69%,2790,Compound Accessory,1
+Deficit Romanian Deadlift,375,1,1,10/11/2021,7.0,103%,375,Compound Accessory,1
+Deficit Romanian Deadlift,335,4,5,10/11/2021,7.0,92%,6700,Compound Accessory,1
+Bench,230,1,2,10/11/2021,8.0,84%,460,Main Compound,1
+Bench,205,1,2,10/11/2021,6.0,75%,410,Main Compound,1
+Bench,205,4,3,10/11/2021,6.5,75%,2460,Main Compound,1
+Flat Dumbbell Press,55,3,10,10/11/2021,,,1650,Compound Accessory,1
+Pullup,0,3,8,10/11/2021,,,0,Compound Accessory,1
+YTW's,10,2,10,10/11/2021,,,200,Accessory,1
+Heeled Squat,385,1,1,10/13/2021,8.5,95%,385,Main Compound Accessory,1
+Heeled Squat,405,1,1,10/13/2021,9.0,100%,405,Main Compound Accessory,1
+Bench,225,1,5,10/13/2021,7.0,82%,1125,Main Compound,1
+Bench,185,3,5,10/13/2021,6.0,67%,2775,Main Compound,1
+Cable Row,80,4,8,10/13/2021,,,2560,Accessory,1
+Flat Dumbbell Press,55,3,10,10/13/2021,,,1650,Compound Accessory,1
+Heeled Squat,315,4,5,10/13/2021,7.0,78%,6300,Main Compound Accessory,1
+Squat,405,1,2,10/18/2021,7.0,89%,810,Main Compound,1
+Squat,365,1,2,10/18/2021,7.0,80%,730,Main Compound,1
+Squat,335,1,8,10/18/2021,6.0,74%,2680,Main Compound,1
+Bench,245,1,2,10/18/2021,7.0,89%,490,Main Compound,1
+Bench,225,3,5,10/18/2021,6.5,82%,3375,Main Compound,1
+Incline Dumbbell Press,35,3,10,10/18/2021,,,1050,Compound Accessory,1
+Pullup,0,3,10,10/18/2021,,,0,Compound Accessory,1
+YTW's,10,2,10,10/18/2021,,,200,Accessory,1
+Heeled Squat,405,1,1,10/20/2021,8.5,100%,405,Main Compound Accessory,1
+Heeled Squat,335,4,5,10/20/2021,6.0,83%,6700,Main Compound Accessory,1
+Flat Dumbbell Press,65,3,10,10/20/2021,,,1950,Compound Accessory,1
+Deadlift,455,1,3,10/22/2021,8.0,91%,1365,Main Compound,1
+Deadlift,475,1,1,10/22/2021,10.0,95%,475,Main Compound,1
+Squat,405,1,1,10/22/2021,8.5,89%,405,Main Compound,1
+Bench,265,1,1,10/22/2021,10.0,96%,265,Main Compound,1
+Squat,425,1,1,10/23/2021,9.0,93%,425,Main Compound,1
+Bench,255,1,1,10/23/2021,7.0,93%,255,Main Compound,1
+Bench,235,2,2,10/23/2021,8.0,85%,940,Main Compound,1
+Heeled Squat,405,1,1,10/26/2021,9.5,100%,405,Main Compound Accessory,1
+Squat,315,4,5,10/26/2021,6.0,69%,6300,Main Compound,1
+Deadlift,455,1,1,10/26/2021,8.0,91%,455,Main Compound,1
+Deadlift,405,4,1,10/26/2021,7.0,81%,1620,Main Compound,1
+Squat,385,1,1,10/27/2021,10.0,85%,385,Main Compound,1
+Squat,335,2,5,10/27/2021,7.0,74%,3350,Main Compound,1
+Squat,275,2,8,10/27/2021,5.0,60%,4400,Main Compound,1
+Bench,225,5,3,10/27/2021,7.0,82%,3375,Main Compound,1
+Deadlift,455,1,1,10/29/2021,9.0,91%,455,Main Compound,1
+Deadlift,405,2,1,10/29/2021,7.0,81%,810,Main Compound,1
+Deadlift,405,2,6,10/29/2021,7.0,81%,4860,Main Compound,1
+Bench,245,1,2,10/29/2021,8.5,89%,490,Main Compound,1
+Bench,225,3,5,10/29/2021,7.0,82%,3375,Main Compound,1
+Deadlift,455,1,1,11/1/2021,8.0,91%,455,Main Compound,1
+Deadlift,405,2,6,11/1/2021,7.0,81%,4860,Main Compound,1
+Squat,275,4,5,11/1/2021,5.0,60%,5500,Main Compound,1
+Bench,155,3,6,11/1/2021,6.0,56%,2790,Main Compound,1
+Squat,405,1,1,11/3/2021,8.0,89%,405,Main Compound,1
+Squat,350,4,5,11/3/2021,8.0,77%,7000,Main Compound,1
+Bench,225,1,3,11/3/2021,7.0,82%,675,Main Compound,1
+Deadlift,505,1,1,11/6/2021,10.0,101%,505,Main Compound,1
+Heeled Squat,410,1,1,11/6/2021,10.0,101%,410,Main Compound Accessory,1
+Saftey Bar Squat,275,5,5,11/10/2021,,,6875,Main Compound Accessory,1
+Deadlift,495,1,1,11/12/2021,10.0,99%,495,Main Compound,1
+Deadlift,315,3,7,11/12/2021,7.0,63%,6615,Main Compound,1
+Saftey Bar Squat,135,4,10,11/12/2021,,,5400,Main Compound Accessory,1
+Squat,405,1,1,11/14/2021,8.0,89%,405,Main Compound,1
+Banded Squat,225,2,10,11/14/2021,,,4500,Main Compound Accessory,1
+Bench,275,1,1,11/14/2021,10.0,100%,275,Main Compound,1
+Heeled Squat,355,1,4,11/15/2021,8.0,87%,1420,Main Compound Accessory,2
+Heeled Squat,315,3,4,11/15/2021,8.0,77%,3780,Main Compound Accessory,2
+Bulgarian Split Squat,95,3,15,11/15/2021,,76%,4275,Compound Accessory,2
+Seated Dumbbell Overhead Press,30,3,15,11/15/2021,,86%,1350,Compound Accessory,2
+Larson Press,170,1,7,11/15/2021,6.5,76%,1190,Compound Accessory,2
+Larson Press,155,2,9,11/15/2021,6.5,69%,2790,Compound Accessory,2
+Cable Crunches,65,3,20,11/15/2021,,97%,3900,Accessory,2
+Banded Deadlift,365,1,1,11/16/2021,,,365,Main Compound Accessory,2
+Banded Deadlift,315,3,6,11/16/2021,,,5670,Main Compound Accessory,2
+Bench,215,1,4,11/16/2021,6.0,78%,860,Main Compound,2
+Bench,195,3,5,11/16/2021,6.0,71%,2925,Main Compound,2
+Flat Dumbbell Press,65,1,12,11/16/2021,,100%,780,Compound Accessory,2
+Flat Dumbbell Press,65,1,10,11/16/2021,,100%,650,Compound Accessory,2
+Flat Dumbbell Press,55,2,12,11/16/2021,,85%,1320,Compound Accessory,2
+YTW's,10,3,10,11/16/2021,,100%,300,Accessory,2
+Saftey Bar Squat,275,1,1,11/17/2021,7.0,100%,275,Main Compound Accessory,2
+Saftey Bar Squat,245,4,8,11/17/2021,6.5,89%,7840,Main Compound Accessory,2
+Bench,205,1,6,11/17/2021,6.0,75%,1230,Main Compound,2
+Bench,185,2,6,11/17/2021,6.0,67%,2220,Main Compound,2
+Incline Dumbbell Press,45,3,15,11/17/2021,,129%,2025,Compound Accessory,2
+Deadlift,415,1,3,11/19/2021,6.0,82%,1245,Main Compound,2
+Deadlift,375,3,4,11/19/2021,6.0,74%,4500,Main Compound,2
+Bench,235,1,1,11/19/2021,6.0,85%,235,Main Compound,2
+Bench,185,2,8,11/19/2021,6.0,67%,2960,Main Compound,2
+Squat,275,3,8,11/19/2021,5.0,60%,6600,Main Compound,2
+Dumbbell RDL,80,4,12,11/19/2021,,100%,3840,Compound Accessory,2
+YTW's,10,2,15,11/19/2021,,100%,300,Accessory,2
+Squat,355,1,4,11/20/2021,6.0,78%,1420,Main Compound,2
+Squat,320,4,4,11/20/2021,6.0,70%,5120,Main Compound,2
+Larson Press,170,1,7,11/20/2021,6.5,76%,1190,Compound Accessory,2
+Larson Press,153,3,9,11/20/2021,6.5,68%,4131,Compound Accessory,2
+Seated Dumbbell Overhead Press,35,3,15,11/20/2021,,100%,1575,Compound Accessory,2
+Bulgarian Split Squat,105,3,15,11/20/2021,,84%,4725,Compound Accessory,2
+Banded Deadlift,365,1,1,11/22/2021,,,365,Main Compound Accessory,2
+Banded Deadlift,315,4,6,11/22/2021,,,7560,Main Compound Accessory,2
+Bench,215,1,4,11/22/2021,6.0,78%,860,Main Compound,2
+Bench,200,3,5,11/22/2021,6.0,73%,3000,Main Compound,2
+Bench,200,1,7,11/22/2021,6.0,73%,1400,Main Compound,2
+Flat Dumbbell Press,65,2,12,11/22/2021,,100%,1560,Compound Accessory,2
+Flat Dumbbell Press,50,2,12,11/22/2021,,77%,1200,Compound Accessory,2
+Banded Squat,275,1,1,11/24/2021,,122%,275,Main Compound Accessory,2
+Banded Squat,225,4,8,11/24/2021,,100%,7200,Main Compound Accessory,2
+Bench,205,1,6,11/24/2021,6.0,75%,1230,Main Compound,2
+Bench,195,3,6,11/24/2021,6.0,71%,3510,Main Compound,2
+Tricep Pushdowns,60,3,15,11/24/2021,,,2700,Accessory,2
+Cable Row,100,4,10,11/24/2021,,91%,4000,Accessory,2
+Deadlift,415,1,1,11/26/2021,6.0,82%,415,Main Compound,2
+Deadlift,375,4,4,11/26/2021,6.0,74%,6000,Main Compound,2
+Squat,275,1,7,11/26/2021,5.0,60%,1925,Main Compound,2
+Bench,245,1,1,11/26/2021,7.0,89%,245,Main Compound,2
+Bench,185,1,8,11/26/2021,6.0,67%,1480,Main Compound,2
+Bench,195,1,8,11/26/2021,6.0,71%,1560,Main Compound,2
+Bench,205,1,8,11/26/2021,6.0,75%,1640,Main Compound,2
+Squat,405,1,6,12/4/2021,10.0,89%,2430,Main Compound,2
+Squat,365,1,4,12/4/2021,7.0,80%,1460,Main Compound,2
+Larson Press,225,1,7,12/4/2021,7.0,100%,1575,Compound Accessory,2
+Banded Deadlift,405,1,4,12/6/2021,,,1620,Main Compound Accessory,2
+Deadlift,405,1,7,12/6/2021,10.0,80%,2835,Main Compound,2
+Banded Deadlift,365,1,4,12/6/2021,,,1460,Main Compound Accessory,2
+Deadlift,365,1,9,12/6/2021,10.0,72%,3285,Main Compound,2
+Banded Deadlift,315,1,5,12/6/2021,,,1575,Main Compound Accessory,2
+Larson Press,185,1,9,12/11/2021,7.5,82%,1665,Compound Accessory,2
+Larson Press,165,2,7,12/11/2021,7.5,73%,2310,Compound Accessory,2
+Squat,405,1,4,12/16/2021,10.0,89%,1620,Main Compound,2
+Deadlift,500,1,1,12/17/2021,10.0,99%,500,Main Compound,2
+Squat,335,3,4,12/18/2021,6.0,74%,4020,Main Compound,2
+Larson Press,185,1,7,12/18/2021,7.5,82%,1295,Compound Accessory,2
+Larson Press,165,3,9,12/18/2021,7.5,73%,4455,Compound Accessory,2
+Bench,225,1,4,12/20/2021,7.5,82%,900,Main Compound,2
+Bench,200,3,5,12/20/2021,7.5,73%,3000,Main Compound,2
+Bench,225,1,6,12/20/2021,7.5,82%,1350,Main Compound,2
+Paused Deadlift,405,1,1,12/20/2021,10.0,,405,Main Compound Accessory,2
+Paused Deadlift,365,1,6,12/20/2021,9.0,,2190,Main Compound Accessory,2
+Paused Deadlift,315,3,6,12/20/2021,8.0,,5670,Main Compound Accessory,2
+Bulgarian Split Squat,135,3,15,12/21/2021,,108%,6075,Compound Accessory,2
+V Bar Rows,180,5,5,12/21/2021,,,4500,Compound Accessory,2
+Flat Dumbbell Press,55,4,12,12/21/2021,,85%,2640,Compound Accessory,2
+Seated Dumbbell Overhead Press,35,3,15,12/21/2021,,100%,1575,Compound Accessory,2
+YTW's,10,3,10,12/21/2021,,100%,300,Accessory,2
+Cable Crunches,72.5,3,20,12/21/2021,,108%,4350,Accessory,2
+Banded Squat,335,1,1,12/22/2021,,149%,335,Main Compound Accessory,2
+Banded Squat,275,1,8,12/22/2021,,122%,2200,Main Compound Accessory,2
+Banded Squat,225,3,8,12/22/2021,,100%,5400,Main Compound Accessory,2
+Block Press,275,1,2,12/22/2021,10.0,100%,550,Main Compound Accessory,2
+Block Press,250,5,3,12/22/2021,8.0,91%,3750,Main Compound Accessory,2
+Cable Row,120,4,10,12/23/2021,,109%,4800,Accessory,2
+Tricep Pushdowns,57,4,15,12/23/2021,,,3420,Accessory,2
+Incline Bench,95,4,15,12/23/2021,,,5700,Compound Accessory,2
+Deadlift,415,1,3,12/24/2021,6.0,82%,1245,Main Compound,2
+Deadlift,375,4,4,12/24/2021,6.0,74%,6000,Main Compound,2
+Bench,235,1,1,12/24/2021,7.0,85%,235,Main Compound,2
+Bench,185,3,8,12/24/2021,7.0,67%,4440,Main Compound,2
+Squat,275,3,7,12/24/2021,6.0,60%,5775,Main Compound,2
+Dumbbell RDL,100,3,15,12/24/2021,,125%,4500,Compound Accessory,2
+Squat,385,1,4,12/26/2021,9.0,85%,1540,Main Compound,2
+Squat,345,4,4,12/26/2021,7.5,76%,5520,Main Compound,2
+Larson Press,185,1,7,12/26/2021,7.5,82%,1295,Compound Accessory,2
+Larson Press,165,3,9,12/26/2021,7.5,73%,4455,Compound Accessory,2
+Bulgarian Split Squat,145,3,15,12/28/2021,,116%,6525,Compound Accessory,2
+V Bar Rows,145,5,10,12/28/2021,,,7250,Compound Accessory,2
+Flat Dumbbell Press,60,1,12,12/28/2021,,92%,720,Compound Accessory,2
+Flat Dumbbell Press,70,3,12,12/28/2021,,108%,2520,Compound Accessory,2
+Seated Dumbbell Overhead Press,35,3,15,12/28/2021,,100%,1575,Compound Accessory,2
+Paused Deadlift,405,1,1,12/27/2021,10.0,,405,Main Compound Accessory,2
+Paused Deadlift,315,4,6,12/27/2021,7.0,,7560,Main Compound Accessory,2
+Bench,225,1,4,12/27/2021,7.0,82%,900,Main Compound,2
+Bench,205,3,5,12/27/2021,6.0,75%,3075,Main Compound,2
+Bench,205,1,8,12/27/2021,6.0,75%,1640,Main Compound,2
+Squat,425,1,1,1/5/2022,10.0,93%,425,Main Compound,2
+Squat,315,4,4,1/5/2022,5.0,69%,5040,Main Compound,2
+Deadlift,455,1,3,1/7/2022,9.0,90%,1365,Main Compound,2
+Deadlift,405,4,4,1/7/2022,7.0,80%,6480,Main Compound,2
+Bench,245,1,1,1/7/2022,8.0,89%,245,Main Compound,2
+Bench,185,2,8,1/7/2022,7.0,67%,2960,Main Compound,2
+Bench,185,1,4,1/7/2022,5.0,67%,740,Main Compound,2
+Dumbbell RDL,75,4,12,1/7/2022,,94%,3600,Compound Accessory,2
+Squat,385,1,4,1/8/2022,9.0,85%,1540,Main Compound,2
+Squat,350,4,4,1/8/2022,8.5,77%,5600,Main Compound,2
+Larson Press,185,1,9,1/8/2022,7.5,82%,1665,Compound Accessory,2
+Larson Press,165,3,9,1/8/2022,7.5,73%,4455,Compound Accessory,2
+Bulgarian Split Squat,135,3,15,1/9/2022,,108%,6075,Compound Accessory,2
+Seated Dumbbell Overhead Press,30,3,15,1/9/2022,,86%,1350,Compound Accessory,2
+Cable Crunches,65,3,20,1/9/2022,,97%,3900,Accessory,2
+Paused Deadlift,405,1,1,1/11/2022,8.0,,405,Main Compound Accessory,2
+Paused Deadlift,455,1,1,1/11/2022,10.0,,455,Main Compound Accessory,2
+Banded Deadlift,345,3,6,1/11/2022,9.0,,6210,Main Compound Accessory,2
+Banded Deadlift,315,1,6,1/11/2022,8.0,,1890,Main Compound Accessory,2
+Bench,225,1,4,1/11/2022,7.0,82%,900,Main Compound,2
+Bench,225,3,5,1/11/2022,7.0,82%,3375,Main Compound,2
+Bench,205,1,7,1/11/2022,6.0,75%,1435,Main Compound,2
+YTW's,10,3,10,1/11/2022,,100%,300,Accessory,2
+Saftey Bar Squat,225,4,8,1/12/2022,,82%,7200,Main Compound Accessory,2
+Bench,225,1,6,1/12/2022,9.0,82%,1350,Main Compound,2
+Bench,175,3,6,1/12/2022,7.0,64%,3150,Main Compound,2
+Cable Row,100,4,10,1/13/2022,,91%,4000,Accessory,2
+Incline Dumbbell Press,45,4,15,1/13/2022,,129%,2700,Compound Accessory,2
+Tricep Pushdowns,50,4,15,1/13/2022,,,3000,Accessory,2
+Deadlift,495,1,3,1/17/2022,10.0,98%,1485,Main Compound,2
+Deadlift,405,2,4,1/17/2022,8.5,80%,3240,Main Compound,2
+Bench,225,1,4,1/17/2022,7.0,82%,900,Main Compound,2
+Bench,245,1,1,1/17/2022,7.5,89%,245,Main Compound,2
+Bench,205,3,8,1/17/2022,7.0,75%,4920,Main Compound,2
+Bulgarian Split Squat,145,3,15,1/18/2022,,116%,6525,Compound Accessory,2
+Cable Row,95,4,10,1/18/2022,,86%,3800,Accessory,2
+YTW's,10,3,10,1/18/2022,,100%,300,Accessory,2
+Cable Crunches,65,3,20,1/18/2022,,97%,3900,Accessory,2
+Squat,415,1,4,1/15/2022,9.5,91%,1660,Main Compound,2
+Block Press,295,1,1,1/15/2022,,107%,295,Main Compound Accessory,2
+Block Press,245,5,3,1/15/2022,,89%,3675,Main Compound Accessory,2
+Bulgarian Split Squat,145,3,15,1/19/2022,,116%,6525,Compound Accessory,2
+Incline Bench,95,3,15,1/19/2022,,,4275,Compound Accessory,2
+Cable Crunches,65,3,20,1/19/2022,,97%,3900,Accessory,2
+YTW's,10,3,10,1/19/2022,,100%,300,Accessory,2
+Deadlift,415,1,3,1/21/2022,8.0,82%,1245,Main Compound,2
+Deadlift,365,4,4,1/21/2022,7.0,72%,5840,Main Compound,2
+Squat,300,3,7,1/21/2022,5.0,66%,6300,Main Compound,2
+Bench,245,1,1,1/21/2022,7.0,89%,245,Main Compound,2
+Bench,205,2,8,1/21/2022,7.0,75%,3280,Main Compound,2
+Dumbbell RDL,100,4,15,1/21/2022,,125%,6000,Compound Accessory,2
+Dumbbell Lateral Side Raise,15,3,15,1/21/2022,,86%,675,Accessory,2
+Squat,385,1,3,1/22/2022,8.5,85%,1155,Main Compound,2
+Squat,355,1,3,1/22/2022,8.0,78%,1065,Main Compound,2
+Block Press,275,1,1,1/22/2022,,100%,275,Main Compound Accessory,2
+Block Press,245,5,3,1/22/2022,,89%,3675,Main Compound Accessory,2
+Paused Deadlift,365,1,1,1/22/2022,,,365,Main Compound Accessory,2
+Bench,225,1,7,1/22/2022,10.0,82%,1575,Main Compound,2
+Bench,205,4,4,1/22/2022,8.0,75%,3280,Main Compound,2
+Bench,225,1,7,1/24/2022,10.0,82%,1575,Main Compound,2
+Bench,205,4,4,1/24/2022,8.0,75%,3280,Main Compound,2
+Bulgarian Split Squat,135,3,15,1/25/2022,,108%,6075,Compound Accessory,2
+Romanian Deadlift,135,3,15,1/25/2022,,42%,6075,Compound Accessory,2
+Flat Dumbbell Press,65,4,12,1/25/2022,,100%,3120,Compound Accessory,2
+Seated Dumbbell Overhead Press,40,4,12,1/25/2022,,114%,1920,Compound Accessory,2
+Lat Pulldown,65,4,10,1/25/2022,,81%,2600,Accessory,2
+Saftey Bar Squat,315,1,1,1/26/2022,,115%,315,Main Compound Accessory,2
+Saftey Bar Squat,225,3,6,1/26/2022,,82%,4050,Main Compound Accessory,2
+Bench,265,1,1,1/26/2022,9.0,96%,265,Main Compound,2
+Bench,225,1,7,1/26/2022,9.0,82%,1575,Main Compound,2
+Bench,225,1,4,1/26/2022,8.0,82%,900,Main Compound,2
+Incline Bench,95,4,15,1/27/2022,,,5700,Compound Accessory,2
+Tricep Pushdowns,45,3,15,1/27/2022,,,2025,Accessory,2
+Cable Row,100,4,10,1/27/2022,,91%,4000,Accessory,2
+Bench,275,1,1,1/28/2022,9.5,100%,275,Main Compound,2
+Bench,285,1,1,1/28/2022,10.0,104%,285,Main Compound,2
+Bench,205,3,8,1/28/2022,7.0,75%,4920,Main Compound,2
+Block Press,315,1,1,1/29/2022,,115%,315,Main Compound Accessory,2
+Block Press,285,3,3,1/29/2022,,104%,2565,Main Compound Accessory,2
+Deadlift,405,1,1,1/31/2022,5.0,80%,405,Main Compound,2
+Squat,315,4,4,1/31/2022,7.0,69%,5040,Main Compound,2
+Squat,385,1,1,2/1/2022,7.0,85%,385,Main Compound,2
+Squat,315,2,5,2/1/2022,5.0,69%,3150,Main Compound,2
+Bench,275,1,1,2/1/2022,9.0,100%,275,Main Compound,2
+Bench,245,1,4,2/1/2022,9.0,89%,980,Main Compound,2
+Bench,225,1,7,2/1/2022,9.5,82%,1575,Main Compound,2
+Bench,185,1,4,2/1/2022,7.0,67%,740,Main Compound,2
+Deadlift,455,1,1,2/4/2022,8.0,90%,455,Main Compound,2
+Deadlift,365,1,1,2/4/2022,6.0,72%,365,Main Compound,2
+Bench,215,3,8,2/4/2022,7.0,78%,5160,Main Compound,2
+Bulgarian Split Squat,135,3,10,2/3/2022,,108%,4050,Compound Accessory,2
+Incline Bench,95,3,15,2/3/2022,,,4275,Compound Accessory,2
+Deadlift,455,1,1,2/4/2022,8.0,90%,455,Main Compound,2
+Deadlift,365,1,1,2/4/2022,6.0,72%,365,Main Compound,2
+Bench,215,3,8,2/4/2022,7.0,78%,5160,Main Compound,2
+Dumbbell Lateral Side Raise,15,3,15,2/4/2022,,86%,675,Accessory,2
+Squat,405,1,2,2/5/2022,8.5,89%,810,Main Compound,2
+Deadlift,455,1,1,2/5/2022,8.0,90%,455,Main Compound,2
+Block Press,275,1,1,2/5/2022,,100%,275,Main Compound Accessory,2
+Block Press,245,1,5,2/5/2022,,89%,1225,Main Compound Accessory,2
+Squat,455,1,1,8/10/2021,10.0,,455,Main Compound,0
+Bench,275,1,1,8/10/2021,10.0,,275,Main Compound,0
+Deadlift,500,1,1,8/10/2021,10.0,,500,Main Compound,0
+Heeled Squat,405,1,1,8/10/2021,10.0,,405,Main Compound Accessory,0
+Larson Press,225,1,1,8/10/2021,10.0,,225,Compound Accessory,0
+Deficit Romanian Deadlift,365,1,1,8/10/2021,10.0,,365,Compound Accessory,0
+Block Press,275,1,1,11/14/2021,,,275,Main Compound Accessory,1
+Deadlift,495,1,1,2/11/2022,9.5,98%,495,Main Compound,2
+Squat,315,4,7,2/11/2022,6.5,69%,8820,Main Compound,2
+Bench,225,1,4,2/11/2022,6.5,82%,900,Main Compound,2
+Squat,405,4,2,2/14/2022,9.5,89%,3240,Main Compound,2
+Squat,315,3,7,2/14/2022,7.5,69%,6615,Main Compound,2
+Deadlift,405,2,1,2/16/2022,6.0,80%,810,Main Compound,2
+Deadlift,315,1,12,2/16/2022,8.0,62%,3780,Main Compound,2
+Saftey Bar Squat,185,3,10,2/16/2022,,67%,5550,Main Compound Accessory,2
+Deadlift,455,1,3,2/18/2022,9.5,90%,1365,Main Compound,2
+Deadlift,495,1,2,2/18/2022,10.0,98%,990,Main Compound,2
+Bench,245,1,4,2/18/2022,8.5,89%,980,Main Compound,2
+Bench,235,1,5,2/18/2022,8.0,85%,1175,Main Compound,2
+Bench,225,1,6,2/18/2022,8.0,82%,1350,Main Compound,2
+Bench,275,1,1,2/19/2022,8.5,100%,275,Main Compound,2
+Bench,225,1,7,2/19/2022,8.0,82%,1575,Main Compound,2
+Squat,405,1,2,2/26/2022,8.0,89%,810,Main Compound,3
+Squat,315,1,10,2/26/2022,6.0,69%,3150,Main Compound,3
+Saftey Bar Squat,275,3,8,2/28/2022,,87%,6600,Main Compound Accessory,3
+Saftey Bar Squat,315,2,2,2/28/2022,,100%,1260,Main Compound Accessory,3
+Bench,245,1,1,3/1/2022,7.0,86%,245,Main Compound,3
+Bench,225,4,4,3/1/2022,7.0,79%,3600,Main Compound,3
+Bench,185,1,7,3/1/2022,6.0,65%,1295,Main Compound,3
+Saftey Bar Squat,285,3,8,3/2/2022,,90%,6840,Main Compound Accessory,3
+Saftey Bar Squat,300,1,5,3/2/2022,,95%,1500,Main Compound Accessory,3
+Saftey Bar Squat,315,2,2,3/2/2022,,100%,1260,Main Compound Accessory,3
+Bench,225,1,4,3/2/2022,8.0,79%,900,Main Compound,3
+Bench,225,2,5,3/2/2022,8.0,79%,2250,Main Compound,3
+Bench,225,2,3,3/2/2022,8.0,79%,1350,Main Compound,3
+Deadlift,455,1,1,3/27/2022,8.0,90%,455,Main Compound,4
+Deadlift,405,2,6,3/27/2022,6.5,80%,4860,Main Compound,4
+Deadlift,315,1,6,3/27/2022,5.0,62%,1890,Main Compound,4
+Deadlift,225,2,10,3/27/2022,5.0,45%,4500,Main Compound,4
+Bench,275,1,2,3/27/2022,10.0,96%,550,Main Compound,4
+Bench,225,2,5,3/27/2022,8.5,79%,2250,Main Compound,4
+Bench,225,1,3,3/27/2022,7.0,79%,675,Main Compound,4
+Paused Deadlift,275,6,6,3/29/2022,6.0,60%,9900,Main Compound Accessory,4
+Deadlift,225,1,10,3/29/2022,6.0,45%,2250,Main Compound,4
+Bench,275,1,1,3/29/2022,8.0,96%,275,Main Compound,4
+Bench,205,2,7,3/29/2022,7.0,72%,2870,Main Compound,4
+Bench,205,1,6,3/29/2022,7.0,72%,1230,Main Compound,4
+Deadlift,425,1,8,4/2/2022,9.0,84%,3400,Main Compound,4
+Deadlift,365,3,6,4/2/2022,6.5,72%,6570,Main Compound,4
+Banded Deadlift,225,2,10,4/2/2022,5.0,56%,4500,Main Compound Accessory,4
+Bench,225,1,8,4/2/2022,10.0,79%,1800,Main Compound,4
+Overhead Press,45,5,10,4/2/2022,,,2250,Compound Accessory,4
+Paused Deadlift,315,6,6,4/5/2022,8.0,69%,11340,Main Compound Accessory,4
+Banded Deadlift,225,1,10,4/5/2022,5.0,56%,2250,Main Compound Accessory,4
+Squat,225,5,5,4/5/2022,5.0,49%,5625,Main Compound,4
+Bench,225,8,3,4/7/2022,6.0,79%,5400,Main Compound,4
+Barbell Rows,185,5,5,4/7/2022,,,4625,Accessory,4
+Barbell Rows,135,5,10,4/7/2022,,,6750,Accessory,4
+Lat Pulldown,100,5,10,4/7/2022,,125%,5000,Accessory,4
+Deadlift,455,1,6,4/9/2022,9.5,90%,2730,Main Compound,4
+Deadlift,405,3,6,4/9/2022,10.0,80%,7290,Main Compound,4
+Banded Deadlift,225,1,10,4/9/2022,,56%,2250,Main Compound Accessory,4
+Bench,245,1,5,4/9/2022,10.0,86%,1225,Main Compound,4
+Bench,245,2,3,4/9/2022,9.0,86%,1470,Main Compound,4
+Bench,225,1,3,4/9/2022,7.0,79%,675,Main Compound,4
+Bench,185,1,9,4/9/2022,7.0,65%,1665,Main Compound,4
+Overhead Press,45,4,15,4/9/2022,,,2700,Compound Accessory,4
+Paused Deadlift,335,6,6,4/12/2022,9.0,74%,12060,Main Compound Accessory,4
+Squat,315,5,5,4/12/2022,5.0,69%,7875,Main Compound,4
+Bench,275,1,2,4/14/2022,10.0,96%,550,Main Compound,4
+Bench,225,6,4,4/14/2022,9.0,79%,5400,Main Compound,4
+Barbell Rows,185,5,5,4/14/2022,,,4625,Accessory,4
+Barbell Rows,135,5,10,4/14/2022,,,6750,Accessory,4
+Lat Pulldown,100,5,10,4/14/2022,,125%,5000,Accessory,4
+Deadlift,495,1,3,4/18/2022,10.0,98%,1485,Main Compound,4
+Deadlift,425,4,4,4/18/2022,9.5,84%,6800,Main Compound,4
+Banded Deadlift,225,2,10,4/18/2022,5.0,56%,4500,Main Compound Accessory,4
+Bench,245,1,1,4/18/2022,8.0,86%,245,Main Compound,4
+Bench,185,4,7,4/18/2022,7.0,65%,5180,Main Compound,4
+Paused Deadlift,365,8,4,4/20/2022,8.0,80%,11680,Main Compound Accessory,4
+Squat,315,5,5,4/20/2022,5.0,69%,7875,Main Compound,4
+Deadlift,515,1,1,4/28/2022,10.0,102%,515,Main Compound,4
+Deadlift,495,1,1,4/28/2022,10.0,98%,495,Main Compound,4
+Deadlift,315,3,5,4/28/2022,5.0,62%,4725,Main Compound,4
+Bench,275,1,1,4/28/2022,9.0,96%,275,Main Compound,4
+Bench,225,5,5,4/28/2022,7.0,79%,5625,Main Compound,4
+Squat,315,1,1,5/2/2022,7.0,69%,315,Main Compound,4
+Deadlift,315,1,1,5/2/2022,5.0,62%,315,Main Compound,4
+Bench,225,1,1,5/2/2022,6.0,79%,225,Main Compound,4
+Deadlift,520,1,1,5/5/2022,10.0,103%,520,Main Compound,4
+Squat,275,3,8,5/7/2022,7.0,60%,6600,Main Compound,5
+Squat,300,1,5,5/7/2022,7.0,66%,1500,Main Compound,5
+Squat,315,2,2,5/7/2022,7.0,69%,1260,Main Compound,5
+Goblet Squat,0,2,35,5/7/2022,,,0,Accessory,5
+Squat,405,1,1,5/7/2022,9.0,89%,405,Main Compound,5
+Goblet Squat,0,3,15,5/7/2022,,,0,Accessory,5
+Bench,225,1,2,5/9/2022,6.0,79%,450,Main Compound,5
+Bench,215,1,8,5/9/2022,7.0,75%,1720,Main Compound,5
+Bench,185,3,7,5/9/2022,7.0,65%,3885,Main Compound,5
+Pin Press,225,3,7,5/12/2022,7.0,,4725,Main Compound Accessory,5
+Pin Press,225,1,6,5/12/2022,9.0,,1350,Main Compound Accessory,5
+Tricep Pushdowns,50,5,15,5/12/2022,,83%,3750,Accessory,5
+Lat Pulldown,120,3,10,5/12/2022,,120%,3600,Accessory,5
+Deadlift,455,1,6,5/15/2022,10.0,88%,2730,Main Compound,5
+Deadlift,365,3,6,5/15/2022,9.0,70%,6570,Main Compound,5
+Banded Deadlift,225,2,10,5/15/2022,5.0,56%,4500,Main Compound Accessory,5
+Squat,405,1,1,5/16/2022,9.0,89%,405,Main Compound,5
+Squat,425,1,1,5/16/2022,9.5,93%,425,Main Compound,5
+Bench,275,1,1,5/16/2022,8.5,96%,275,Main Compound,5
+Bench,225,1,10,5/16/2022,10.0,79%,2250,Main Compound,5
+Tricep Pushdowns,50,5,15,5/16/2022,,83%,3750,Accessory,5
+Paused Deadlift,315,6,6,5/19/2022,7.0,69%,11340,Main Compound Accessory,5
+Pin Press,245,8,3,5/19/2022,10.0,,5880,Main Compound Accessory,5
+Lat Pulldown,120,5,10,5/19/2022,,120%,6000,Accessory,5
+Squat,315,3,9,5/20/2022,7.0,69%,8505,Main Compound,5
+Squat,335,1,5,5/20/2022,6.0,74%,1675,Main Compound,5
+Squat,365,2,2,5/20/2022,8.0,80%,1460,Main Compound,5
+Goblet Squat,25,5,25,5/20/2022,7.0,,3125,Accessory,5
+Deadlift,455,1,1,5/23/2022,8.5,88%,455,Main Compound,5
+Deadlift,405,1,11,5/23/2022,10.0,78%,4455,Main Compound,5
+Deadlift,365,3,6,5/23/2022,8.0,70%,6570,Main Compound,5
+Barbell Rows,135,3,10,5/23/2022,,73%,4050,Accessory,5
+Bench,245,1,7,5/24/2022,9.5,86%,1715,Main Compound,5
+Bench,185,3,8,5/24/2022,7.0,65%,4440,Main Compound,5
+Bench,135,2,10,5/24/2022,7.0,47%,2700,Main Compound,5
+Tricep Pushdowns,50,3,15,5/24/2022,,83%,2250,Accessory,5
+Lat Pulldown,120,2,10,5/24/2022,,120%,2400,Accessory,5
+Paused Deadlift,335,6,6,5/26/2022,6.0,74%,12060,Main Compound Accessory,5
+Pin Press,255,9,2,5/26/2022,9.0,,4590,Main Compound Accessory,5
+Tricep Pushdowns,50,5,15,5/26/2022,,83%,3750,Accessory,5
+Squat,325,3,8,5/27/2022,9.0,71%,7800,Main Compound,5
+Squat,345,1,5,5/27/2022,8.5,76%,1725,Main Compound,5
+Squat,375,2,2,5/27/2022,9.5,82%,1500,Main Compound,5
+Goblet Squat,45,5,15,5/27/2022,,,3375,Accessory,5
+Deadlift,425,1,9,5/30/2022,10.0,82%,3825,Main Compound,5
+Deadlift,385,3,6,5/30/2022,8.0,74%,6930,Main Compound,5
+Cable Row,120,5,10,5/30/2022,,100%,6000,Accessory,5
+Face Pull,25,3,20,5/30/2022,,,1500,Accessory,5
+Bench,255,1,6,5/31/2022,10.0,89%,1530,Main Compound,5
+Bench,195,3,8,5/31/2022,8.0,68%,4680,Main Compound,5
+Bench,145,2,10,5/31/2022,6.0,51%,2900,Main Compound,5
+Tricep Pushdowns,50,5,15,5/31/2022,,83%,3750,Accessory,5
+Paused Deadlift,365,6,6,6/2/2022,7.0,80%,13140,Main Compound Accessory,5
+Pin Press,275,10,1,6/2/2022,10.0,,2750,Main Compound Accessory,5
+Tricep Pushdowns,50,5,15,6/2/2022,,83%,3750,Accessory,5
+Squat,335,3,8,6/3/2022,7.5,74%,8040,Main Compound,5
+Squat,365,1,5,6/3/2022,8.0,80%,1825,Main Compound,5
+Squat,405,1,1,6/3/2022,10.0,89%,405,Main Compound,5
+Deadlift,495,1,2,6/6/2022,9.5,95%,990,Main Compound,5
+Deadlift,495,1,1,6/6/2022,9.5,95%,495,Main Compound,5
+Deadlift,425,4,4,6/6/2022,9.5,82%,6800,Main Compound,5
+Cable Row,120,5,10,6/6/2022,,100%,6000,Accessory,5
+Bench,275,1,2,6/7/2022,10.0,96%,550,Main Compound,5
+Bench,205,3,5,6/7/2022,8.0,72%,3075,Main Compound,5
+Tricep Pushdowns,50,5,15,6/7/2022,,83%,3750,Accessory,5
+Deadlift,405,6,6,6/9/2022,9.5,78%,14580,Main Compound,5
+Squat,365,3,5,6/9/2022,8.5,80%,5475,Main Compound,5
+Squat,425,1,1,6/14/2022,9.5,93%,425,Main Compound,5
+Squat,365,5,5,6/14/2022,8.0,80%,9125,Main Compound,5
+Goblet Squat,70,5,15,6/14/2022,,,5250,Accessory,5
+Deadlift,425,1,5,6/16/2022,7.0,82%,2125,Main Compound,5
+Deadlift,425,4,5,6/16/2022,9.0,82%,8500,Main Compound,5
+Deadlift,475,1,1,6/16/2022,8.0,91%,475,Main Compound,5
+Barbell Rows,135,5,10,6/16/2022,,73%,6750,Accessory,5
+Cable Row,120,5,10,6/16/2022,,100%,6000,Accessory,5
+Squat,425,1,1,6/17/2022,10.0,93%,425,Main Compound,5
+Squat,315,3,8,6/17/2022,7.5,69%,7560,Main Compound,5
+Goblet Squat,70,5,15,6/17/2022,,,5250,Accessory,5
+Deadlift,455,5,4,6/20/2022,10.0,88%,9100,Main Compound,5
+Barbell Rows,135,5,10,6/20/2022,,73%,6750,Accessory,5
+Cable Row,120,5,15,6/20/2022,,100%,9000,Accessory,5
+Paused Deadlift,385,8,4,6/23/2022,6.0,85%,12320,Main Compound Accessory,5
+Barbell Rows,135,5,15,6/23/2022,,73%,10125,Accessory,5
+Squat,385,6,4,6/24/2022,8.5,85%,9240,Main Compound,5
+Goblet Squat,80,3,15,6/24/2022,,,3600,Accessory,5
+Bench,135,2,10,6/24/2022,2.0,47%,2700,Main Compound,5
+Deadlift,475,5,3,6/27/2022,10.0,91%,7125,Main Compound,5
+Deadlift,495,1,1,6/27/2022,9.5,95%,495,Main Compound,5
+Barbell Rows,135,5,10,6/27/2022,,73%,6750,Accessory,5
+Cable Row,120,4,15,6/27/2022,,100%,7200,Accessory,5
+Bench,225,5,3,6/28/2022,8.0,79%,3375,Main Compound,5
+Bench,185,2,8,6/28/2022,8.0,65%,2960,Main Compound,5
+Tricep Pushdowns,57,5,15,6/28/2022,,95%,4275,Accessory,5
+Paused Deadlift,405,8,4,6/30/2022,9.0,89%,12960,Main Compound Accessory,5
+Barbell Rows,135,5,10,6/30/2022,,73%,6750,Accessory,5
+Lat Pulldown,120,2,8,6/30/2022,,120%,1920,Accessory,5
+Squat,405,4,2,7/1/2022,10.0,89%,3240,Main Compound,5
+Squat,315,2,6,7/1/2022,5.0,69%,3780,Main Compound,5
+Goblet Squat,85,5,15,7/1/2022,,,6375,Accessory,5
+Deadlift,525,1,1,7/7/2022,9.5,101%,525,Main Compound,5
+Paused Deadlift,425,5,4,7/7/2022,9.5,93%,8500,Main Compound Accessory,5
+Bench,245,1,1,7/7/2022,8.5,86%,245,Main Compound,5
+Bench,225,3,5,7/7/2022,8.0,79%,3375,Main Compound,5
+Squat,455,1,1,7/8/2022,9.5,100%,455,Main Compound,5
+Squat,365,3,4,7/8/2022,7.0,80%,4380,Main Compound,5
+Squat,315,2,6,7/8/2022,5.0,69%,3780,Main Compound,5
+Goblet Squat,90,5,15,7/8/2022,,,6750,Accessory,5
+Deadlift,495,6,1,7/11/2022,10.0,95%,2970,Main Compound,5
+Deadlift,405,3,5,7/11/2022,5.0,78%,6075,Main Compound,5
+Squat,365,4,4,7/12/2022,8.5,80%,5840,Main Compound,5
+Goblet Squat,100,4,15,7/12/2022,,,6000,Accessory,5
+Deadlift,455,4.75,4,7/14/2022,9.5,88%,8645,Main Compound,5
+Deadlift,495,1,1,7/14/2022,9.5,95%,495,Main Compound,5
+Deadlift,405,2,4,7/14/2022,7.0,78%,3240,Main Compound,5
+Squat,405,3.66,3,7/15/2022,9.5,89%,4446.9,Main Compound,5
+Squat,315,1,6,7/15/2022,6.0,69%,1890,Main Compound,5
+Goblet Squat,95,3,15,7/15/2022,,,4275,Accessory,5
+Bench,225,1,3,7/15/2022,8.0,79%,675,Main Compound,5
+Close Grip Bench,135,2,8,7/15/2022,6.0,,2160,Main Compound Accessory,5
+Squat,315,4,3,7/18/2022,5.0,69%,3780,Main Compound,5
+Bench,260,1,1,7/18/2022,9.5,91%,260,Main Compound,5
+Close Grip Bench,185,1.75,8,7/18/2022,7.0,,2590,Main Compound Accessory,5
+Squat,435,1,1,7/24/2022,8.5,96%,435,Main Compound,5
+Bench,270,1,1,7/24/2022,9.5,95%,270,Main Compound,5
+Deadlift,535,1,1,7/24/2022,10.0,103%,535,Main Compound,5
