@@ -18,6 +18,8 @@ func TestErrorEquality(t *testing.T){
         "SingularMatrix": SingularMatrix,
         "MatrixSingularToWorkingPrecision": MatrixSingularToWorkingPrecision,
         "MissingVariable": MissingVariable,
+        "MalformedCSVToDBTableFile": MalformedCSVToDBTableFile,
+        "SliceZippingError": SliceZippingError,
     };
     isErrs:=map[string]isErrorType{
         "SqlScriptNotFound": IsSqlScriptNotFound,
@@ -31,6 +33,8 @@ func TestErrorEquality(t *testing.T){
         "SingularMatrix": IsSingularMatrix,
         "MatrixSingularToWorkingPrecision": IsMatrixSingularToWorkingPrecision,
         "MissingVariable": IsMissingVariable,
+        "MalformedCSVToDBTableFile": IsMalformedCSVToDBTableFile,
+        "SliceZippingError": IsSliceZippingError,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");

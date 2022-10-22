@@ -40,7 +40,7 @@ var DataVersionMalformed,IsDataVersionMalformed=errorFactory(
     "Data version is malformed.",
 );
 var SettingsFileNotFound,IsSettingsFileNotFound=errorFactory(
-    "A file specified in the settings document could not be found.",
+    "A file specified in the settings config file could not be found.",
 );
 
 var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=errorFactory(
@@ -61,4 +61,12 @@ var MatrixSingularToWorkingPrecision,IsMatrixSingularToWorkingPrecision=errorFac
 
 var MissingVariable,IsMissingVariable=errorFactory(
     "The requested independent variable is not present.",
+);
+
+var MalformedCSVToDBTableFile,IsMalformedCSVToDBTableFile=errorFactory(
+    "The CSV file cannot be converted to the requested DBTable.",
+);
+
+var SliceZippingError,IsSliceZippingErrror=errorFactory(
+    "The given slices could not be zipped.",
 );

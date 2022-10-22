@@ -26,10 +26,30 @@ func setup(){
     if err=testDB.ResetDB(); err!=nil {
         panic("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/modelTestSettings.json file.");
     }
-    if err=testDB.ExecSQLScript("../sql/uploadModelTestData.sql"); err!=nil {
-        fmt.Println(err);
-        panic("Could not upload test data to run tests on the model. Check the location of the 'uploadModelTestData.sql' file relative to the ./sql folder.");
-    }
+    uploadTestData();
+    //if err=testDB.ExecSQLScript("../sql/uploadModelTestData.sql"); err!=nil {
+    //    fmt.Println(err);
+    //    panic("Could not upload test data to run tests on the model. Check the location of the 'uploadModelTestData.sql' file relative to the ./sql folder.");
+    //}
+}
+
+func uploadTestData(){
+    db.Create(&testDB,db.Client{
+        Id: 1,
+        FirstName: "testF",
+        LastName: "testL",
+        Email: "test@test.com",
+    });
+    err:=db.CSVToDBTable("../testData/ExerciseTypeTestData.csv",',',"",
+    func(e *db.ExerciseType){
+        fmt.Println(*e);
+        db.Create(&testDB,*e);
+    });
+    fmt.Println(err);
+    //err=db.CSVToDBTable("../testData/ExerciseFocusTestData.csv",',',
+    //func(e *db.ExerciseFocus){
+    //    fmt.Println(*e);
+    //});
 }
 
 func teardown(){
