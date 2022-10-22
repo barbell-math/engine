@@ -6,7 +6,6 @@ import (
     "bytes"
     "bufio"
     "errors"
-    "strings"
 )
 
 func Splitter(token string) func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -39,54 +38,6 @@ func YNQuestion(question string) bool {
         }
     }
     return (ans[0]=='y' || ans[0]=='Y');
-}
-
-func CSVFileSplitter(
-        src string,
-        delim byte,
-        hasHeaders bool,
-        rowCallback func(columns []string) bool) error {
-    if f,err:=os.Open(src); err==nil {
-        defer f.Close();
-        scanner:=bufio.NewScanner(f);
-        if hasHeaders {
-            scanner.Scan();
-        }
-        cont:=true;
-        for cont && scanner.Scan() {
-            prevIndex:=0;
-            inQuotes:=false;
-            row:=scanner.Text();
-            columns:=make([]string,0);
-            for i,char:=range(row) {
-                if char=='"' {
-                    inQuotes=!inQuotes;
-                } else if byte(char)==delim && !inQuotes {
-                    columns=append(columns,strings.TrimSpace(row[prevIndex:i]));
-                    prevIndex=i+1;
-                }
-            }
-            columns=append(columns,strings.TrimSpace(row[prevIndex:]));
-            cont=rowCallback(columns);
-        }
-        return nil;
-    } else {
-        return err;
-    }
-}
-
-func CSVGenerator(sep string, callback func(iter int) (string,bool)) string {
-    var sb strings.Builder;
-    var temp string;
-    cont:=true;
-    for i:=0; cont; i++ {
-        temp,cont=callback(i);
-        sb.WriteString(temp);
-        if cont {
-            sb.WriteString(sep);
-        }
-    }
-    return sb.String();
 }
 
 func AppendWithPreallocation[T any](slices ...[]T) []T {

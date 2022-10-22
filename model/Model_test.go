@@ -40,13 +40,13 @@ func uploadTestData(){
         LastName: "testL",
         Email: "test@test.com",
     });
-    err:=db.CSVToDBTable("../testData/ExerciseTypeTestData.csv",',',"",
+    err:=util.CSVToStruct("../testData/ExerciseTypeTestData.csv",',',"",
     func(e *db.ExerciseType){
         fmt.Println(*e);
         db.Create(&testDB,*e);
     });
     fmt.Println(err);
-    //err=db.CSVToDBTable("../testData/ExerciseFocusTestData.csv",',',
+    //err=db.CSVToStruct("../testData/ExerciseFocusTestData.csv",',',
     //func(e *db.ExerciseFocus){
     //    fmt.Println(*e);
     //});

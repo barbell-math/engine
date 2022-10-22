@@ -1,4 +1,4 @@
-package db;
+package util;
 
 import (
     "testing"
@@ -10,6 +10,5 @@ func TestCSVInterface(t *testing.T){
     func(e *ExerciseType){
         fmt.Println(*e);
     });
-    testUtil.BasicTest(
     fmt.Println(err);
 }
