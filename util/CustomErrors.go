@@ -39,8 +39,8 @@ var FilterRemovedAllColumns,IsFilterRemovedAllColumns=errorFactory(
 var DataVersionMalformed,IsDataVersionMalformed=errorFactory(
     "Data version is malformed.",
 );
-var SQLGlobalInitNotFound,IsSQLGlobalInitNotFound=errorFactory(
-    "SQL global init script file could not be located.",
+var SettingsFileNotFound,IsSettingsFileNotFound=errorFactory(
+    "A file specified in the settings document could not be found.",
 );
 
 var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=errorFactory(

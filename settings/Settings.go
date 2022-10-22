@@ -99,7 +99,30 @@ func valid(set *Settings) (bool,error) {
             return rv,util.ErrorOnBool(rv,util.DataVersionMalformed("Should be >=0."));
         }, func(r ...any) (any,error) {
             rv,err:=util.FileExists(set.SqlFiles.GlobalInit);
-            return rv,util.ErrorOnBool(rv,util.SQLGlobalInitNotFound(fmt.Sprintf("%s",err)));
+            return rv,util.ErrorOnBool(
+                rv,util.SettingsFileNotFound(fmt.Sprintf("GlobalInit | %s",err)),
+            );
+        }, func(r ...any) (any,error) {
+            rv,err:=util.FileExists(set.SqlFiles.ExerciseFocusInit);
+            return rv,util.ErrorOnBool(
+                rv,util.SettingsFileNotFound(
+                    fmt.Sprintf(" ExerciseFocusInit %s",err),
+                ),
+            );
+        }, func(r ...any) (any,error) {
+            rv,err:=util.FileExists(set.SqlFiles.ExerciseTypeInit);
+            return rv,util.ErrorOnBool(
+                rv,util.SettingsFileNotFound(
+                    fmt.Sprintf(" ExerciseTypeInit | %s",err),
+                ),
+            );
+        }, func(r ...any) (any,error) {
+            rv,err:=util.FileExists(set.SqlFiles.ExerciseInit);
+            return rv,util.ErrorOnBool(
+                rv,util.SettingsFileNotFound(
+                    fmt.Sprintf(" ExerciseInit | %s",err),
+                ),
+            );
         },
     );
     return rv,err;
