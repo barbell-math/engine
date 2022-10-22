@@ -1,6 +1,7 @@
 package model;
 
 import (
+    "fmt"
     "testing"
     "github.com/carmichaeljr/powerlifting-engine/db"
     "github.com/carmichaeljr/powerlifting-engine/util"
@@ -24,6 +25,10 @@ func setup(){
     }
     if err=testDB.ResetDB(); err!=nil {
         panic("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/modelTestSettings.json file.");
+    }
+    if err=testDB.ExecSQLScript("../sql/uploadModelTestData.sql"); err!=nil {
+        fmt.Println(err);
+        panic("Could not upload test data to run tests on the model. Check the location of the 'uploadModelTestData.sql' file relative to the ./sql folder.");
     }
 }
 

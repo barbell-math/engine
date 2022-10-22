@@ -5,6 +5,7 @@ import (
     "fmt"
     "bufio"
     "errors"
+    "strings"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
     "github.com/carmichaeljr/powerlifting-engine/settings"
@@ -128,11 +129,11 @@ func (c *CRUD)ExecSQLScript(src string) error {
         scanner:=bufio.NewScanner(globalInit);
         scanner.Split(util.Splitter(";"));
         for err==nil && scanner.Scan() {
-            _,err=c.db.Exec(scanner.Text()+";");
+            _,err=c.db.Exec(strings.TrimSpace(scanner.Text())+";");
         }
     } else {
         return util.SqlScriptNotFound(fmt.Sprintf("Given file: %s",src));
-     }
+    }
     return err;
 }
 

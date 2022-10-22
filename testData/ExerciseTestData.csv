@@ -1,0 +1,47 @@
+Id,Name,TypeID,FocusID
+1,45 Degree Hyperextensions,3,3
+2,Banded Deadlift,2,3
+3,Banded Squat,2,1
+4,Barbell Rows,4,3
+5,Bench,1,2
+6,Block Press,2,2
+7,Box Jump,4,1
+8,Bulgarian Split Squat,3,1
+9,Cable Crunches,4,4
+10,Cable Row,4,4
+11,Cannonball Squat,2,1
+12,Close Grip Bench,2,2
+13,Deadbugs,4,4
+14,Deadlift,1,3
+15,Deadlift Row,2,3
+16,Deficit Romanian Deadlift,3,3
+17,Dip,3,2
+18,Dumbbell Lateral Side Raise,4,2
+19,Dumbbell Press,2,2
+20,Dumbbell RDL,3,3
+21,Face Pull,4,4
+22,Flat Dumbbell Press,3,2
+23,Goblet Squat,4,1
+24,Hamstring Curls,4,3
+25,Heeled Squat,2,1
+26,Incline Bench,3,2
+27,Incline Dumbbell Press,3,2
+28,Larson Press,3,2
+29,Lat Pulldown,4,3
+30,Narrow Grip Bench,2,2
+31,Overhead Press,3,2
+32,Paused Deadlift,2,3
+33,Paused Squat,2,1
+34,Pin Press,2,2
+35,Plank,4,4
+36,Pullup,3,4
+37,Pushup,3,4
+38,Romanian Deadlift,3,3
+39,Saftey Bar Squat,2,1
+40,Seated Dumbbell Overhead Press,3,2
+41,Skull Crusher,4,2
+42,Squat,1,1
+43,Tempo Squat,2,1
+44,Tricep Pushdowns,4,2
+45,V Bar Rows,3,3
+46,YTW's,4,4

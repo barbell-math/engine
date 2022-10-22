@@ -9,6 +9,10 @@ import (
     _ "github.com/lib/pq"
 )
 
+//func GetUserID(c *CRUD, email string) (int,error)
+//func GetExerciseTypeID(c *CRUD, type string) (int,error)
+//func GetExerciseFocusID(c *CRUD, focus string) (int,error)
+
 func GetExerciseID(c *CRUD, n string) (int,error) {
     rv:=-1;
     err:=Read(c,Exercise{Name: n},GenColFilter(false,"Name"),

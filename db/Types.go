@@ -58,6 +58,8 @@ type TrainingLog struct {
     Sets float32;
     Reps int;
     Intensity float64;
+    Effort float64;
+    Volume float64;
 };
 
 type Client struct {
