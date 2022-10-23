@@ -26,34 +26,67 @@ func setup(){
     if err=testDB.ResetDB(); err!=nil {
         panic("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/modelTestSettings.json file.");
     }
-    uploadTestData();
+    if err:=uploadTestData(); err!=nil {
+        panic(fmt.Sprintf(
+            "Could not upload data for testing. Check location of testData folder. | %s",
+            err,
+        ));
+    }
     //if err=testDB.ExecSQLScript("../sql/uploadModelTestData.sql"); err!=nil {
     //    fmt.Println(err);
     //    panic("Could not upload test data to run tests on the model. Check the location of the 'uploadModelTestData.sql' file relative to the ./sql folder.");
     //}
 }
 
-func uploadTestData(){
-    db.Create(&testDB,db.Client{
-        Id: 1,
-        FirstName: "testF",
-        LastName: "testL",
-        Email: "test@test.com",
+func uploadTestData() error {
+    return util.ChainedErrorOps(
+        func(r ...any) (any,error) {
+            return db.Create(&testDB,db.Client{
+                Id: 1,
+                FirstName: "testF",
+                LastName: "testL",
+                Email: "test@test.com",
+            });
+        }, func(r ...any) (any,error) {
+            return nil,util.CSVToStruct(
+                "../testData/model/ExerciseTypeTestData.csv",',',"",
+                func(e *db.ExerciseType){
+                    //fmt.Println(*e);
+                    db.Create(&testDB,*e);
+            });
+        },func(r ...any) (any,error) {
+            return nil,util.CSVToStruct(
+                "../testData/model/ExerciseFocusTestData.csv",',',"",
+                func(e *db.ExerciseFocus){
+                    //fmt.Println(*e);
+                    db.Create(&testDB,*e);
+            });
+        },func(r ...any) (any,error) {
+            return nil,util.CSVToStruct(
+                "../testData/model/ExerciseTestData.csv",',',"",
+                func(e *db.Exercise){
+                    //fmt.Println(*e);
+                    db.Create(&testDB,*e);
+            });
+        },func(r ...any) (any,error) {
+            return nil,util.CSVToStruct(
+                "../testData/model/RotationTestData.csv",',',"1/2/2006",
+                func(r *db.Rotation){
+                    //fmt.Println(*r);
+                    db.Create(&testDB,*r);
+            });
+        },func(r ...any) (any,error) {
+            return nil,util.CSVToStruct(
+                "../testData/model/TrainingLogTestData.csv",',',"1/2/2006",
+                func(t *db.TrainingLog){
+                    //fmt.Println(*t);
+                    db.Create(&testDB,*t);
+            });
     });
-    err:=util.CSVToStruct("../testData/ExerciseTypeTestData.csv",',',"",
-    func(e *db.ExerciseType){
-        fmt.Println(*e);
-        db.Create(&testDB,*e);
-    });
-    fmt.Println(err);
-    //err=db.CSVToStruct("../testData/ExerciseFocusTestData.csv",',',
-    //func(e *db.ExerciseFocus){
-    //    fmt.Println(*e);
-    //});
 }
 
 func teardown(){
-    testDB.ResetDB();
+    //testDB.ResetDB();
     testDB.Close();
 }
 

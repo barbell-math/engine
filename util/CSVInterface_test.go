@@ -24,6 +24,7 @@ func TestNonStruct(t *testing.T){
     err:=CSVToStruct("../testData/csv/ValidCSV.csv",',',"",func(v *int){
         cntr++;
     });
+    fmt.Println(err);
     testUtil.BasicTest(0, cntr,
         "CSV converter returned values it was not supposed to.",t,
     );

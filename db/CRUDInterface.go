@@ -2,8 +2,6 @@ package db;
 
 import (
     "fmt"
-    "time"
-    "strconv"
     "reflect"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
