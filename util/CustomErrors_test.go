@@ -18,7 +18,8 @@ func TestErrorEquality(t *testing.T){
         "SingularMatrix": SingularMatrix,
         "MatrixSingularToWorkingPrecision": MatrixSingularToWorkingPrecision,
         "MissingVariable": MissingVariable,
-        "MalformedCSVToDBTableFile": MalformedCSVToDBTableFile,
+        "MalformedCSVFile": MalformedCSVFile,
+        "NonStructValue": NonStructValue,
         "SliceZippingError": SliceZippingError,
     };
     isErrs:=map[string]isErrorType{
@@ -33,7 +34,8 @@ func TestErrorEquality(t *testing.T){
         "SingularMatrix": IsSingularMatrix,
         "MatrixSingularToWorkingPrecision": IsMatrixSingularToWorkingPrecision,
         "MissingVariable": IsMissingVariable,
-        "MalformedCSVToDBTableFile": IsMalformedCSVToDBTableFile,
+        "MalformedCSVFile": IsMalformedCSVFile,
+        "NonStructValue": IsNonStructValue,
         "SliceZippingError": IsSliceZippingError,
     };
     for k,_:=range(errs){

@@ -5,7 +5,6 @@ import (
     "fmt"
     "time"
     "bufio"
-    "errors"
     "strings"
     "reflect"
     "strconv"
@@ -23,27 +22,35 @@ import (
 //  - TimeDate formats
 //The CSV file **MUST** have headers. Without this the structs fields cannot
 //be set properly.
+//Note that quotes around strings are optional, and will be removed before setting
+//the value of the struct variable. Also note that only double quotes (") are
+//recognized, single quotes (') are not.
+//If any columns are missing or there are blank values the corresponding values
+//in the structs that are generated will be zero-value initialized.
 func CSVToStruct[R any](
         src string,
         delim byte,
         timeDateFormat string,
         callback func(tab *R)) error {
-    cntr:=0;
+    cntr:=1;
     var iter R;
     var err error=nil;
     headers:=make([]string,0);
     return ChainedErrorOps(
         func(r ...any) (any,error) {
             return nil,ErrorOnBool(reflect.ValueOf(iter).Kind()==reflect.Struct,
-                errors.New("A non-struct value was used in call to CSVToStruct."),
+                NonStructValue(fmt.Sprintf(
+                    "CSVToStruct requires a struct as target. | Got: %s",
+                    reflect.ValueOf(iter).Kind().String(),
+                )),
             );
         },func(r ...any) (any,error) {
             if e1:=CSVFileSplitter(src,delim,false,func(c []string) bool {
-                if cntr!=0 {
+                if cntr!=1 {
                     if err=convFromCSV[R](&iter,headers,c,timeDateFormat); err==nil {
                         callback(&iter);
                     } else {
-                        err=MalformedCSVToDBTableFile(
+                        err=MalformedCSVFile(
                             fmt.Sprintf("Line %d: %s",cntr,err),
                         );
                     }
@@ -74,7 +81,9 @@ func convFromCSV[R any](
         }, func(r ...any) (any,error) {
             var err error=nil;
             for i:=0; err==nil && i<len(headers); i++ {
-                err=setTableValue[R](v,headers[i],columns[i],timeDateFormat);
+                if len(columns[i])>0 {
+                    err=setTableValue[R](v,headers[i],columns[i],timeDateFormat);
+                }
             }
             return nil,err;
         },
@@ -91,7 +100,6 @@ func setTableValue[R any](
     s:=reflect.ValueOf(row).Elem();
     f:=s.FieldByName(name);
     if f.IsValid() && f.CanSet() {
-        fmt.Println(f.Type());
         switch f.Interface().(type) {
             case time.Time: var tmp time.Time;
                 tmp,err=time.Parse(timeDateFormat,val);
@@ -111,14 +119,14 @@ func setTableValue[R any](
             case int64: err=setInt[int64](f,val);
             case float32: err=setFloat[float32](f,val);
             case float64: err=setFloat[float32](f,val);
-            case string: f.SetString(val);
+            case string: err=setString(f,val);
             default: err=fmt.Errorf(
-                "The type '%s' is not able to be set.",f.Kind().String(),
+                "The type '%s' is not a supported type.",f.Kind().String(),
             );
         }
     } else {
         err=fmt.Errorf(
-            "Requested header value not in struct or is not settable. | '%s'",
+            "Requested header value not in struct or is not settable. | Header: '%s'",
             name,
         );
     }
@@ -143,6 +151,17 @@ func setFloat[N ~float32 | ~float64](f reflect.Value, v string) error {
     tmp,err:=strconv.ParseFloat(v,64);
     f.SetFloat(tmp);
     return err;
+}
+func setString(f reflect.Value, v string) error {
+    s,e:=0, len(v);
+    if len(v)>0 && v[0]=='"' {
+        s++;
+    }
+    if len(v)>0 && v[len(v)-1]=='"' {
+        e--;
+    }
+    f.SetString(v[s:e]);
+    return nil;
 }
 
 func CSVFileSplitter(
@@ -172,7 +191,6 @@ func splitLineForCSV(
         rowCallback func(columns[]string) bool) bool {
     prevIndex:=0;
     inQuotes:=false;
-    //row:=scanner.Text();
     columns:=make([]string,0);
     for i,char:=range(row) {
         if char=='"' {

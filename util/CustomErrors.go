@@ -63,10 +63,14 @@ var MissingVariable,IsMissingVariable=errorFactory(
     "The requested independent variable is not present.",
 );
 
-var MalformedCSVToDBTableFile,IsMalformedCSVToDBTableFile=errorFactory(
-    "The CSV file cannot be converted to the requested DBTable.",
+var MalformedCSVFile,IsMalformedCSVFile=errorFactory(
+    "The CSV file cannot be converted to the requested struct.",
 );
 
-var SliceZippingError,IsSliceZippingErrror=errorFactory(
+var NonStructValue,IsNonStructValue=errorFactory(
+    "A struct value was expected but was not recieved.",
+);
+
+var SliceZippingError,IsSliceZippingError=errorFactory(
     "The given slices could not be zipped.",
 );
