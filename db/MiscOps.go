@@ -1,7 +1,6 @@
 package db;
 
 import (
-    //"fmt"
     "time"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
@@ -9,21 +8,37 @@ import (
     _ "github.com/lib/pq"
 )
 
-//func GetUserID(c *CRUD, email string) (int,error)
+func GetClientID(c *CRUD, email string) (int,error) {
+    if c,err:=getRowFromUniqueVal(c,Client{Email: email},"Email"); c!=nil {
+        return c.Id,err;
+    } else {
+        return -1,err;
+    }
+}
+
 //func GetExerciseTypeID(c *CRUD, type string) (int,error)
 //func GetExerciseFocusID(c *CRUD, focus string) (int,error)
 
 func GetExerciseID(c *CRUD, n string) (int,error) {
-    rv:=-1;
-    err:=Read(c,Exercise{Name: n},GenColFilter(false,"Name"),
-        func(e *Exercise){
-            rv=e.Id;
+    if e,err:=getRowFromUniqueVal(c,Exercise{Name: n},"Name"); e!=nil {
+        return e.Id,err;
+    } else {
+        return -1,err;
+    }
+}
+
+func getRowFromUniqueVal[R DBTable](c *CRUD, row R, col string) (*R,error) {
+    var rv *R=nil;
+    err:=Read(c,row,GenColFilter(false,col),
+        func(r *R){
+            rv=r;
     });
-    if rv==-1 {
+    if rv==nil {
         return rv,sql.ErrNoRows;
     }
     return rv,err;
 }
+
 
 func InitClient(
         crud *CRUD,

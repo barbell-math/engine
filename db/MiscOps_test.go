@@ -37,6 +37,36 @@ func TestGetExerciseID(t *testing.T){
     }
 }
 
+func TestGetClientID(t *testing.T){
+    setup();
+    Create(&testDB,
+        Client{FirstName: "testF", LastName: "testL", Email: "test@test.com"},
+        Client{FirstName: "testF1", LastName: "testL1", Email: "test1@test.com"},
+        Client{FirstName: "testF2", LastName: "testL2", Email: "test2@test.com"},
+        Client{FirstName: "testF2", LastName: "testL3", Email: "test3@test.com"},
+    );
+    id,err:=GetClientID(&testDB,"test@test.com");
+    testUtil.BasicTest(nil,err,
+        "Client was not found when it should have been.",t,
+    );
+    if id<=0 {
+        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    }
+    id,err=GetClientID(&testDB,"test1@test.com");
+    testUtil.BasicTest(nil,err,
+        "Client was not found when it should have been.",t,
+    );
+    if id<=0 {
+        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    }
+    id,err=GetClientID(&testDB,"testing@test.com");
+    if err!=sql.ErrNoRows {
+        testUtil.FormatError(nil,err,
+            "No error was generated when getting non-existent exercise.",t,
+        );
+    }
+}
+
 func TestInitClient(t *testing.T){
     setup();
     settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
