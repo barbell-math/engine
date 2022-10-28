@@ -1,6 +1,10 @@
 package model;
 
-//SELECT TrainingLog.Weight,TrainingLog.Sets,TrainingLog.Reps,TrainingLog.Effort,TrainingLog.Intensity
+//SELECT TrainingLog.Weight,
+//  TrainingLog.Sets,
+//  TrainingLog.Reps,
+//  TrainingLog.Effort,
+//  TrainingLog.Intensity
 //FROM TrainingLog
 //JOIN Exercise ON TrainingLog.ExerciseID=Exercise.Id
 //WHERE Exercise.Name='Squat' AND TrainingLog.ClientId=1

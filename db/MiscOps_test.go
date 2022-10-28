@@ -6,21 +6,22 @@ import (
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
     "github.com/carmichaeljr/powerlifting-engine/testUtil"
-    "github.com/carmichaeljr/powerlifting-engine/settings"
 )
+
+func createExerciseTestData(){
+    Create(&testDB,ExerciseFocus{Focus: "Squat"});
+    Create(&testDB,ExerciseType{T: "Accessory"});
+    Create(&testDB,
+        Exercise{Name: "Squat", FocusID: 1, TypeID: 1},
+        Exercise{Name: "Bench", FocusID: 1, TypeID: 1},
+        Exercise{Name: "Deadlift", FocusID: 1, TypeID: 1},
+    );
+}
 
 func TestGetExerciseByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    testDB.RunDataConversion();
+    createExerciseTestData();
     e,err:=GetExerciseByName(&testDB,"Squat");
-    testUtil.BasicTest(nil,err,
-        "Exercise was not found when it should have been.",t,
-    );
-    if e.Id<=0 {
-        testUtil.FormatError(">0",e.Id,"ID was not set appropriately.",t);
-    }
-    e,err=GetExerciseByName(&testDB,"Bench");
     testUtil.BasicTest(nil,err,
         "Exercise was not found when it should have been.",t,
     );
@@ -67,16 +68,8 @@ func TestGetClientByEmail(t *testing.T){
 
 func TestGetExerciseTypeByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    testDB.RunDataConversion();
+    createExerciseTestData();
     c,err:=GetExerciseTypeByName(&testDB,"Accessory");
-    testUtil.BasicTest(nil,err,
-        "Accessory was not found when it should have been.",t,
-    );
-    if c.Id<=0 {
-        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
-    }
-    c,err=GetExerciseTypeByName(&testDB,"Main Compound");
     testUtil.BasicTest(nil,err,
         "Accessory was not found when it should have been.",t,
     );
@@ -93,18 +86,10 @@ func TestGetExerciseTypeByName(t *testing.T){
 
 func TestGetExerciseFocusByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    testDB.RunDataConversion();
+    createExerciseTestData();
     c,err:=GetExerciseFocusByName(&testDB,"Squat");
     testUtil.BasicTest(nil,err,
         "Accessory was not found when it should have been.",t,
-    );
-    if c.Id<=0 {
-        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
-    }
-    c,err=GetExerciseFocusByName(&testDB,"Bench");
-    testUtil.BasicTest(nil,err,
-        "Client was not found when it should have been.",t,
     );
     if c.Id<=0 {
         testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
@@ -116,10 +101,10 @@ func TestGetExerciseFocusByName(t *testing.T){
         );
     }
 }
+
 func TestInitClient(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    testDB.RunDataConversion();
+    createExerciseTestData();
     c:=Client{
         FirstName: "test",
         LastName: "testl",
@@ -184,8 +169,9 @@ func TestInitClient(t *testing.T){
 
 func TestRmClient(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    testDB.RunDataConversion();
+    //settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
+    //testDB.RunDataConversion();
+    createExerciseTestData();
     c:=Client{
         Id: 1,
         FirstName: "test",

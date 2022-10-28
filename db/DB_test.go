@@ -27,6 +27,9 @@ func setup(){
         panic(fmt.Sprintf("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/dbTestSettings.json file. \n  | Given err: %v",err));
     }
 }
+func uploadTestData(){
+
+}
 
 func teardown(){
     testDB.ResetDB();
