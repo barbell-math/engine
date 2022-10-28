@@ -9,27 +9,27 @@ import (
     "github.com/carmichaeljr/powerlifting-engine/settings"
 )
 
-func TestGetExerciseID(t *testing.T){
+func TestGetExerciseByName(t *testing.T){
     setup();
     settings.Modify(func(s *settings.Settings){
         s.DBInfo.DataVersion=1;
     });
     testDB.RunDataConversion();
-    id,err:=GetExerciseID(&testDB,"Squat");
+    e,err:=GetExerciseByName(&testDB,"Squat");
     testUtil.BasicTest(nil,err,
         "Exercise was not found when it should have been.",t,
     );
-    if id<=0 {
-        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    if e.Id<=0 {
+        testUtil.FormatError(">0",e.Id,"ID was not set appropriately.",t);
     }
-    id,err=GetExerciseID(&testDB,"Bench");
+    e,err=GetExerciseByName(&testDB,"Bench");
     testUtil.BasicTest(nil,err,
         "Exercise was not found when it should have been.",t,
     );
-    if id<=0 {
-        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    if e.Id<=0 {
+        testUtil.FormatError(">0",e.Id,"ID was not set appropriately.",t);
     }
-    id,err=GetExerciseID(&testDB,"NotAnExercise");
+    e,err=GetExerciseByName(&testDB,"NotAnExercise");
     if err!=sql.ErrNoRows {
         testUtil.FormatError(nil,err,
             "No error was generated when getting non-existent exercise.",t,
@@ -37,7 +37,7 @@ func TestGetExerciseID(t *testing.T){
     }
 }
 
-func TestGetClientID(t *testing.T){
+func TestGetClientByEmail(t *testing.T){
     setup();
     Create(&testDB,
         Client{FirstName: "testF", LastName: "testL", Email: "test@test.com"},
@@ -45,21 +45,21 @@ func TestGetClientID(t *testing.T){
         Client{FirstName: "testF2", LastName: "testL2", Email: "test2@test.com"},
         Client{FirstName: "testF2", LastName: "testL3", Email: "test3@test.com"},
     );
-    id,err:=GetClientID(&testDB,"test@test.com");
+    c,err:=GetClientByEmail(&testDB,"test@test.com");
     testUtil.BasicTest(nil,err,
         "Client was not found when it should have been.",t,
     );
-    if id<=0 {
-        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
     }
-    id,err=GetClientID(&testDB,"test1@test.com");
+    c,err=GetClientByEmail(&testDB,"test1@test.com");
     testUtil.BasicTest(nil,err,
         "Client was not found when it should have been.",t,
     );
-    if id<=0 {
-        testUtil.FormatError(">0",id,"ID was not set appropriately.",t);
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
     }
-    id,err=GetClientID(&testDB,"testing@test.com");
+    c,err=GetClientByEmail(&testDB,"testing@test.com");
     if err!=sql.ErrNoRows {
         testUtil.FormatError(nil,err,
             "No error was generated when getting non-existent exercise.",t,
@@ -67,6 +67,61 @@ func TestGetClientID(t *testing.T){
     }
 }
 
+func TestGetExerciseTypeByName(t *testing.T){
+    setup();
+    settings.Modify(func(s *settings.Settings){
+        s.DBInfo.DataVersion=1;
+    });
+    testDB.RunDataConversion();
+    c,err:=GetExerciseTypeByName(&testDB,"Accessory");
+    testUtil.BasicTest(nil,err,
+        "Accessory was not found when it should have been.",t,
+    );
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
+    }
+    c,err=GetExerciseTypeByName(&testDB,"Main Compound");
+    testUtil.BasicTest(nil,err,
+        "Accessory was not found when it should have been.",t,
+    );
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
+    }
+    c,err=GetExerciseTypeByName(&testDB,"NotAnExerciseType");
+    if err!=sql.ErrNoRows {
+        testUtil.FormatError(nil,err,
+            "No error was generated when getting non-existent exercise.",t,
+        );
+    }
+}
+
+func TestGetExerciseFocusByName(t *testing.T){
+    setup();
+    settings.Modify(func(s *settings.Settings){
+        s.DBInfo.DataVersion=1;
+    });
+    testDB.RunDataConversion();
+    c,err:=GetExerciseFocusByName(&testDB,"Squat");
+    testUtil.BasicTest(nil,err,
+        "Accessory was not found when it should have been.",t,
+    );
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
+    }
+    c,err=GetExerciseFocusByName(&testDB,"Bench");
+    testUtil.BasicTest(nil,err,
+        "Client was not found when it should have been.",t,
+    );
+    if c.Id<=0 {
+        testUtil.FormatError(">0",c.Id,"ID was not set appropriately.",t);
+    }
+    c,err=GetExerciseFocusByName(&testDB,"NotAnExerciseFocus");
+    if err!=sql.ErrNoRows {
+        testUtil.FormatError(nil,err,
+            "No error was generated when getting non-existent exercise.",t,
+        );
+    }
+}
 func TestInitClient(t *testing.T){
     setup();
     settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
@@ -80,9 +135,9 @@ func TestInitClient(t *testing.T){
     testUtil.BasicTest(nil,err,
         "Init Client returned an error when it shouldn't have.",t,
     );
-    sId,_:=GetExerciseID(&testDB,"Squat");
-    bId,_:=GetExerciseID(&testDB,"Bench");
-    dId,_:=GetExerciseID(&testDB,"Deadlift");
+    sId,_:=GetExerciseByName(&testDB,"Squat");
+    bId,_:=GetExerciseByName(&testDB,"Bench");
+    dId,_:=GetExerciseByName(&testDB,"Deadlift");
     err=Read(&testDB,TrainingLog{Id: 1},OnlyIDFilter, func(v *TrainingLog){
         y,m,d:=time.Now().Date();
         y1,m1,d1:=v.DatePerformed.Date();
@@ -93,15 +148,15 @@ func TestInitClient(t *testing.T){
             "Client ID was not set correctly in the zero rotation.",t,
         );
         switch (v.ExerciseID){
-            case sId:
+            case sId.Id:
                 testUtil.BasicTest(float32(446),v.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
-            case bId:
+            case bId.Id:
                 testUtil.BasicTest(float32(286),v.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
-            case dId:
+            case dId.Id:
                 testUtil.BasicTest(float32(545),v.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
@@ -152,7 +207,7 @@ func TestRmClient(t *testing.T){
             });
         }, func (r ...any) (any,error) {
             return Create(&testDB,ModelState{
-                ClientID: 1, Date: time.Now(), TimeFrame: 100,
+                ClientID: 1, ExerciseID: 1, Date: time.Now(), TimeFrame: 100,
                 A: 1, B: 1, C: 1, D: 1, Eps: 1, Eps2: 1,
             });
         },

@@ -8,37 +8,43 @@ import (
     _ "github.com/lib/pq"
 )
 
-func GetClientID(c *CRUD, email string) (int,error) {
-    if c,err:=getRowFromUniqueVal(c,Client{Email: email},"Email"); c!=nil {
-        return c.Id,err;
-    } else {
-        return -1,err;
-    }
-}
+var GetClientByEmail=getRowFromUniqueValGenerator(
+    func(email string) (Client,string){
+        return Client{Email: email},"Email";
+});
+var GetExerciseByName=getRowFromUniqueValGenerator(
+    func(name string) (Exercise,string){
+        return Exercise{Name: name},"Name";
+});
+var GetExerciseTypeByName=getRowFromUniqueValGenerator(
+    func(_type string) (ExerciseType,string){
+        return ExerciseType{T: _type},"T";
+});
+var GetExerciseFocusByName=getRowFromUniqueValGenerator(
+    func(focus string) (ExerciseFocus,string){
+        return ExerciseFocus{Focus: focus},"Focus";
+});
 
-//func GetExerciseTypeID(c *CRUD, type string) (int,error)
-//func GetExerciseFocusID(c *CRUD, focus string) (int,error)
-
-func GetExerciseID(c *CRUD, n string) (int,error) {
-    if e,err:=getRowFromUniqueVal(c,Exercise{Name: n},"Name"); e!=nil {
-        return e.Id,err;
-    } else {
-        return -1,err;
-    }
-}
-
-func getRowFromUniqueVal[R DBTable](c *CRUD, row R, col string) (*R,error) {
-    var rv *R=nil;
-    err:=Read(c,row,GenColFilter(false,col),
-        func(r *R){
+type ValGenerator[R DBTable, V any] func(data V) (R,string);
+type RowFromUniqueVal[R DBTable, V any] func(c *CRUD, data V) (R,error);
+func getRowFromUniqueValGenerator[
+        R DBTable,
+        V any,
+    ](valGen ValGenerator[R,V]) RowFromUniqueVal[R,V] {
+    return func(c *CRUD, data V) (R,error){
+        var rv *R=nil;
+        searchR,col:=valGen(data);
+        if err:=Read(c,searchR,util.GenFilter(false,col),func(r *R){
             rv=r;
-    });
-    if rv==nil {
-        return rv,sql.ErrNoRows;
+        }); rv!=nil {
+            return *rv,err;
+        } else if rv==nil && err==nil {
+            return *new(R),sql.ErrNoRows;
+        } else {
+            return *new(R),err;
+        }
     }
-    return rv,err;
 }
-
 
 func InitClient(
         crud *CRUD,
@@ -59,9 +65,9 @@ func InitClient(
         };
     }
     return util.ChainedErrorOps(
-        func(r ...any) (any,error) { return GetExerciseID(crud,"Squat"); },
-        func(r ...any) (any,error) { return GetExerciseID(crud,"Bench"); },
-        func(r ...any) (any,error) { return GetExerciseID(crud,"Deadlift"); },
+        func(r ...any) (any,error) { return GetExerciseByName(crud,"Squat"); },
+        func(r ...any) (any,error) { return GetExerciseByName(crud,"Bench"); },
+        func(r ...any) (any,error) { return GetExerciseByName(crud,"Deadlift"); },
         func(r ...any) (any,error) { return Create(crud,*c); },
         func(r ...any) (any,error) {
             return Create(crud,Rotation{
@@ -70,9 +76,9 @@ func InitClient(
                 EndDate: time.Now(),
             });
         }, func(r ...any) (any,error) {
-            s:=f(r[3].([]int)[0],r[4].([]int)[0],r[0].(int),sMax);
-            b:=f(r[3].([]int)[0],r[4].([]int)[0],r[1].(int),bMax);
-            d:=f(r[3].([]int)[0],r[4].([]int)[0],r[2].(int),dMax);
+            s:=f(r[3].([]int)[0],r[4].([]int)[0],r[0].(Exercise).Id,sMax);
+            b:=f(r[3].([]int)[0],r[4].([]int)[0],r[1].(Exercise).Id,bMax);
+            d:=f(r[3].([]int)[0],r[4].([]int)[0],r[2].(Exercise).Id,dMax);
             return Create(crud,s,d,b);
         },
     );
@@ -83,19 +89,19 @@ func RmClient(crud *CRUD, c *Client) (int64,error) {
     err:=util.ChainedErrorOps(
         func(r ...any) (any,error) {
             return Delete(
-                crud,TrainingLog{ClientID: c.Id},GenColFilter(false,"ClientID"),
+                crud,TrainingLog{ClientID: c.Id},util.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,Rotation{ClientID: c.Id},GenColFilter(false,"ClientID"),
+                crud,Rotation{ClientID: c.Id},util.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,BodyWeight{ClientID: c.Id},GenColFilter(false,"ClientID"),
+                crud,BodyWeight{ClientID: c.Id},util.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,ModelState{ClientID: c.Id},GenColFilter(false,"ClientID"),
+                crud,ModelState{ClientID: c.Id},util.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) { return Delete(crud,*c,OnlyIDFilter); },
         func(r ...any) (any,error) {

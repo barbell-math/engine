@@ -75,6 +75,7 @@ CREATE TABLE TrainingLog (
 CREATE TABLE ModelState (
     Id SERIAL PRIMARY KEY,
     ClientID INTEGER NOT NULL,
+    ExerciseID INTEGER NOT NULL,
     Date DATE NOT NULL,
     A FLOAT NOT NULL,
     B FLOAT NOT NULL,
@@ -83,7 +84,8 @@ CREATE TABLE ModelState (
     Eps FLOAT NOT NULL,
     Eps2 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
-    FOREIGN KEY (ClientID) REFERENCES Client(Id)
+    FOREIGN KEY (ClientID) REFERENCES Client(Id),
+    FOREIGN KEY (ExerciseID) REFERENCES Exercise(Id)
 );
 
 INSERT INTO Version(num) VALUES (0);

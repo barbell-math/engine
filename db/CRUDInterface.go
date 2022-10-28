@@ -39,7 +39,7 @@ func Create[R DBTable](c *CRUD, rows ...R) ([]int,error) {
 func Read[R DBTable](
         c *CRUD,
         rowVals R,
-        filter ColumnFilter,
+        filter util.Filter[string],
         callback func(val *R)) error {
     columns:=getTableColumns(&rowVals,filter);
     if len(columns)==0 {
@@ -71,9 +71,9 @@ func ReadAll[R DBTable](c *CRUD, callback func(val *R)) error {
 func Update[R DBTable](
         c *CRUD,
         searchVals R,
-        searchValsFilter ColumnFilter,
+        searchValsFilter util.Filter[string],
         updateVals R,
-        updateValsFilter ColumnFilter) (int64,error) {
+        updateValsFilter util.Filter[string]) (int64,error) {
     updateColumns:=getTableColumns(&updateVals,updateValsFilter);
     searchColumns:=getTableColumns(&searchVals,searchValsFilter);
     if len(updateColumns)==0 || len(searchColumns)==0 {
@@ -102,7 +102,7 @@ func Update[R DBTable](
 func UpdateAll[R DBTable](
         c *CRUD,
         updateVals R,
-        updateValsFilter ColumnFilter) (int64,error) {
+        updateValsFilter util.Filter[string]) (int64,error) {
     updateColumns:=getTableColumns(&updateVals,updateValsFilter);
     if len(updateColumns)==0 {
         return 0, util.FilterRemovedAllColumns("No rows were updated.");
@@ -123,7 +123,7 @@ func UpdateAll[R DBTable](
 func Delete[R DBTable](
         c *CRUD,
         searchVals R,
-        searchValsFilter ColumnFilter) (int64,error) {
+        searchValsFilter util.Filter[string]) (int64,error) {
     columns:=getTableColumns(&searchVals,searchValsFilter);
     if len(columns)==0 {
         return 0, util.FilterRemovedAllColumns("No rows were deleted.");
@@ -158,7 +158,7 @@ func getQueryReflectResults[R DBTable](
         rows:=reflectVals[0].Interface().(*sql.Rows);
         defer rows.Close();
         var iter R;
-        rowPntrs:=getTablePntrs(&iter,NoFilter);
+        rowPntrs:=getTablePntrs(&iter,util.NoFilter[string]);
         for err==nil && rows.Next() {
             potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
             err=util.GetErrorFromReflectValue(&potErr[0]);
@@ -186,42 +186,27 @@ func getQueryRowReflectResults(c *CRUD, vals []reflect.Value) (int,error) {
     return rv,err;
 }
 
+//These are convenience functions that allow for inline function calls to be used
 func getTableName[R DBTable](row *R) string {
-    val:=reflect.ValueOf(row).Elem();
-    return val.Type().Name();
+    //It is safe to ignore the err this because row is guaranteed to be a struct
+    n,_:=util.GetStructName(row);
+    return n;
 }
 
-func getTableColumns[R DBTable](row *R, filter func(col string) bool) []string {
-    val:=reflect.ValueOf(row).Elem();
-    rv:=make([]string,0);
-    for i:=0; i<val.NumField(); i++ {
-        colName:=val.Type().Field(i).Name;
-        if filter(colName) {
-            rv=append(rv,colName);
-        }
-    }
+func getTableColumns[R DBTable](row *R, filter util.Filter[string]) []string {
+    //It is safe to ignore the err this because row is guaranteed to be a struct
+    rv,_:=util.GetStructFieldNames(row,filter);
     return rv;
 }
 
-func getTableVals[R DBTable](row *R, filter func(col string) bool) []reflect.Value {
-    val:=reflect.ValueOf(row).Elem();
-    rv:=make([]reflect.Value,0);
-    for i:=0; i<val.NumField(); i++ {
-        if filter(val.Type().Field(i).Name) {
-            rv=append(rv,reflect.ValueOf(val.Field(i).Interface()));
-        }
-    }
+func getTableVals[R DBTable](row *R, filter util.Filter[string]) []reflect.Value {
+    //It is safe to ignore the err this because row is guaranteed to be a struct
+    rv,_:=util.GetStructVals(row,filter);
     return rv;
 }
 
-func getTablePntrs[R DBTable](row *R,filter func(col string) bool) []reflect.Value {
-    val:=reflect.ValueOf(row).Elem();
-    rv:=make([]reflect.Value,0);
-    for i:=0; i<val.NumField(); i++ {
-        valField:=val.Field(i);
-        if filter(val.Type().Field(i).Name) {
-            rv=append(rv,valField.Addr());
-        }
-    }
+func getTablePntrs[R DBTable](row *R,filter util.Filter[string]) []reflect.Value {
+    //It is safe to ignore the err this because row is guaranteed to be a struct
+    rv,_:=util.GetStructFieldPntrs(row,filter);
     return rv;
 }

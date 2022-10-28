@@ -61,9 +61,8 @@ func CSVToStruct[R any](
                 return err==nil;
             }); e1!=nil {
                 return nil,e1;
-            } else {
-                return nil,err;
             }
+            return nil,err;
     });
 }
 

@@ -32,10 +32,6 @@ func setup(){
             err,
         ));
     }
-    //if err=testDB.ExecSQLScript("../sql/uploadModelTestData.sql"); err!=nil {
-    //    fmt.Println(err);
-    //    panic("Could not upload test data to run tests on the model. Check the location of the 'uploadModelTestData.sql' file relative to the ./sql folder.");
-    //}
 }
 
 func uploadTestData() error {

@@ -174,7 +174,7 @@ func TestRead(t *testing.T){
 func TestUpdate(t *testing.T){
     setup();
     numRows,err:=Update(
-        &testDB,ExerciseType{},NoFilter,ExerciseType{},AllButIDFilter,
+        &testDB,ExerciseType{},util.NoFilter[string],ExerciseType{},AllButIDFilter,
     );
     testUtil.BasicTest(int64(0), numRows,"Update created rows.",t);
     testUtil.BasicTest(nil,err,"Updating 0 rows resulted in an error.",t);
@@ -184,7 +184,7 @@ func TestUpdate(t *testing.T){
     numRows,err=Update(
         &testDB,
         ExerciseType{},
-        GenColFilter(false),
+        util.GenFilter[string](false),
         ExerciseType{},
         AllButIDFilter,
     );
@@ -202,7 +202,7 @@ func TestUpdate(t *testing.T){
         ExerciseType{},
         AllButIDFilter,
         ExerciseType{},
-        GenColFilter(false),
+        util.GenFilter[string](false),
     );
     testUtil.BasicTest(
         int64(0), numRows,"Update updated rows it wasn't supposed to.",t,
@@ -216,7 +216,7 @@ func TestUpdate(t *testing.T){
     numRows,err=Update(
         &testDB,
         ExerciseType{T: "test"},
-        GenColFilter(false,"T"),
+        util.GenFilter(false,"T"),
         ExerciseType{T: "updatedTest", Description: "updatedTesting"},
         AllButIDFilter,
     );
@@ -227,9 +227,9 @@ func TestUpdate(t *testing.T){
     numRows,err=Update(
         &testDB,
         ExerciseType{T: "test1", Description: "testing"},
-        GenColFilter(false,"Description"),
+        util.GenFilter(false,"Description"),
         ExerciseType{Description: "updatedDescription"},
-        GenColFilter(false,"Description"),
+        util.GenFilter(false,"Description"),
     );
     testUtil.BasicTest(
         int64(2),numRows,"Update did not update the correct number of rows.",t,
@@ -245,7 +245,7 @@ func TestDelete(t *testing.T){
         ExerciseType{T: "Test2",Description: "testing1"},
         ExerciseType{T: "Test3",Description: "testing1"},
     );
-    res,err:=Delete(&testDB,ExerciseType{},GenColFilter(false));
+    res,err:=Delete(&testDB,ExerciseType{},util.GenFilter[string](false));
     if !util.IsFilterRemovedAllColumns(err) {
         testUtil.FormatError(
             util.FilterRemovedAllColumns(""),err,
@@ -260,11 +260,11 @@ func TestDelete(t *testing.T){
     testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
     testUtil.BasicTest(int64(1),res,"Delete removed to many rows.",t);
     res,err=Delete(&testDB,
-        ExerciseType{Description: "testing1"},GenColFilter(false,"Description"),
+        ExerciseType{Description: "testing1"},util.GenFilter(false,"Description"),
     );
     testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
     testUtil.BasicTest(int64(2),res,"Delete removed to many rows.",t);
-    res,err=Delete(&testDB,ExerciseType{T: "Test"},GenColFilter(false,"T"));
+    res,err=Delete(&testDB,ExerciseType{T: "Test"},util.GenFilter(false,"T"));
     testUtil.BasicTest(nil,err,"Delete was unsuccessful.",t);
     testUtil.BasicTest(int64(1),res,"Delete removed to many rows.",t);
     err=testDB.db.QueryRow(
@@ -293,7 +293,7 @@ func TestReadAll(t *testing.T){
 
 func TestUpdateAll(t *testing.T){
     setup();
-    res,err:=UpdateAll(&testDB,ExerciseType{},GenColFilter(false));
+    res,err:=UpdateAll(&testDB,ExerciseType{},util.GenFilter[string](false));
     if !util.IsFilterRemovedAllColumns(err) {
         testUtil.FormatError(
             util.FilterRemovedAllColumns(""),err,
@@ -301,7 +301,7 @@ func TestUpdateAll(t *testing.T){
         );
     }
     testUtil.BasicTest(int64(0),res,"Update updated rows it was not supposed to.",t);
-    res,err=UpdateAll(&testDB,ExerciseType{},GenColFilter(false,"Description"));
+    res,err=UpdateAll(&testDB,ExerciseType{},util.GenFilter(false,"Description"));
     testUtil.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
     testUtil.BasicTest(int64(0),res,"UpdateAll did not update all rows.",t);
     Create(&testDB,ExerciseType{T:"test",Description:"testingDiff"});
@@ -312,7 +312,7 @@ func TestUpdateAll(t *testing.T){
     }
     res,err=UpdateAll(&testDB,
         ExerciseType{Description: "newDesc"},
-        GenColFilter(false,"Description"),
+        util.GenFilter(false,"Description"),
     );
     testUtil.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
     testUtil.BasicTest(int64(11),res,"UpdateAll did not update all rows.",t);
