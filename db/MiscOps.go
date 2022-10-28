@@ -4,24 +4,22 @@ import (
     "time"
     "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
-
-    _ "github.com/lib/pq"
 )
 
 var GetClientByEmail=getRowFromUniqueValGenerator(
-    func(email string) (Client,string){
+    func(email string) (Client,string) {
         return Client{Email: email},"Email";
 });
 var GetExerciseByName=getRowFromUniqueValGenerator(
-    func(name string) (Exercise,string){
+    func(name string) (Exercise,string) {
         return Exercise{Name: name},"Name";
 });
 var GetExerciseTypeByName=getRowFromUniqueValGenerator(
-    func(_type string) (ExerciseType,string){
+    func(_type string) (ExerciseType,string) {
         return ExerciseType{T: _type},"T";
 });
 var GetExerciseFocusByName=getRowFromUniqueValGenerator(
-    func(focus string) (ExerciseFocus,string){
+    func(focus string) (ExerciseFocus,string) {
         return ExerciseFocus{Focus: focus},"Focus";
 });
 

@@ -7,6 +7,7 @@ import (
 
 func TestErrorEquality(t *testing.T){
     errs:=map[string]errorType{
+        "UnsupportedQueryType": UnsupportedQueryType,
         "SqlScriptNotFound": SqlScriptNotFound,
         "DataConversion": DataConversion,
         "NoKnownDataConversion": NoKnownDataConversion,
@@ -23,6 +24,7 @@ func TestErrorEquality(t *testing.T){
         "SliceZippingError": SliceZippingError,
     };
     isErrs:=map[string]isErrorType{
+        "UnsupportedQueryType": IsUnsupportedQueryType,
         "SqlScriptNotFound": IsSqlScriptNotFound,
         "DataConversion": IsDataConversion,
         "NoKnownDataConversion": IsNoKnownDataConversion,

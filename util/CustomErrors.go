@@ -20,6 +20,10 @@ func errorFactory(base string) (errorType,isErrorType) {
     return errorTypeRv,isErrorTypeRv;
 }
 
+var UnsupportedQueryType,IsUnsupportedQueryType=errorFactory(
+    "The supplied query type is not supported for this operation.",
+);
+
 var SqlScriptNotFound,IsSqlScriptNotFound=errorFactory(
     "Could not open SQL script to run queries.",
 );

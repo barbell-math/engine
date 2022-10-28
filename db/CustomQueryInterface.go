@@ -1,8 +1,8 @@
 package db;
 
-//import (
-//    "database/sql"
-//)
+import (
+    "github.com/carmichaeljr/powerlifting-engine/util"
+)
 
 //func CustomSelectQuery[R DBTable](whereStmt string, whereVals []any) R
 //func CustomUpdateQuery[R DBTable](
@@ -13,19 +13,22 @@ package db;
 //        whereVals []any) R
 //func CustomDeleteQuery[R DBTable](whereStmt string, whereVals []any) R
 
-//func CustomReadQuery[S any](
-//        c *CRUD,
-//        sqlStmt string,
-//        vals ...any,
-//        callback func(r *S)) error {
-//    var iter R;
-//    if rows,err:=c.db.Query(sqlStmt,vals); err==nil {
-//        defer rows.Close();
-//        rowPntrs:=getTablePntrs(&iter,NoFilter);
-//        for rows.Next() {
-//            err=rows.Scan();
-//        }
-//    } else {
-//        return err;
-//    }
-//}
+func CustomReadQuery[S any](
+        c *CRUD,
+        sqlStmt string,
+        vals []any,
+        callback func(r *S)) error {
+    if SelectStmt.isQueryType(sqlStmt) {
+        var iter S;
+        rows,err:=c.db.Query(sqlStmt,vals...);
+        if err==nil {
+            defer rows.Close();
+            err=readRows(rows,&iter,callback);
+        }
+        return err;
+    } else {
+        return util.UnsupportedQueryType(
+            "CustomReadQuery only accepts 'SELECT' query's.",
+        );
+    }
+}

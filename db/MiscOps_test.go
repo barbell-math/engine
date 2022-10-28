@@ -11,9 +11,7 @@ import (
 
 func TestGetExerciseByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){
-        s.DBInfo.DataVersion=1;
-    });
+    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
     testDB.RunDataConversion();
     e,err:=GetExerciseByName(&testDB,"Squat");
     testUtil.BasicTest(nil,err,
@@ -69,9 +67,7 @@ func TestGetClientByEmail(t *testing.T){
 
 func TestGetExerciseTypeByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){
-        s.DBInfo.DataVersion=1;
-    });
+    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
     testDB.RunDataConversion();
     c,err:=GetExerciseTypeByName(&testDB,"Accessory");
     testUtil.BasicTest(nil,err,
@@ -97,9 +93,7 @@ func TestGetExerciseTypeByName(t *testing.T){
 
 func TestGetExerciseFocusByName(t *testing.T){
     setup();
-    settings.Modify(func(s *settings.Settings){
-        s.DBInfo.DataVersion=1;
-    });
+    settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
     testDB.RunDataConversion();
     c,err:=GetExerciseFocusByName(&testDB,"Squat");
     testUtil.BasicTest(nil,err,

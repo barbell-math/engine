@@ -158,12 +158,7 @@ func getQueryReflectResults[R DBTable](
         rows:=reflectVals[0].Interface().(*sql.Rows);
         defer rows.Close();
         var iter R;
-        rowPntrs:=getTablePntrs(&iter,util.NoFilter[string]);
-        for err==nil && rows.Next() {
-            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
-            err=util.GetErrorFromReflectValue(&potErr[0]);
-            callback(&iter);
-        }
+        err=readRows(rows,&iter,callback);
     }
     return err;
 }
