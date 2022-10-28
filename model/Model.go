@@ -23,7 +23,43 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
         Effort float64;
         Intensity float64;
     };
-    query:=fmt.Sprintf(`SELECT TrainingLog.DatePerformed,
+    var curDate time.Time;
+    var err error=nil;
+    var rcond float64=0.0;
+    var bestRes,res LinRegResult[float64]=nil, nil;
+    fatigueIndex:=0;
+    lr:=fatigueAwareModel();
+    query:=genModelStateQuery(&tl.DatePerformed);
+    if e1:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(d *DataPoint){
+        if !curDate.Equals(d.DatePerformed) {
+            res,rcond,err=lr.Run();
+            rv=comparePredictions(rv,res,tl);
+            fatigueIndex=0;
+            curDate=d.DatePerformed;
+        }
+        lr.UpdateSummations(map[string]float64{
+            "S": d.Sets, "E": d.Effort, "R": d.Reps,
+            "F": fatigueIndex, "I": d.Intensity,
+        });
+        fatigueIndex++;
+        fmt.Println(d);
+    }); e1!=nil {
+        fmt.Println(e1);
+        return db.ModelState{},e1;
+    }
+    fmt.Println(err);
+    return db.ModelState{},err;
+}
+
+func getPred(res LinRegResult[float64], tl *db.TrainingLog) float64 {
+    return res(map[string]float64{
+        "S": tl.Sets, "E": tl.Effort, "R": float64(tl.Reps),
+        "F": 0, "I": tl.Intensity,
+    });
+}
+
+func genModelStateQuery(t *time.Time) string {
+    return fmt.Sprintf(`SELECT TrainingLog.DatePerformed,
             TrainingLog.Sets,
             TrainingLog.Reps,
             TrainingLog.Effort,
@@ -32,19 +68,8 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
         WHERE TrainingLog.ExerciseID=$1
             AND TrainingLog.DatePerformed<'%s'::date
         ORDER BY TrainingLog.DatePerformed DESC;`,
-        tl.DatePerformed.Format("01/02/2006"),
+        t.Format("01/02/2006"),
     );
-    //    tl.DatePerformed.Month(),tl.DatePerformed.Day(),tl.DatePerformed.Year(),
-    //);
-    lr:=fatigueAwareModel();
-    fmt.Println(lr);
-    //var curDate time.Time;
-    err:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(d *DataPoint){
-        //if curDate
-        fmt.Println(d);
-    });
-    fmt.Println(err);
-    return db.ModelState{},err;
 }
 
 //Returns non-standard linear regression for the model according to the
