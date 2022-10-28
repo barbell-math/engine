@@ -36,34 +36,30 @@ func CSVToStruct[R any](
     var iter R;
     var err error=nil;
     headers:=make([]string,0);
-    return ChainedErrorOps(
-        func(r ...any) (any,error) {
-            return nil,ErrorOnBool(reflect.ValueOf(iter).Kind()==reflect.Struct,
-                NonStructValue(fmt.Sprintf(
-                    "CSVToStruct requires a struct as target. | Got: %s",
-                    reflect.ValueOf(iter).Kind().String(),
-                )),
-            );
-        },func(r ...any) (any,error) {
-            if e1:=CSVFileSplitter(src,delim,false,func(c []string) bool {
-                if cntr!=1 {
-                    if iter,err=convFromCSV[R](headers,c,timeDateFormat); err==nil {
-                        callback(&iter);
-                    } else {
-                        err=MalformedCSVFile(
-                            fmt.Sprintf("File: %s: Line %d: %s",src,cntr,err),
-                        );
-                    }
+    if reflect.ValueOf(iter).Kind()==reflect.Struct {
+        if e1:=CSVFileSplitter(src,delim,false,func(c []string) bool {
+            if cntr!=1 {
+                if iter,err=convFromCSV[R](headers,c,timeDateFormat); err==nil {
+                    callback(&iter);
                 } else {
-                    headers=c;
+                    err=MalformedCSVFile(
+                        fmt.Sprintf("File: %s: Line %d: %s",src,cntr,err),
+                    );
                 }
-                cntr++;
-                return err==nil;
-            }); e1!=nil {
-                return nil,e1;
+            } else {
+                headers=c;
             }
-            return nil,err;
-    });
+            cntr++;
+            return err==nil;
+        }); e1!=nil {
+            return e1;
+        }
+        return err;
+    }
+    return NonStructValue(fmt.Sprintf(
+        "CSVToStruct requires a struct as target. | Got: %s",
+        reflect.ValueOf(iter).Kind().String(),
+    ));
 }
 
 func convFromCSV[R any](
@@ -71,22 +67,18 @@ func convFromCSV[R any](
         columns []string,
         timeDateFormat string) (R,error) {
     var rv R;
-    tmp:=fmt.Errorf(fmt.Sprintf(
+    if len(headers)==len(columns) {
+        var err error=nil;
+        for i:=0; err==nil && i<len(headers); i++ {
+            if len(columns[i])>0 {
+                err=setTableValue[R](&rv,headers[i],columns[i],timeDateFormat);
+            }
+        }
+        return rv,err;
+    }
+    return rv,fmt.Errorf(fmt.Sprintf(
         "Expected %d cols, have %d",len(headers),len(columns),
     ));
-    return rv,ChainedErrorOps(
-        func(r ...any) (any,error) {
-            return nil,ErrorOnBool(len(headers)==len(columns),tmp);
-        }, func(r ...any) (any,error) {
-            var err error=nil;
-            for i:=0; err==nil && i<len(headers); i++ {
-                if len(columns[i])>0 {
-                    err=setTableValue[R](&rv,headers[i],columns[i],timeDateFormat);
-                }
-            }
-            return nil,err;
-        },
-    );
 }
 
 //Only basic types are supported

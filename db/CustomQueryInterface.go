@@ -26,9 +26,8 @@ func CustomReadQuery[S any](
             err=readRows(rows,callback);
         }
         return err;
-    } else {
-        return util.UnsupportedQueryType(
-            "CustomReadQuery only accepts 'SELECT' query's.",
-        );
     }
+    return util.UnsupportedQueryType(
+        "CustomReadQuery only accepts 'SELECT' query's.",
+    );
 }
