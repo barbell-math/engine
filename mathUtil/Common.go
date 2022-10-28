@@ -46,3 +46,7 @@ func Abs[N Number](v N) N {
     }
     return v;
 }
+
+func SquareError[N Number](act N, given N) N {
+    return (act-given)*(act-given);
+}

@@ -66,6 +66,7 @@ CREATE TABLE TrainingLog (
 	Reps SMALLINT NOT NULL,
 	Intensity FLOAT,
     Effort FLOAT,
+    FatigueIndex INT NOT NULL,
     Volume FLOAT NOT NULL,
 	FOREIGN KEY (ClientID) REFERENCES Client(ID),
 	FOREIGN KEY (ExerciseID) REFERENCES Exercise(ID),
@@ -84,6 +85,7 @@ CREATE TABLE ModelState (
     Eps FLOAT NOT NULL,
     Eps2 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
+    Rcond FLOAT NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES Client(Id),
     FOREIGN KEY (ExerciseID) REFERENCES Exercise(Id)
 );

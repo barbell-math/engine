@@ -59,6 +59,7 @@ type TrainingLog struct {
     Reps int;
     Intensity float64;
     Effort float64;
+    FatigueIndex int;
     Volume float64;
 };
 
@@ -76,4 +77,5 @@ type ModelState struct {
     Date time.Time;
     A,B,C,D,Eps,Eps2 float64;
     TimeFrame int;
+    Rcond float64;
 };
