@@ -2,6 +2,7 @@ package model;
 
 import (
     "fmt"
+    "time"
     "testing"
     "github.com/carmichaeljr/powerlifting-engine/db"
     "github.com/carmichaeljr/powerlifting-engine/util"
@@ -82,11 +83,21 @@ func uploadTestData() error {
 }
 
 func teardown(){
-    //testDB.ResetDB();
+    testDB.ResetDB();
     testDB.Close();
 }
 
-
 func TestPlaceHolder(t *testing.T){
     setup();
+    var tmp db.TrainingLog;
+    latestSquat,_:=time.Parse("1/2/2006","7/24/2022");
+    err:=db.Read(&testDB,db.TrainingLog{
+        DatePerformed: latestSquat,
+        ExerciseID: 42,
+    },util.GenFilter(false,"DatePerformed","ExerciseID"),func(t *db.TrainingLog){
+        tmp=*t;
+    });
+    fmt.Println(err);
+    fmt.Println(tmp);
+    GenerateModelState(&testDB,&tmp);
 }

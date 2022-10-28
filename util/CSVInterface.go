@@ -47,7 +47,7 @@ func CSVToStruct[R any](
         },func(r ...any) (any,error) {
             if e1:=CSVFileSplitter(src,delim,false,func(c []string) bool {
                 if cntr!=1 {
-                    if err=convFromCSV[R](&iter,headers,c,timeDateFormat); err==nil {
+                    if iter,err=convFromCSV[R](headers,c,timeDateFormat); err==nil {
                         callback(&iter);
                     } else {
                         err=MalformedCSVFile(
@@ -67,21 +67,21 @@ func CSVToStruct[R any](
 }
 
 func convFromCSV[R any](
-        v *R,
         headers []string,
         columns []string,
-        timeDateFormat string) error {
+        timeDateFormat string) (R,error) {
+    var rv R;
     tmp:=fmt.Errorf(fmt.Sprintf(
         "Expected %d cols, have %d",len(headers),len(columns),
     ));
-    return ChainedErrorOps(
+    return rv,ChainedErrorOps(
         func(r ...any) (any,error) {
             return nil,ErrorOnBool(len(headers)==len(columns),tmp);
         }, func(r ...any) (any,error) {
             var err error=nil;
             for i:=0; err==nil && i<len(headers); i++ {
                 if len(columns[i])>0 {
-                    err=setTableValue[R](v,headers[i],columns[i],timeDateFormat);
+                    err=setTableValue[R](&rv,headers[i],columns[i],timeDateFormat);
                 }
             }
             return nil,err;

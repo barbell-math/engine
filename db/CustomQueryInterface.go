@@ -19,11 +19,11 @@ func CustomReadQuery[S any](
         vals []any,
         callback func(r *S)) error {
     if SelectStmt.isQueryType(sqlStmt) {
-        var iter S;
+        //var iter S;
         rows,err:=c.db.Query(sqlStmt,vals...);
         if err==nil {
             defer rows.Close();
-            err=readRows(rows,&iter,callback);
+            err=readRows(rows,callback);
         }
         return err;
     } else {
