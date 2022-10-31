@@ -1,8 +1,11 @@
 package model;
 
 import (
+    "os"
     "fmt"
     "time"
+    "errors"
+    "strconv"
     "testing"
     "github.com/carmichaeljr/powerlifting-engine/db"
     "github.com/carmichaeljr/powerlifting-engine/util"
@@ -33,6 +36,49 @@ func setup(){
             err,
         ));
     }
+    //addFatigueIndex();
+}
+
+//This function can be used to generate the augmented training log file
+func addFatigueIndex() error {
+    f,err:=os.Create("../testData/model/AugmentedTrainingLogTestData.csv");
+    if err!=nil {
+        return errors.New("Err occured opening augmented training log data file.");
+    }
+    cntr:=0;
+    var curDate time.Time;
+    dayVals:=make(map[string]int,0);
+    return util.CSVFileSplitter("../testData/model/TrainingLogTestData.csv",
+        ',',false,func(cols []string) bool {
+            if cntr==0 {
+                f.WriteString(util.CSVGenerator(",",func(iter int) (string,bool){
+                    if iter==len(cols) {
+                        return "FatigueIndex",false;
+                    }
+                    return cols[iter],true;
+                }));
+                cntr++;
+            } else {
+                iterDate,_:=time.Parse("1/2/2006",cols[4]);
+                if !curDate.Equal(iterDate) {
+                    dayVals=make(map[string]int,0);
+                    curDate=iterDate;
+                }
+                if val,ok:=dayVals[cols[2]]; ok {
+                    dayVals[cols[2]]=val+1;
+                } else {
+                    dayVals[cols[2]]=0;
+                }
+                f.WriteString(util.CSVGenerator(",",func(iter int) (string,bool){
+                    if iter==len(cols) {
+                        return strconv.Itoa(dayVals[cols[2]]),false;
+                    }
+                    return cols[iter],true;
+                }));
+            }
+            f.WriteString("\n");
+            return true;
+    });
 }
 
 func uploadTestData() error {
@@ -74,7 +120,7 @@ func uploadTestData() error {
             });
         },func(r ...any) (any,error) {
             return nil,util.CSVToStruct(
-                "../testData/model/TrainingLogTestData.csv",',',"1/2/2006",
+                "../testData/model/AugmentedTrainingLogTestData.csv",',',"1/2/2006",
                 func(t *db.TrainingLog){
                     //fmt.Println(*t);
                     db.Create(&testDB,*t);
