@@ -4,6 +4,11 @@ import (
     "time"
 )
 
+//Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH
+//THE ORDER OF THE VALUES IN THE TABLE DEFINITION.
+//If they don't, the values returned will be all
+//jumbled up if no errors about parsing values arise.
+
 type DBTable  interface {
     ExerciseType |
     ExerciseFocus |

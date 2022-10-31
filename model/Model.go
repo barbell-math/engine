@@ -29,13 +29,15 @@ func MakeIntensityPrediction(ms *db.ModelState, tl *db.TrainingLog) float64 {
 //training log. Uses the training log data as the data that is being predicted,
 //which means it needs to have all **VALID** values.
 func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
+    //Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
+    //IN THE QUERY. Otherwise the values returned will be all jumbled up.
     type DataPoint struct {
         DatePerformed time.Time;
-        FatigueIndex float64;
-        Intensity float64;
+        Sets float64;
         Reps float64;
         Effort float64;
-        Sets float64;
+        Intensity float64;
+        FatigueIndex float64;
     };
     rv:=db.ModelState{
         ClientID: tl.ClientID,
@@ -55,7 +57,7 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
             "F": d.FatigueIndex, "I": d.Intensity, "R": d.Reps,
             "E": d.Effort, "S": d.Sets,
         });
-        fmt.Println(d);
+        fmt.Printf("%+v\n",d);
     }); e1!=nil {
         fmt.Println(e1);
         return rv,e1;

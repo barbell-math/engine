@@ -69,6 +69,25 @@ func LinearSumOpGenWithError[N Number](
     return rv,LinearSummationOp[N](dVar);
 }
 
+//type LinRegResult[N Number] struct {
+//    c Matrix[N];
+//};
+//func (l *LinRegResult[N])Predict(iVars map[string]N) (N,error) {
+//    var err error;
+//    var rv,v N=N(0),N(0);
+//    for i:=0; err==nil && i<len(l.iVarOps); i++ {
+//        v,err=l.iVarOps[i](iVars);
+//        rv+=c.V[i][0]*v;
+//    }
+//    return rv,err;
+//}
+//func (l *LinRegResult[N])GetConstant(i int) N {
+//    if i<l.c.Rows() {
+//        return c.V[i][0];
+//    }
+//    return N(0);
+//}
+
 type LinRegResult[N Number] func(iVars map[string]N) (N,error);
 func (l *LinearReg[N])genLinRegResult(c *Matrix[N]) LinRegResult[N] {
     return func(iVars map[string]N) (N,error) {
