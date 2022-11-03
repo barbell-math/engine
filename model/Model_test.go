@@ -15,8 +15,8 @@ import (
 var testDB db.CRUD;
 
 func TestMain(m *testing.M){
-    //setup();
     settings.ReadSettings("../testData/modelTestSettings.json");
+    setup();
     m.Run();
     teardown();
 }
@@ -57,7 +57,6 @@ func addFatigueIndex() error {
                     }
                     return cols[iter],true;
                 }));
-                cntr++;
             } else {
                 iterDate,_:=time.Parse("1/2/2006",cols[4]);
                 if !curDate.Equal(iterDate) {
@@ -77,6 +76,7 @@ func addFatigueIndex() error {
                 }));
             }
             f.WriteString("\n");
+            cntr++;
             return true;
     });
 }
@@ -129,21 +129,40 @@ func uploadTestData() error {
 }
 
 func teardown(){
-    testDB.ResetDB();
+    //testDB.ResetDB();
     testDB.Close();
 }
 
-func TestPlaceHolder(t *testing.T){
-    setup();
-    var tmp db.TrainingLog;
-    latestSquat,_:=time.Parse("1/2/2006","7/24/2022");
-    err:=db.Read(&testDB,db.TrainingLog{
-        DatePerformed: latestSquat,
-        ExerciseID: 42,
-    },util.GenFilter(false,"DatePerformed","ExerciseID"),func(t *db.TrainingLog){
-        tmp=*t;
+//func TestPlaceHolder(t *testing.T){
+//    //setup();
+//    var tmp db.TrainingLog;
+//    latestSquat,_:=time.Parse("1/2/2006","7/24/2022");
+//    err:=db.Read(&testDB,db.TrainingLog{
+//        DatePerformed: latestSquat,
+//        ExerciseID: 14,
+//    },util.GenFilter(false,"DatePerformed","ExerciseID"),func(t *db.TrainingLog){
+//        tmp=*t;
+//    });
+//    fmt.Println(err);
+//    fmt.Println(tmp);
+//    ms,err:=GenerateModelState(&testDB,&tmp);
+//    fmt.Printf("%+v\n",ms);
+//    fmt.Println(err);
+//}
+
+func TestPlaceHolder2(t *testing.T){
+    var avg float64=0;
+    var cntr int=0;
+    db.Read(&testDB,db.TrainingLog{
+        ExerciseID: 14,
+    },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
+        modelState,_:=GenerateModelState(&testDB,t);
+        fmt.Printf("%+v\n",modelState);
+        if modelState.Difference>0 {
+            avg+=modelState.Difference*modelState.Difference;
+            cntr++;
+        }
+        db.Create(&testDB,modelState);
     });
-    fmt.Println(err);
-    fmt.Println(tmp);
-    GenerateModelState(&testDB,&tmp);
+    fmt.Println("Avg diff: ",avg/float64(cntr));
 }

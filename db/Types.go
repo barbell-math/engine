@@ -83,4 +83,5 @@ type ModelState struct {
     A,B,C,D,Eps,Eps2 float64;
     TimeFrame int;
     Rcond float64;
+    Difference float64;
 };

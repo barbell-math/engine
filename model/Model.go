@@ -50,14 +50,14 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
     query:=genModelStateQuery(&tl.DatePerformed);
     if e1:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(d *DataPoint){
         if !curDate.Equal(d.DatePerformed) {
-            err=calcAndSetModelState(&lr,&rv,tl);
+            err=calcAndSetModelState(&lr,&rv,tl,d.DatePerformed);
             curDate=d.DatePerformed;
         }
         lr.UpdateSummations(map[string]float64{
             "F": d.FatigueIndex, "I": d.Intensity, "R": d.Reps,
             "E": d.Effort, "S": d.Sets,
         });
-        fmt.Printf("%+v\n",d);
+        //fmt.Printf("%+v\n",d);
     }); e1!=nil {
         fmt.Println(e1);
         return rv,e1;
@@ -69,13 +69,25 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
 func calcAndSetModelState(
         lr *mathUtil.LinearReg[float64],
         cur *db.ModelState,
-        tl *db.TrainingLog) error {
-    //put rcond in database later
-    res,_,err:=lr.Run();
+        tl *db.TrainingLog,
+        date time.Time) error {
+    diff:=date.Sub(tl.DatePerformed);
+    diffDays:=int(diff.Hours()/24);
+    res,rcond,err:=lr.Run();
     newSe:=mathUtil.SquareError(tl.Intensity,getPred(res,tl));
     oldSe:=mathUtil.SquareError(tl.Intensity,MakeIntensityPrediction(cur,tl));
-    if newSe<oldSe {
-        //Set constants here... BUT HOW TO GET THEM
+    //fmt.Printf("%+v\n",res);
+    //fmt.Println(rcond);
+    if newSe<oldSe && diffDays<=-40 {
+        cur.A=res.GetConstant(1);
+        cur.B=res.GetConstant(2);
+        cur.C=res.GetConstant(3);
+        cur.D=res.GetConstant(0);
+        cur.Eps=res.GetConstant(4);
+        cur.Eps2=res.GetConstant(5);
+        cur.TimeFrame=diffDays;
+        cur.Rcond=rcond;
+        cur.Difference=newSe;
     }
     return err;
 }
@@ -83,7 +95,7 @@ func calcAndSetModelState(
 func getPred(
         res mathUtil.LinRegResult[float64],
         tl *db.TrainingLog) float64 {
-    rv,_:=res(map[string]float64{
+    rv,_:=res.Predict(map[string]float64{
         "F": float64(tl.FatigueIndex), "I": tl.Intensity, "R": float64(tl.Reps),
         "E": tl.Effort, "S": float64(tl.Sets),
     });
@@ -110,9 +122,12 @@ func genModelStateQuery(t *time.Time) string {
 func fatigueAwareModel() mathUtil.LinearReg[float64] {
     return mathUtil.NewLinearReg[float64](fatigueAwareSumOpGen());
 }
+//The ordering of the functions makes for this ordering of constants:
+//  d,a,b,c,eps_1,eps_2
 func fatigueAwareSumOpGen() ([]mathUtil.SummationOp[float64],
         mathUtil.SummationOp[float64]) {
     return []mathUtil.SummationOp[float64]{
+        mathUtil.ConstSummationOp[float64](1),
         func(vals map[string]float64) (float64,error) {
             s,err:=mathUtil.VarAcc(vals,"S");
             if err!=nil {
@@ -122,20 +137,20 @@ func fatigueAwareSumOpGen() ([]mathUtil.SummationOp[float64],
             if err!=nil {
                 return 0, err;
             }
-            return math.Pow(s-1,2)*math.Pow(r-1,2),nil;
+            return -(math.Pow(s-1,2)*math.Pow(r-1,2)),nil;
         }, func(vals map[string]float64) (float64,error) {
             s,err:=mathUtil.VarAcc(vals,"S");
             if err!=nil {
                 return 0, err;
             }
-            return math.Pow(s-1,2),nil;
+            return -math.Pow(s-1,2),nil;
         }, func(vals map[string]float64) (float64,error) {
             r,err:=mathUtil.VarAcc(vals,"R");
             if err!=nil {
                 return 0, err;
             }
-            return math.Pow(r-1,2),nil;
-        }, mathUtil.LinearSummationOp[float64]("E"),
-        mathUtil.LinearSummationOp[float64]("F"),
+            return -math.Pow(r-1,2),nil;
+        }, mathUtil.NegatedLinearSummationOp[float64]("E"),
+        mathUtil.NegatedLinearSummationOp[float64]("F"),
     },mathUtil.LinearSummationOp[float64]("I");
 }

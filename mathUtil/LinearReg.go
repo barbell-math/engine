@@ -26,6 +26,12 @@ func LinearSummationOp[N Number](_var string) SummationOp[N] {
         return VarAcc[N](vals,_var);
     }
 }
+func NegatedLinearSummationOp[N Number](_var string) SummationOp[N] {
+    return func(vals map[string]N) (N,error){
+        val,err:=VarAcc[N](vals,_var);
+        return -val,err;
+    }
+}
 
 func VarAcc[N Number](vals map[string]N, _var string) (N,error){
     if v,ok:=vals[_var]; ok {
@@ -69,33 +75,23 @@ func LinearSumOpGenWithError[N Number](
     return rv,LinearSummationOp[N](dVar);
 }
 
-//type LinRegResult[N Number] struct {
-//    c Matrix[N];
-//};
-//func (l *LinRegResult[N])Predict(iVars map[string]N) (N,error) {
-//    var err error;
-//    var rv,v N=N(0),N(0);
-//    for i:=0; err==nil && i<len(l.iVarOps); i++ {
-//        v,err=l.iVarOps[i](iVars);
-//        rv+=c.V[i][0]*v;
-//    }
-//    return rv,err;
-//}
-//func (l *LinRegResult[N])GetConstant(i int) N {
-//    if i<l.c.Rows() {
-//        return c.V[i][0];
-//    }
-//    return N(0);
-//}
-
-type LinRegResult[N Number] func(iVars map[string]N) (N,error);
-func (l *LinearReg[N])genLinRegResult(c *Matrix[N]) LinRegResult[N] {
-    return func(iVars map[string]N) (N,error) {
+type LinRegResult[N Number] struct {
+    c Matrix[N];
+    Predict func(iVars map[string]N) (N,error);
+};
+func (l *LinRegResult[N])GetConstant(i int) N {
+    if i<l.c.Rows() {
+        return l.c.V[i][0];
+    }
+    return N(0);
+}
+func (l *LinearReg[N])genLinRegPredict(r *LinRegResult[N]){
+    r.Predict=func(iVars map[string]N) (N,error) {
         var err error;
         var rv,v N=N(0),N(0);
         for i:=0; err==nil && i<len(l.iVarOps); i++ {
             v,err=l.iVarOps[i](iVars);
-            rv+=c.V[i][0]*v;
+            rv+=r.c.V[i][0]*v;
         }
         return rv,err;
     }
@@ -203,12 +199,14 @@ func (l *LinearReg[N])UpdateSummations(vals map[string]N) error {
 }
 
 func (l *LinearReg[N])Run() (LinRegResult[N],float64,error) {
-    rv:=l.a.Copy();
-    rcond,err:=rv.Inverse();
+    var rv LinRegResult[N];
+    rv.c=l.a.Copy();
+    rcond,err:=rv.c.Inverse();
     if !util.IsInverseOfNonSquareMatrix(err) {
         //err in RV can be ignored, matrices are guaranteed to have correct
         //dimensions because they are only managed by the linear reg struct
-        rv.Mul(&l.b);
+        rv.c.Mul(&l.b);
     }
-    return l.genLinRegResult(&rv),rcond,err;
+    l.genLinRegPredict(&rv);
+    return rv,rcond,err;
 }

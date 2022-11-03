@@ -82,7 +82,7 @@ func Test1DStdLinearReg(t *testing.T){
         "Linear reg returned error when it shouldn't have.",t,
     );
     for i:=-12; i<14; i+=2 {
-        v,err:=res(map[string]float32{"x1": float32(i)});
+        v,err:=res.Predict(map[string]float32{"x1": float32(i)});
         testUtil.BasicTest(nil,err,
             "Appropriate linear relationship was not found.",t,
         );
@@ -125,13 +125,15 @@ func Test2DLinearReg(t *testing.T){
         "Linear reg returned error when it shouldn't have.",t,
     );
     for i:=-12; i<14; i+=2 {
-        v,err:=res(map[string]float64{"x1": float64(i)});
+        v,err:=res.Predict(map[string]float64{"x1": float64(i)});
         if !util.IsMissingVariable(err) {
             testUtil.FormatError(util.MissingVariable(""),err,
                 "Missing variable not caught.",t,
             );
         }
-        v,err=res(map[string]float64{"x1": float64(i), "x2": float64(i/2.0)});
+        v,err=res.Predict(map[string]float64{
+            "x1": float64(i), "x2": float64(i/2.0),
+        });
         testUtil.BasicTest(nil,err,
             "Appropriate linear relationship was not found.",t,
         );
@@ -180,7 +182,9 @@ func Test2DLinearRegWithError(t *testing.T){
         "Linear reg returned error when it shouldn't have.",t,
     );
     for i:=-12; i<14; i+=2 {
-        v,err:=res(map[string]float64{"x1": float64(i), "x2": float64(i/2.0)});
+        v,err:=res.Predict(map[string]float64{
+            "x1": float64(i), "x2": float64(i/2.0),
+        });
         testUtil.BasicTest(nil,err,
             "Appropriate linear relationship was not found.",t,
         );
@@ -236,7 +240,7 @@ func TestNonStdLinearReg(t *testing.T){
     util.CSVFileSplitter("../testData/NonStdLinRegActual.csv",',',false,
         func(col []string) bool {
             cntr,_:=strconv.Atoi(col[0]);
-            v,err:=res(map[string]float64{
+            v,err:=res.Predict(map[string]float64{
                 "x1": float64(cntr),"x2": float64(cntr/2.0),
             });
             actual,_:=strconv.ParseFloat(col[1],64);

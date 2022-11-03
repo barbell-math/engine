@@ -86,6 +86,7 @@ CREATE TABLE ModelState (
     Eps2 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
     Rcond FLOAT NOT NULL,
+    Difference FLOAT NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES Client(Id),
     FOREIGN KEY (ExerciseID) REFERENCES Exercise(Id)
 );
