@@ -1,8 +1,6 @@
 package model;
 
 import (
-    "fmt"
-    "time"
     "math"
     "github.com/carmichaeljr/powerlifting-engine/db"
     "github.com/carmichaeljr/powerlifting-engine/mathUtil"
@@ -16,105 +14,13 @@ import (
 //  r is reps
 //  E is effort (RPE)
 //  F is the fatigue index
-func MakeIntensityPrediction(ms *db.ModelState, tl *db.TrainingLog) float64 {
+func IntensityPrediction(ms *db.ModelState, tl *db.TrainingLog) float64 {
     return (ms.D-
             ms.A*math.Pow(float64(tl.Sets-1),2)*math.Pow(float64(tl.Reps-1),2)-
             ms.B*math.Pow(float64(tl.Sets-1),2)-
             ms.C*math.Pow(float64(tl.Reps-1),2)-
             ms.Eps*tl.Effort-
             ms.Eps2*float64(tl.FatigueIndex));
-}
-
-//Generates the model state given the date and exercise specified in the
-//training log. Uses the training log data as the data that is being predicted,
-//which means it needs to have all **VALID** values.
-func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
-    //Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
-    //IN THE QUERY. Otherwise the values returned will be all jumbled up.
-    type DataPoint struct {
-        DatePerformed time.Time;
-        Sets float64;
-        Reps float64;
-        Effort float64;
-        Intensity float64;
-        FatigueIndex float64;
-    };
-    rv:=db.ModelState{
-        ClientID: tl.ClientID,
-        ExerciseID: tl.ExerciseID,
-        Date: tl.DatePerformed,
-    };
-    var err error=nil;
-    var curDate time.Time;
-    lr:=fatigueAwareModel();
-    query:=genModelStateQuery(&tl.DatePerformed);
-    if e1:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(d *DataPoint){
-        if !curDate.Equal(d.DatePerformed) {
-            err=calcAndSetModelState(&lr,&rv,tl,d.DatePerformed);
-            curDate=d.DatePerformed;
-        }
-        lr.UpdateSummations(map[string]float64{
-            "F": d.FatigueIndex, "I": d.Intensity, "R": d.Reps,
-            "E": d.Effort, "S": d.Sets,
-        });
-        //fmt.Printf("%+v\n",d);
-    }); e1!=nil {
-        fmt.Println(e1);
-        return rv,e1;
-    }
-    fmt.Println(err);
-    return rv,err;
-}
-
-func calcAndSetModelState(
-        lr *mathUtil.LinearReg[float64],
-        cur *db.ModelState,
-        tl *db.TrainingLog,
-        date time.Time) error {
-    diff:=date.Sub(tl.DatePerformed);
-    diffDays:=int(diff.Hours()/24);
-    res,rcond,err:=lr.Run();
-    newSe:=mathUtil.SquareError(tl.Intensity,getPred(res,tl));
-    oldSe:=mathUtil.SquareError(tl.Intensity,MakeIntensityPrediction(cur,tl));
-    //fmt.Printf("%+v\n",res);
-    //fmt.Println(rcond);
-    if newSe<oldSe && diffDays<=-40 {
-        cur.A=res.GetConstant(1);
-        cur.B=res.GetConstant(2);
-        cur.C=res.GetConstant(3);
-        cur.D=res.GetConstant(0);
-        cur.Eps=res.GetConstant(4);
-        cur.Eps2=res.GetConstant(5);
-        cur.TimeFrame=diffDays;
-        cur.Rcond=rcond;
-        cur.Difference=newSe;
-    }
-    return err;
-}
-
-func getPred(
-        res mathUtil.LinRegResult[float64],
-        tl *db.TrainingLog) float64 {
-    rv,_:=res.Predict(map[string]float64{
-        "F": float64(tl.FatigueIndex), "I": tl.Intensity, "R": float64(tl.Reps),
-        "E": tl.Effort, "S": float64(tl.Sets),
-    });
-    return rv;
-}
-
-func genModelStateQuery(t *time.Time) string {
-    return fmt.Sprintf(`SELECT TrainingLog.DatePerformed,
-            TrainingLog.Sets,
-            TrainingLog.Reps,
-            TrainingLog.Effort,
-            TrainingLog.Intensity,
-            TrainingLog.FatigueIndex
-        FROM TrainingLog
-        WHERE TrainingLog.ExerciseID=$1
-            AND TrainingLog.DatePerformed<'%s'::date
-        ORDER BY TrainingLog.DatePerformed DESC;`,
-        t.Format("01/02/2006"),
-    );
 }
 
 //Returns non-standard linear regression for the model according to the
@@ -154,3 +60,14 @@ func fatigueAwareSumOpGen() ([]mathUtil.SummationOp[float64],
         mathUtil.NegatedLinearSummationOp[float64]("F"),
     },mathUtil.LinearSummationOp[float64]("I");
 }
+
+func getPredFromLinRegResult(
+        res mathUtil.LinRegResult[float64],
+        tl *db.TrainingLog) float64 {
+    rv,_:=res.Predict(map[string]float64{
+        "F": float64(tl.FatigueIndex), "I": tl.Intensity, "R": float64(tl.Reps),
+        "E": tl.Effort, "S": float64(tl.Sets),
+    });
+    return rv;
+}
+

@@ -157,12 +157,23 @@ func TestPlaceHolder2(t *testing.T){
         ExerciseID: 14,
     },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
         modelState,_:=GenerateModelState(&testDB,t);
-        fmt.Printf("%+v\n",modelState);
+        //fmt.Printf("%+v\n",modelState);
         if modelState.Difference>0 {
             avg+=modelState.Difference*modelState.Difference;
             cntr++;
         }
         db.Create(&testDB,modelState);
     });
-    fmt.Println("Avg diff: ",avg/float64(cntr));
+    //fmt.Println("Avg diff: ",avg/float64(cntr));
+}
+
+func TestPrediction(t *testing.T){
+    db.Read(&testDB,db.TrainingLog{
+        ExerciseID: 14,
+    },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
+        //fmt.Printf("%+v",tl);
+        p,_:=GeneratePrediction(&testDB,tl);
+        fmt.Printf("%+v\n",p);
+        db.Create(&testDB,p);
+    });
 }

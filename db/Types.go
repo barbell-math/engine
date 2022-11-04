@@ -17,7 +17,8 @@ type DBTable  interface {
     BodyWeight |
     TrainingLog |
     Client |
-    ModelState
+    ModelState |
+    Prediction
 };
 
 type ExerciseType struct {
@@ -84,4 +85,10 @@ type ModelState struct {
     TimeFrame int;
     Rcond float64;
     Difference float64;
+};
+
+type Prediction struct {
+    Id int;
+    TrainingLogID int;
+    IntensityPred float64;
 };
