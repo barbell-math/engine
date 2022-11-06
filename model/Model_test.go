@@ -168,12 +168,34 @@ func TestPlaceHolder2(t *testing.T){
 }
 
 func TestPrediction(t *testing.T){
-    db.Read(&testDB,db.TrainingLog{
-        ExerciseID: 14,
-    },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
-        //fmt.Printf("%+v",tl);
-        p,_:=GeneratePrediction(&testDB,tl);
-        fmt.Printf("%+v\n",p);
-        db.Create(&testDB,p);
-    });
+    for i:=0; i<10; i++ {
+        setup();
+        db.Read(&testDB,db.TrainingLog{
+            ExerciseID: 14,
+        },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
+            modelState,_:=GenerateModelState(&testDB,t);
+            //fmt.Printf("%+v\n",modelState);
+            db.Create(&testDB,modelState);
+        });
+        db.Read(&testDB,db.TrainingLog{
+            ExerciseID: 14,
+        },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
+            p,err:=GeneratePrediction(&testDB,tl);
+            //fmt.Println(err);
+            //fmt.Printf("%+v\n",tl);
+            if err==nil {
+                //fmt.Printf("%+v\n",p);
+                db.Create(&testDB,p);
+            }
+        });
+        type ErrResult struct { Mse float64; };
+        query:=`SELECT AVG(
+            POWER(TrainingLog.Intensity-Prediction.IntensityPred,2)
+        ) FROM TrainingLog
+        JOIN Prediction ON Prediction.TrainingLogID=TrainingLog.Id
+        WHERE Prediction.IntensityPred>0;`
+        db.CustomReadQuery(&testDB,query,[]any{},func(r *ErrResult){
+            fmt.Printf("%+v\n",r);
+        });
+    }
 }

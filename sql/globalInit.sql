@@ -94,9 +94,13 @@ CREATE TABLE ModelState (
 
 CREATE TABLE Prediction (
     Id SERIAL PRIMARY KEY,
-    TrainingLogID INTEGER NOT NULL,
+    TrainingLogID INTEGER NOT NULL UNIQUE,
     IntensityPred FLOAT NOT NULL,
     FOREIGN KEY (TrainingLogID) REFERENCES TrainingLog(Id)
 );
+
+ALTER TABLE ModelState
+ADD CONSTRAINT uniqueDayExerciseClient
+UNIQUE(ClientID,ExerciseID,Date);
 
 INSERT INTO Version(num) VALUES (0);

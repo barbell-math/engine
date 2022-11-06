@@ -19,7 +19,6 @@ func CustomReadQuery[S any](
         vals []any,
         callback func(r *S)) error {
     if SelectStmt.isQueryType(sqlStmt) {
-        //var iter S;
         rows,err:=c.db.Query(sqlStmt,vals...);
         if err==nil {
             defer rows.Close();

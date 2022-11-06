@@ -78,3 +78,7 @@ var NonStructValue,IsNonStructValue=errorFactory(
 var SliceZippingError,IsSliceZippingError=errorFactory(
     "The given slices could not be zipped.",
 );
+
+var ModelDataError,IsModelDataError=errorFactory(
+    "An error occured reading data from the database.",
+);

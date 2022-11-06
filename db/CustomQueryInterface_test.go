@@ -46,3 +46,5 @@ func TestCustomReadQuery(t *testing.T){
         "Custom read query read values it was not supposed to.",t,
     );
 }
+
+//Add test to ensure sql err no rows is returned

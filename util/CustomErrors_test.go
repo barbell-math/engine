@@ -22,6 +22,7 @@ func TestErrorEquality(t *testing.T){
         "MalformedCSVFile": MalformedCSVFile,
         "NonStructValue": NonStructValue,
         "SliceZippingError": SliceZippingError,
+        "ModelDataError": ModelDataError,
     };
     isErrs:=map[string]isErrorType{
         "UnsupportedQueryType": IsUnsupportedQueryType,
@@ -39,6 +40,7 @@ func TestErrorEquality(t *testing.T){
         "MalformedCSVFile": IsMalformedCSVFile,
         "NonStructValue": IsNonStructValue,
         "SliceZippingError": IsSliceZippingError,
+        "ModelDataError": IsModelDataError,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");
