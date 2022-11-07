@@ -20,6 +20,11 @@ type dataPoint struct {
     FatigueIndex float64;
 };
 
+//Generates all missing model states for the given client across all exercises
+func UpdateModelStates(c *db.CRUD, clientID int) error {
+    return nil;
+}
+
 //Generates the model state given the date and exercise specified in the
 //training log. Uses the training log data as the data that is being predicted,
 //which means it needs to have all **VALID** values.
@@ -33,33 +38,33 @@ func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
     var curDate time.Time;
     lr:=fatigueAwareModel();
     query:=modelStateQuery(&tl.DatePerformed);
-    actualVals,err:=getActualVals(c,&tl.DatePerformed);
+    actualVals,err:=getActualVals(c,tl);
     if err!=nil {
         return rv,formatModelDataError(err);
     }
-    if e1:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(d *dataPoint){
+    if e1:=db.CustomReadQuery(c,query,[]any{
+        tl.ExerciseID,tl.ClientID,
+    },func(d *dataPoint){
         if !curDate.Equal(d.DatePerformed) {
-            mse,err=calcAndSetModelState(&lr,&rv,actualVals,d.DatePerformed,mse);
+            mse,err=calcAndSetModelState(&lr,&rv,actualVals,curDate,mse);
             curDate=d.DatePerformed;
         }
         lr.UpdateSummations(map[string]float64{
             "F": d.FatigueIndex, "I": d.Intensity, "R": d.Reps,
             "E": d.Effort, "S": d.Sets,
         });
-        //fmt.Printf("%+v\n",d);
+        //fmt.Println("Date: ",curDate);
     }); e1!=nil {
-        //fmt.Println(e1);
         return rv,formatModelDataError(e1);
     }
-    //fmt.Println(err);
     return rv,formatModelDataError(err);
 }
 
-func getActualVals(c *db.CRUD, date *time.Time) ([]db.TrainingLog,error) {
+func getActualVals(c *db.CRUD, tl *db.TrainingLog) ([]db.TrainingLog,error) {
     rv:=make([]db.TrainingLog,0);
-    err:=db.Read(c,db.TrainingLog{
-        DatePerformed: *date,
-    },util.GenFilter(false,"DatePerformed"),func(tl *db.TrainingLog){
+    err:=db.Read(c,*tl,util.GenFilter(
+        false,"DatePerformed","ExerciseID","ClientID",
+    ),func(tl *db.TrainingLog){
         rv=append(rv,*tl);
     });
     return rv,err;
@@ -83,12 +88,18 @@ func calcAndSetModelState(
             iter.Intensity,getPredFromLinRegResult(res,&iter),
         );
     }
-    newSe/=float64(len(tl));
-    if newSe<oldSe && diffDays<=-40 {
-        cur.A=res.GetConstant(1);
-        cur.B=res.GetConstant(2);
-        cur.C=res.GetConstant(3);
-        cur.D=res.GetConstant(0);
+    //fmt.Printf("At %d days the diff is %0.8f",int(diff.Hours()/24),newSe);
+    //newSe/=float64(len(tl));
+    //fmt.Printf(" and the mse is: %0.8f\n",newSe);
+    //fmt.Printf("With A=%0.8f, B=%0.8f, C=%0.8f, D=%0.8f, Eps=%0.8f, Eps2=%0.8f\n",
+    //    res.GetConstant(1),res.GetConstant(2),res.GetConstant(3),res.GetConstant(0),
+    //    res.GetConstant(4),res.GetConstant(5),
+    //);
+    if newSe<oldSe && diffDays<=-30 {
+        cur.A=math.Max(res.GetConstant(1),0);
+        cur.B=math.Max(res.GetConstant(2),0);
+        cur.C=math.Max(res.GetConstant(3),0);
+        cur.D=math.Max(res.GetConstant(0),0);
         cur.Eps=res.GetConstant(4);
         cur.Eps2=res.GetConstant(5);
         cur.TimeFrame=diffDays;
@@ -108,6 +119,7 @@ func modelStateQuery(t *time.Time) string {
             TrainingLog.FatigueIndex
         FROM TrainingLog
         WHERE TrainingLog.ExerciseID=$1
+            AND ClientID=$2
             AND TrainingLog.DatePerformed<'%s'::date
         ORDER BY TrainingLog.DatePerformed DESC;`,
         t.Format("01/02/2006"),

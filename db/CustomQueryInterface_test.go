@@ -2,6 +2,7 @@ package db;
 
 import (
     "testing"
+    "database/sql"
     "github.com/carmichaeljr/powerlifting-engine/util"
     "github.com/carmichaeljr/powerlifting-engine/testUtil"
 )
@@ -47,4 +48,17 @@ func TestCustomReadQuery(t *testing.T){
     );
 }
 
-//Add test to ensure sql err no rows is returned
+func TestCustomReadQueryEmpty(t *testing.T){
+    setup();
+    cntr:=0;
+    err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise ORDER BY Id DESC;",
+        []any{},func(e *Exercise){
+            cntr++;
+    });
+    testUtil.BasicTest(sql.ErrNoRows,err,
+        "Custom read query returned incorrect error.",t,
+    );
+    testUtil.BasicTest(0, cntr,
+        "Custom read query read values it was not supposed to.",t,
+    );
+}

@@ -278,7 +278,7 @@ func TestReadAll(t *testing.T){
     setup();
     var cntr int=0;
     err:=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
-    testUtil.BasicTest(nil,err,"ReadAll operations was unsuccessful.",t);
+    testUtil.BasicTest(sql.ErrNoRows,err,"ReadAll operation was unsuccessful.",t);
     testUtil.BasicTest(0 ,cntr,"ReadAll did not select all rows.",t);
     for i:=0; i<10; i++ {
         Create(&testDB,
@@ -287,7 +287,7 @@ func TestReadAll(t *testing.T){
     }
     cntr=0;
     err=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
-    testUtil.BasicTest(nil,err,"ReadAll operations was unsuccessful.",t);
+    testUtil.BasicTest(nil,err,"ReadAll operation was unsuccessful.",t);
     testUtil.BasicTest(10,cntr,"ReadAll did not select all rows.",t);
 }
 

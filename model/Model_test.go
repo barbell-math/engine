@@ -30,16 +30,20 @@ func setup(){
     if err=testDB.ResetDB(); err!=nil {
         panic("Could not reset DB for testing. Check location of global init SQL file relative to the ./testData/modelTestSettings.json file.");
     }
+    //Enable this code as needed, it will re-generate the augmented model data
+    //if addFatigueIndex(); err!=nil {
+    //    panic(fmt.Sprintf(
+    //        "Could not generate the augmented model data | %s",err,
+    //    ));
+    //}
     if err:=uploadTestData(); err!=nil {
         panic(fmt.Sprintf(
             "Could not upload data for testing. Check location of testData folder. | %s",
             err,
         ));
     }
-    //addFatigueIndex();
 }
 
-//This function can be used to generate the augmented training log file
 func addFatigueIndex() error {
     f,err:=os.Create("../testData/model/AugmentedTrainingLogTestData.csv");
     if err!=nil {
@@ -94,35 +98,30 @@ func uploadTestData() error {
             return nil,util.CSVToStruct(
                 "../testData/model/ExerciseTypeTestData.csv",',',"",
                 func(e *db.ExerciseType){
-                    //fmt.Println(*e);
                     db.Create(&testDB,*e);
             });
         },func(r ...any) (any,error) {
             return nil,util.CSVToStruct(
                 "../testData/model/ExerciseFocusTestData.csv",',',"",
                 func(e *db.ExerciseFocus){
-                    //fmt.Println(*e);
                     db.Create(&testDB,*e);
             });
         },func(r ...any) (any,error) {
             return nil,util.CSVToStruct(
                 "../testData/model/ExerciseTestData.csv",',',"",
                 func(e *db.Exercise){
-                    //fmt.Println(*e);
                     db.Create(&testDB,*e);
             });
         },func(r ...any) (any,error) {
             return nil,util.CSVToStruct(
                 "../testData/model/RotationTestData.csv",',',"1/2/2006",
                 func(r *db.Rotation){
-                    //fmt.Println(*r);
                     db.Create(&testDB,*r);
             });
         },func(r ...any) (any,error) {
             return nil,util.CSVToStruct(
                 "../testData/model/AugmentedTrainingLogTestData.csv",',',"1/2/2006",
                 func(t *db.TrainingLog){
-                    //fmt.Println(*t);
                     db.Create(&testDB,*t);
             });
     });
@@ -150,35 +149,39 @@ func teardown(){
 //    fmt.Println(err);
 //}
 
-func TestPlaceHolder2(t *testing.T){
-    var avg float64=0;
-    var cntr int=0;
-    db.Read(&testDB,db.TrainingLog{
-        ExerciseID: 14,
-    },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
-        modelState,_:=GenerateModelState(&testDB,t);
-        //fmt.Printf("%+v\n",modelState);
-        if modelState.Difference>0 {
-            avg+=modelState.Difference*modelState.Difference;
-            cntr++;
-        }
-        db.Create(&testDB,modelState);
-    });
-    //fmt.Println("Avg diff: ",avg/float64(cntr));
-}
+//func TestPlaceHolder2(t *testing.T){
+//    var avg float64=0;
+//    var cntr int=0;
+//    db.Read(&testDB,db.TrainingLog{
+//        ExerciseID: 14,
+//    },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
+//        modelState,_:=GenerateModelState(&testDB,t);
+//        //fmt.Printf("%+v\n",modelState);
+//        if modelState.Difference>0 {
+//            avg+=modelState.Difference*modelState.Difference;
+//            cntr++;
+//        }
+//        db.Create(&testDB,modelState);
+//    });
+//    //fmt.Println("Avg diff: ",avg/float64(cntr));
+//}
 
 func TestPrediction(t *testing.T){
-    for i:=0; i<10; i++ {
+    for i:=0; i<1; i++ {
         setup();
+        //t,_:=time.Parse("1/2/2006","7/14/2022");
         db.Read(&testDB,db.TrainingLog{
             ExerciseID: 14,
+            //DatePerformed: t,
         },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
             modelState,_:=GenerateModelState(&testDB,t);
             //fmt.Printf("%+v\n",modelState);
             db.Create(&testDB,modelState);
         });
-        db.Read(&testDB,db.TrainingLog{
+        //t,_=time.Parse("1/2/2006","7/24/2022");
+        err:=db.Read(&testDB,db.TrainingLog{
             ExerciseID: 14,
+            //DatePerformed: t,
         },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
             p,err:=GeneratePrediction(&testDB,tl);
             //fmt.Println(err);
@@ -188,6 +191,7 @@ func TestPrediction(t *testing.T){
                 db.Create(&testDB,p);
             }
         });
+        fmt.Println(err);
         type ErrResult struct { Mse float64; };
         query:=`SELECT AVG(
             POWER(TrainingLog.Intensity-Prediction.IntensityPred,2)

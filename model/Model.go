@@ -70,4 +70,3 @@ func getPredFromLinRegResult(
     });
     return rv;
 }
-

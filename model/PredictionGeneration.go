@@ -14,10 +14,7 @@ func GeneratePrediction(c *db.CRUD, tl *db.TrainingLog) (db.Prediction,error) {
     rv:=db.Prediction{ TrainingLogID: tl.Id };
     query:=nearestExerciseQuery(tl);
     err:=db.CustomReadQuery(c,query,[]any{tl.ExerciseID},func(m *db.ModelState){
-        //fmt.Printf("MS in pred: %+v\n",m);
-        //fmt.Printf("TL in pred: %+v\n",tl);
         rv.IntensityPred=IntensityPrediction(m,tl);
-        //fmt.Println("HERE");
     });
     return rv,err;
 }
