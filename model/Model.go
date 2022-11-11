@@ -2,9 +2,22 @@ package model;
 
 import (
     "math"
+    "time"
     "github.com/carmichaeljr/powerlifting-engine/db"
     "github.com/carmichaeljr/powerlifting-engine/mathUtil"
 )
+
+//The struct that holds values when linear regression is performed.
+//Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
+//IN THE QUERY. Otherwise the values returned will be all jumbled up.
+type dataPoint struct {
+    DatePerformed time.Time;
+    Sets float64;
+    Reps float64;
+    Effort float64;
+    Intensity float64;
+    FatigueIndex float64;
+};
 
 //The model equation is as follows:
 //  I=d-a(s-1)^2*(r-1)^2-b(s-1)^2-c(r-1)^2-eps_1*E-eps_2*F

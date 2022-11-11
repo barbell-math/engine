@@ -167,18 +167,30 @@ func teardown(){
 //}
 
 func TestPrediction(t *testing.T){
+    ch:=make(chan ModelStateGenerationRes);
+    cntr:=0;
     for i:=0; i<1; i++ {
         setup();
         //t,_:=time.Parse("1/2/2006","7/14/2022");
+        fmt.Println("UPDATING MODEL STATE ===================");
         db.Read(&testDB,db.TrainingLog{
             ExerciseID: 14,
             //DatePerformed: t,
         },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
-            modelState,_:=GenerateModelState(&testDB,t);
-            //fmt.Printf("%+v\n",modelState);
-            db.Create(&testDB,modelState);
+            go NewPredictionState(38,500,9).GenerateModelState(&testDB,*t,ch);
+            cntr++;
+            //if res:=<-ch; res.Err==nil {
+            //    //fmt.Printf("%+v\n",res.Ms);
+            //    db.Create(&testDB,res.Ms);
+            //}
         });
+        for i:=0; i<cntr; i++ {
+            if res:=<-ch; res.Err==nil {
+                db.Create(&testDB,res.Ms);
+            }
+        }
         //t,_=time.Parse("1/2/2006","7/24/2022");
+        fmt.Println("UPDATING MODEL PRED ===================");
         err:=db.Read(&testDB,db.TrainingLog{
             ExerciseID: 14,
             //DatePerformed: t,
@@ -193,9 +205,9 @@ func TestPrediction(t *testing.T){
         });
         fmt.Println(err);
         type ErrResult struct { Mse float64; };
-        query:=`SELECT AVG(
+        query:=`SELECT SQRT(AVG(
             POWER(TrainingLog.Intensity-Prediction.IntensityPred,2)
-        ) FROM TrainingLog
+        )) FROM TrainingLog
         JOIN Prediction ON Prediction.TrainingLogID=TrainingLog.Id
         WHERE Prediction.IntensityPred>0;`
         db.CustomReadQuery(&testDB,query,[]any{},func(r *ErrResult){

@@ -9,108 +9,132 @@ import (
     "github.com/carmichaeljr/powerlifting-engine/mathUtil"
 )
 
-//Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
-//IN THE QUERY. Otherwise the values returned will be all jumbled up.
-type dataPoint struct {
-    DatePerformed time.Time;
-    Sets float64;
-    Reps float64;
-    Effort float64;
-    Intensity float64;
-    FatigueIndex float64;
+type PredictionState struct {
+    window int;
+    minTimeFrame int;
+    maxTimeFrame int;
+    optimalMs db.ModelState;
+    startDate time.Time;
+    actualVals []db.TrainingLog;
+    lr mathUtil.LinearReg[float64];
 };
 
-//Generates all missing model states for the given client across all exercises
-func UpdateModelStates(c *db.CRUD, clientID int) error {
-    return nil;
+func NewPredictionState(
+        minTimeFrame int,
+        maxTimeFrame int,
+        window int) PredictionState {
+    return PredictionState{
+        window: -mathUtil.Abs(window),
+        minTimeFrame: -mathUtil.Abs(minTimeFrame),
+        maxTimeFrame: -mathUtil.Abs(maxTimeFrame),
+        lr: fatigueAwareModel(),
+        optimalMs: db.ModelState{
+            Mse: math.Inf(1),
+        },
+    };
 }
+
+////Generates all missing model states for the given client across all exercises
+//func (p PredictionState)UpdateModelStates(c *db.CRUD, clientID int) error {
+//    return nil;
+//}
+
+type ModelStateGenerationRes struct {
+    Ms db.ModelState;
+    Err error;
+};
 
 //Generates the model state given the date and exercise specified in the
 //training log. Uses the training log data as the data that is being predicted,
 //which means it needs to have all **VALID** values.
-func GenerateModelState(c *db.CRUD, tl *db.TrainingLog) (db.ModelState,error) {
-    rv:=db.ModelState{
-        ClientID: tl.ClientID,
-        ExerciseID: tl.ExerciseID,
-        Date: tl.DatePerformed,
-    };
-    var mse float64=math.Inf(1);
+//This method does not have a pointer receiver because it is meant to be run in
+//parallel. Not having a pointer receiver ensures values are copied to the new
+//thread.
+func (p PredictionState)GenerateModelState(
+        c *db.CRUD,
+        tl db.TrainingLog,
+        ch chan<- ModelStateGenerationRes){
     var curDate time.Time;
-    lr:=fatigueAwareModel();
-    query:=modelStateQuery(&tl.DatePerformed);
-    actualVals,err:=getActualVals(c,tl);
-    if err!=nil {
-        return rv,formatModelDataError(err);
+    p.startDate=tl.DatePerformed;
+    p.optimalMs.ClientID=tl.ClientID;
+    p.optimalMs.ExerciseID=tl.ExerciseID;
+    p.optimalMs.Date=tl.DatePerformed;
+    rv:=ModelStateGenerationRes{ Err: nil };
+    if rv.Err=p.getActualVals(c,&tl); rv.Err!=nil {
+        ch <- rv;
+        return;
     }
-    if e1:=db.CustomReadQuery(c,query,[]any{
+    rv.Err=db.CustomReadQuery(c,p.modelStateQuery(&tl.DatePerformed),[]any{
         tl.ExerciseID,tl.ClientID,
     },func(d *dataPoint){
         if !curDate.Equal(d.DatePerformed) {
-            mse,err=calcAndSetModelState(&lr,&rv,actualVals,curDate,mse);
+            rv.Err=p.calcAndSetModelState(curDate);
             curDate=d.DatePerformed;
         }
-        lr.UpdateSummations(map[string]float64{
+        p.lr.UpdateSummations(map[string]float64{
             "F": d.FatigueIndex, "I": d.Intensity, "R": d.Reps,
             "E": d.Effort, "S": d.Sets,
         });
-        //fmt.Println("Date: ",curDate);
-    }); e1!=nil {
-        return rv,formatModelDataError(e1);
-    }
-    return rv,formatModelDataError(err);
-}
-
-func getActualVals(c *db.CRUD, tl *db.TrainingLog) ([]db.TrainingLog,error) {
-    rv:=make([]db.TrainingLog,0);
-    err:=db.Read(c,*tl,util.GenFilter(
-        false,"DatePerformed","ExerciseID","ClientID",
-    ),func(tl *db.TrainingLog){
-        rv=append(rv,*tl);
     });
-    return rv,err;
+    rv.Err=formatModelDataError(rv.Err);
+    rv.Ms=p.optimalMs;
+    ch <- rv;
+    return;
 }
 
-func calcAndSetModelState(
-        lr *mathUtil.LinearReg[float64],
-        cur *db.ModelState,
-        tl []db.TrainingLog,
-        date time.Time,
-        oldSe float64) (float64,error) {
-    var newSe float64=0.0;
+func (p *PredictionState)getActualVals(
+        c *db.CRUD,
+        tl *db.TrainingLog) error {
+    p.actualVals=make([]db.TrainingLog,0);
+    return formatModelDataError(db.CustomReadQuery(c,fmt.Sprintf(`
+        SELECT *
+        FROM TrainingLog
+        WHERE ClientID=$1
+            AND ExerciseID=$2
+            AND DatePerformed<='%s'::date
+            AND DatePerformed>='%s'::date`,
+        tl.DatePerformed.Format("01/02/2006"),
+        tl.DatePerformed.AddDate(0, 0, p.window).Format("01/02/2006"),
+    ), []any{
+        tl.ClientID,tl.ExerciseID,
+    },func(iterTl *db.TrainingLog){
+        p.actualVals=append(p.actualVals,*iterTl);
+    }));
+}
+
+func (p *PredictionState)calcAndSetModelState(date time.Time) error {
+    var newMse float64=0.0;
     var diff time.Duration;
-    if len(tl)>0 {
-        diff=date.Sub(tl[0].DatePerformed);
-    }
+    diff=date.Sub(p.startDate);
     diffDays:=int(diff.Hours()/24);
-    res,rcond,err:=lr.Run();
-    for _,iter:=range(tl) {
-        newSe+=mathUtil.SquareError(
+    res,rcond,err:=p.lr.Run();
+    for _,iter:=range(p.actualVals) {
+        newMse+=mathUtil.SquareError(
             iter.Intensity,getPredFromLinRegResult(res,&iter),
         );
     }
     //fmt.Printf("At %d days the diff is %0.8f",int(diff.Hours()/24),newSe);
-    //newSe/=float64(len(tl));
-    //fmt.Printf(" and the mse is: %0.8f\n",newSe);
+    newMse/=float64(len(p.actualVals));
+    //fmt.Printf(" and the mse is: %0.8f\n",newMse);
     //fmt.Printf("With A=%0.8f, B=%0.8f, C=%0.8f, D=%0.8f, Eps=%0.8f, Eps2=%0.8f\n",
     //    res.GetConstant(1),res.GetConstant(2),res.GetConstant(3),res.GetConstant(0),
     //    res.GetConstant(4),res.GetConstant(5),
     //);
-    if newSe<oldSe && diffDays<=-30 {
-        cur.A=math.Max(res.GetConstant(1),0);
-        cur.B=math.Max(res.GetConstant(2),0);
-        cur.C=math.Max(res.GetConstant(3),0);
-        cur.D=math.Max(res.GetConstant(0),0);
-        cur.Eps=res.GetConstant(4);
-        cur.Eps2=res.GetConstant(5);
-        cur.TimeFrame=diffDays;
-        cur.Rcond=rcond;
-        cur.Difference=newSe;
-        return newSe,err;
+    if newMse<p.optimalMs.Mse && diffDays<=p.minTimeFrame {
+        p.optimalMs.A=math.Max(res.GetConstant(1),0);
+        p.optimalMs.B=math.Max(res.GetConstant(2),0);
+        p.optimalMs.C=math.Max(res.GetConstant(3),0);
+        p.optimalMs.D=math.Max(res.GetConstant(0),0);
+        p.optimalMs.Eps=res.GetConstant(4);
+        p.optimalMs.Eps2=res.GetConstant(5);
+        p.optimalMs.TimeFrame=diffDays;
+        p.optimalMs.Rcond=rcond;
+        p.optimalMs.Mse=newMse;
     }
-    return oldSe,err;
+    return err;
 }
 
-func modelStateQuery(t *time.Time) string {
+func (p *PredictionState)modelStateQuery(t *time.Time) string {
     return fmt.Sprintf(`SELECT TrainingLog.DatePerformed,
             TrainingLog.Sets,
             TrainingLog.Reps,
@@ -121,15 +145,17 @@ func modelStateQuery(t *time.Time) string {
         WHERE TrainingLog.ExerciseID=$1
             AND ClientID=$2
             AND TrainingLog.DatePerformed<'%s'::date
+            AND TrainingLog.DatePerformed>'%s'::date
         ORDER BY TrainingLog.DatePerformed DESC;`,
         t.Format("01/02/2006"),
+        t.AddDate(0, 0, p.maxTimeFrame).Format("01/02/2006"),
     );
 }
 
 func formatModelDataError(err error) error {
     if err!=nil {
         return util.ModelDataError(fmt.Sprintf(
-            "Could not read model data at given date | %s",err,
+            "Could not read model data at given date. | %s",err,
         ));
     }
     return nil;
