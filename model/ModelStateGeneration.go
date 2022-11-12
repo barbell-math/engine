@@ -34,10 +34,24 @@ func NewPredictionState(
     };
 }
 
-////Generates all missing model states for the given client across all exercises
-//func (p PredictionState)UpdateModelStates(c *db.CRUD, clientID int) error {
-//    return nil;
-//}
+//Generates all missing model states for the given client across all exercises
+//This method does not have a pointer receiver because it is meant to be run in
+//parallel. Not having a pointer receiver ensures values are copied to the new
+//thread.
+func (p PredictionState)UpdateModelStates(
+        c *db.CRUD,
+        clientID int,
+        rv chan<- error) {
+    type needsModelState struct {
+        Date time.Time;
+        ExerciseID int;
+    };
+    rv<-formatModelDataError(db.CustomReadQuery(c,p.msMissingQuery(),[]any{
+        clientID,
+    }, func(n *needsModelState){
+        fmt.Printf("%+v\n",n);
+    }));
+}
 
 type ModelStateGenerationRes struct {
     Ms db.ModelState;
@@ -45,8 +59,10 @@ type ModelStateGenerationRes struct {
 };
 
 //Generates the model state given the date and exercise specified in the
-//training log. Uses the training log data as the data that is being predicted,
-//which means it needs to have all **VALID** values.
+//training log. The following values need to be valid in the training log arg:
+//  - DatePerformed
+//  - ClientID
+//  - ExerciseID
 //This method does not have a pointer receiver because it is meant to be run in
 //parallel. Not having a pointer receiver ensures values are copied to the new
 //thread.
@@ -64,7 +80,7 @@ func (p PredictionState)GenerateModelState(
         ch <- rv;
         return;
     }
-    rv.Err=db.CustomReadQuery(c,p.modelStateQuery(&tl.DatePerformed),[]any{
+    rv.Err=db.CustomReadQuery(c,p.msStateSelectionQuery(&tl.DatePerformed),[]any{
         tl.ExerciseID,tl.ClientID,
     },func(d *dataPoint){
         if !curDate.Equal(d.DatePerformed) {
@@ -134,7 +150,7 @@ func (p *PredictionState)calcAndSetModelState(date time.Time) error {
     return err;
 }
 
-func (p *PredictionState)modelStateQuery(t *time.Time) string {
+func (p *PredictionState)msStateSelectionQuery(t *time.Time) string {
     return fmt.Sprintf(`SELECT TrainingLog.DatePerformed,
             TrainingLog.Sets,
             TrainingLog.Reps,
@@ -150,6 +166,26 @@ func (p *PredictionState)modelStateQuery(t *time.Time) string {
         t.Format("01/02/2006"),
         t.AddDate(0, 0, p.maxTimeFrame).Format("01/02/2006"),
     );
+}
+
+func (p *PredictionState)msMissingQuery() string {
+    return `SELECT TrainingLog.DatePerformed,
+        TrainingLog.ExerciseID
+    FROM TrainingLog
+    LEFT JOIN ModelState
+    ON TrainingLog.ExerciseID=ModelState.ExerciseID
+        AND ModelState.ClientID=TrainingLog.ClientID
+        AND TrainingLog.DatePerformed=ModelState.Date
+    JOIN Exercise
+    ON Exercise.Id=TrainingLog.ExerciseID
+    JOIN ExerciseType
+    ON ExerciseType.Id=Exercise.TypeID
+    WHERE TrainingLog.ClientID=$1
+        AND ModelState.Id IS NULL
+        AND (ExerciseType.T='Main Compound'
+        OR ExerciseType.T='Main Compound Accessory')
+    GROUP BY TrainingLog.DatePerformed,
+        TrainingLog.ExerciseID;`;
 }
 
 func formatModelDataError(err error) error {
