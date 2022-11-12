@@ -166,60 +166,60 @@ func teardown(){
 //    //fmt.Println("Avg diff: ",avg/float64(cntr));
 //}
 
-//func TestPrediction(t *testing.T){
-//    ch:=make(chan ModelStateGenerationRes);
-//    cntr:=0;
-//    for i:=0; i<1; i++ {
-//        setup();
-//        //t,_:=time.Parse("1/2/2006","7/14/2022");
-//        fmt.Println("UPDATING MODEL STATE ===================");
-//        db.Read(&testDB,db.TrainingLog{
-//            ExerciseID: 14,
-//            //DatePerformed: t,
-//        },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
-//            go NewPredictionState(38,500,13).GenerateModelState(&testDB,*t,ch);
-//            cntr++;
-//            //if res:=<-ch; res.Err==nil {
-//            //    //fmt.Printf("%+v\n",res.Ms);
-//            //    db.Create(&testDB,res.Ms);
-//            //}
-//        });
-//        for i:=0; i<cntr; i++ {
-//            if res:=<-ch; res.Err==nil {
-//                db.Create(&testDB,res.Ms);
-//            }
-//        }
-//        //t,_=time.Parse("1/2/2006","7/24/2022");
-//        fmt.Println("UPDATING MODEL PRED ===================");
-//        err:=db.Read(&testDB,db.TrainingLog{
-//            ExerciseID: 14,
-//            //DatePerformed: t,
-//        },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
-//            p,err:=GeneratePrediction(&testDB,tl);
-//            //fmt.Println(err);
-//            //fmt.Printf("%+v\n",tl);
-//            if err==nil {
-//                //fmt.Printf("%+v\n",p);
-//                db.Create(&testDB,p);
-//            }
-//        });
-//        fmt.Println(err);
-//        type ErrResult struct { Mse float64; };
-//        query:=`SELECT SQRT(AVG(
-//            POWER(TrainingLog.Intensity-Prediction.IntensityPred,2)
-//        )) FROM TrainingLog
-//        JOIN Prediction ON Prediction.TrainingLogID=TrainingLog.Id
-//        WHERE Prediction.IntensityPred>0;`
-//        db.CustomReadQuery(&testDB,query,[]any{},func(r *ErrResult){
-//            fmt.Printf("%+v\n",r);
-//        });
-//    }
-//}
-
-func TestPlaceholder(t *testing.T){
-    setup();
-    ch:=make(chan error);
-    go NewPredictionState(38,500,13).UpdateModelStates(&testDB,1,ch);
-    err:=<-ch;
-    fmt.Println(err);
+func TestPrediction(t *testing.T){
+    ch:=make(chan ModelStateGenerationRes);
+    cntr:=0;
+    for i:=0; i<1; i++ {
+        setup();
+        //t,_:=time.Parse("1/2/2006","7/14/2022");
+        fmt.Println("UPDATING MODEL STATE ===================");
+        db.Read(&testDB,db.TrainingLog{
+            ExerciseID: 14,
+            //DatePerformed: t,
+        },util.GenFilter(false,"ExerciseID"),func(t *db.TrainingLog){
+            go NewPredictionState(38,500,0).GenerateModelState(&testDB,*t,ch);
+            cntr++;
+            //if res:=<-ch; res.Err==nil {
+            //    //fmt.Printf("%+v\n",res.Ms);
+            //    db.Create(&testDB,res.Ms);
+            //}
+        });
+        for i:=0; i<cntr; i++ {
+            if res:=<-ch; res.Err==nil {
+                db.Create(&testDB,res.Ms);
+            }
+        }
+        //t,_=time.Parse("1/2/2006","7/24/2022");
+        fmt.Println("UPDATING MODEL PRED ===================");
+        err:=db.Read(&testDB,db.TrainingLog{
+            ExerciseID: 14,
+            //DatePerformed: t,
+        },util.GenFilter(false,"ExerciseID"),func(tl *db.TrainingLog){
+            p,err:=GeneratePrediction(&testDB,tl);
+            //fmt.Println(err);
+            //fmt.Printf("%+v\n",tl);
+            if err==nil {
+                //fmt.Printf("%+v\n",p);
+                db.Create(&testDB,p);
+            }
+        });
+        fmt.Println(err);
+        type ErrResult struct { Mse float64; };
+        query:=`SELECT SQRT(AVG(
+            POWER(TrainingLog.Intensity-Prediction.IntensityPred,2)
+        )) FROM TrainingLog
+        JOIN Prediction ON Prediction.TrainingLogID=TrainingLog.Id
+        WHERE Prediction.IntensityPred>0;`
+        db.CustomReadQuery(&testDB,query,[]any{},func(r *ErrResult){
+            fmt.Printf("%+v\n",r);
+        });
+    }
 }
+
+//func TestPlaceholder(t *testing.T){
+//    setup();
+//    ch:=make(chan error);
+//    go NewPredictionState(38,500,13).UpdateModelStates(&testDB,1,ch);
+//    err:=<-ch;
+//    fmt.Println(err);
+//}

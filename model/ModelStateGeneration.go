@@ -19,6 +19,10 @@ type PredictionState struct {
     lr mathUtil.LinearReg[float64];
 };
 
+//The lr and actual values are not created until the generate prediction method
+//in order to make sure the slice values are unique. (ie. It makes sure multiple
+//threads don't access the same slices because they are not deep copied even
+//though the method does not have a pointer receiver.)
 func NewPredictionState(
         minTimeFrame int,
         maxTimeFrame int,
@@ -27,14 +31,13 @@ func NewPredictionState(
         window: -mathUtil.Abs(window),
         minTimeFrame: -mathUtil.Abs(minTimeFrame),
         maxTimeFrame: -mathUtil.Abs(maxTimeFrame),
-        lr: fatigueAwareModel(),
         optimalMs: db.ModelState{
             Mse: math.Inf(1),
         },
     };
 }
 
-//Generates all missing model states for the given client across all exercises
+//Generates all missing model states for the given client across all exercises.
 //This method does not have a pointer receiver because it is meant to be run in
 //parallel. Not having a pointer receiver ensures values are copied to the new
 //thread.
@@ -71,6 +74,7 @@ func (p PredictionState)GenerateModelState(
         tl db.TrainingLog,
         ch chan<- ModelStateGenerationRes){
     var curDate time.Time;
+    p.lr=fatigueAwareModel();
     p.startDate=tl.DatePerformed;
     p.optimalMs.ClientID=tl.ClientID;
     p.optimalMs.ExerciseID=tl.ExerciseID;
