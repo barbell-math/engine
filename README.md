@@ -11,8 +11,8 @@ This application requires PostgreSQL to be installed. Once installed, database(s
 Before running the application, two environmnent variables need to be set: ```DB_USER``` and ```DB_PSWD```. Both are expected to be strings.
 
 ### Todo
+1. Limit threads somehow
+1. Finish adding custom query functions
 1. Add escape characters to CSV file splitter
 1. Make CSVSplitter accept strings for delimiters
-1. Make Join interface
 1. Add determinant function to matrix
-1. Look for ways to reduce error from matrix inversion/other calculations

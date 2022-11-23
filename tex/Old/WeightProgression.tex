@@ -1,0 +1,243 @@
+\section{Weight Progression}
+
+The weight progression model will define what weights a user will be attempting through the duration of the workout program, also known as a \textit{rotation}. What is needed is the weight progression for a \textit{single lift}. The model can then be generally applied to as many lifts as needed.
+
+When thinking about weight progression, there are two time frames that need to be considered. The first is the length of the entire rotation, called the \textit{macro cycle}. The second time frame is each individual week, called the \textit{micro cycle}. Both of these time frames will be considered in the model.
+
+The macro cycle is responsible for defining the weight progression over the entire rotation, without looking at day-to-day variations. The weight progression over the length of the rotation needs to be structured in a way to promote progress towards a new one rep max (1RM). In order to accomplish this, \textit{linear periodization} will be used. Linear periodization is a tried and true method for gaining strength. Weights will start off at a lower percentage of the users current one rep max and increase up to the users 1RM. This allows for a training stimulus to accumulate and result in an increased 1RM.
+ 
+The micro cycle is concerned with the day-to-day variations from the macro cycle. For the micro cycle, the \textit{frequency} of a lift is very important. The frequency of a lift refers to how often a lifter will perform the same lift within a week. The percent of the 1RM being lifted throughout the week will need to decrease inversely with the frequency of a lift. This ensures that over training is avoided and reduces the chance of injury.
+
+There are a few additional guiding principles that the model will need to support:
+\begin{itemize}
+    \item Deload: longer rotations will need a deload week to ensure the lifter is not overly fatigued by the end of the program. Shorter rotations will either not need a deload week or not need it to the same extent as longer rotations.
+    \item Fatigue levels: Fatigue management is an important part of any good workout program. Without it progress can stall or even regress.
+\end{itemize}
+
+A relationship between the percentage of the users 1RM and time, $p(t)$, is needed. The models for the macro cycle, $p_{macro}(t)$, and micro cycle, $p_{micro}(t)$, will be considered individually and combined to create $p(t)$.
+
+The model will be given:
+\begin{itemize}
+    \item The users max for a lift: $l_{1RM}$
+    \item The users fatigue level: $f$ on a scale from $0-9$
+    \item The frequency for a lift: $f_{req}$ on a scale from $1-7$
+    \item The length of the rotation: $r_{ot}$
+    \item A constant defining the maximum number of weeks a rotation can be: $r_{max}$
+    \item A constant defining the minimum number of weeks a rotation can be: $r_{min}$
+    \item Many users historical lifting data: $\{(r_{ot},b)_i\}_{i=0}^n$ where:
+    \begin{itemize}
+        \item $r_{ot} \equiv$ the length of the rotation
+        \item $b \equiv$ the percentage back-off at the beginning of the rotation
+    \end{itemize}
+\end{itemize}
+
+
+\subsection{Macro Curve}
+
+The back-off, $b$, is related to the length of the rotation, $r_{ot}$. The argument that longer or shorter rotations need a greater backoff is one that can be side stepped by using the data supplied to the model. Knowing that $b$ and $r_{ot}$ are related is enough. A curve of best fit based on many users historical lifting data, $\{(r_{ot},b)_i\}_{i=0}^n$ will be used to define $b$.
+
+\begin{equation}
+    b(r)=Ar^2+Br+C
+\end{equation}
+\begin{equation*}
+    E=\sum_{i=0}^n\left(b_i-Ar_i^2-Br_i-C\right)^2
+\end{equation*}
+\begin{equation*}
+    \begin{split}
+        \frac{\partial E}{\partial A}=&
+        \frac{\partial}{\partial A}\sum_{i=0}^{n}\left(b_i-Ar_i^2-Br_i-C\right)^2
+        =2\sum_{i=0}^{n}\left(-b_ir_i^2+Ar_i^4+Br_i^3+Cr_i^2\right)\\
+        \frac{\partial E}{\partial B}=&
+        \frac{\partial}{\partial B}\sum_{i=0}^{n}\left(b_i-Ar_i^2-Br_i-C\right)^2
+        =2\sum_{i=0}^{n}\left(-b_ir_i+Ar_i^3+Br_i^2+Cr_i\right)\\
+        \frac{\partial E}{\partial C}=&
+        \frac{\partial}{\partial C}\sum_{i=0}^{n}\left(b_i-Ar_i^2-Br_i-C\right)^2
+        =2\sum_{i=0}^{n}\left(-b_i+Ar_i^2+Br_i+C\right)\\
+    \end{split}
+\end{equation*}
+
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}r_i^4 & \sum_{i=0}^{n}r_i^3 & \sum_{i=0}^{n}r_i^2\\
+        \sum_{i=0}^{n}r_i^3 & \sum_{i=0}^{n}r_i^2 & \sum_{i=0}^{n}r_i\\
+        \sum_{i=0}^{n}r_i^2 & \sum_{i=0}^{n}r_i & \sum_{i=0}^{n}1\\
+    \end{bmatrix}
+    \begin{bmatrix}
+        A \\
+        B \\
+        C
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \sum_{i=0}^{n}b_ir_i^2 \\
+        \sum_{i=0}^{n}b_ir_i \\
+        \sum_{i=0}^{n}b_i \\
+    \end{bmatrix}
+\end{equation*}
+
+\begin{equation}
+    A=\frac{(B_3 A_2-A_3 B_2)(b_1 A_2-A_1 b_2)-(B_1 A_2-A_1 B_2)(b_3 A_2-A_3 b_2)}
+           {(B_3 A_2-A_3 B_2)(C_1 A_2-A_1 C_2)-(B_1 A_2-A_1 B_2)(C_3 A_2-A_3 C_2)}
+\end{equation}
+\begin{equation}
+    B=\frac{(B_1 A_3-A_1 B_3)(b_2 A_3-A_2 b_3)-(B_2 A_3-A_2 B_3)(b_1 A_3-A_1 b_3)}
+           {(B_1 A_3-A_1 B_3)(C_2 A_3-A_2 C_3)-(B_2 A_3-A_2 B_3)(C_1 A_2-A_1 C_3)}
+\end{equation}
+\begin{equation}
+    C=\frac{(B_2 A_1-A_2 B_1)(b_3 A_1-A_3 b_1)-(B_3 A_1- A_3 B_1)(b_2 A_1-A_2 b_1)}
+           {(B_2 A_1-A_2 B_1)(C_3 A_1-A_3 C_1)-(B_3 A_1- A_3 B_1)(C_2 A_1-A_2 C_1)}
+\end{equation}
+\centerline{where}
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}r_i^4 & \sum_{i=0}^{n}r_i^3 & \sum_{i=0}^{n}r_i^2\\
+        \sum_{i=0}^{n}r_i^3 & \sum_{i=0}^{n}r_i^2 & \sum_{i=0}^{n}r_i\\
+        \sum_{i=0}^{n}r_i^2 & \sum_{i=0}^{n}r_i & \sum_{i=0}^{n}1\\
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        A_1 & B_1 & C_1\\
+        A_2 & B_2 & C_2\\
+        A_3 & B_3 & C_3\\
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}b_ir_i^2 \\
+        \sum_{i=0}^{n}b_ir_i \\
+        \sum_{i=0}^{n}b_i \\
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        b_1 \\
+        b_2 \\
+        b_3 \\
+    \end{bmatrix}
+\end{equation*}
+
+The deload week, $d$, needs to be placed such that there is sufficient time before and after it for linear periodization to occur. This naturally leads to placing the deload at the middle of the rotation.
+
+\begin{equation}
+    d=\left\lceil\frac{r_{ot}}{2}\right\rceil
+\end{equation}
+
+The deload halfway through the rotation necessitates a non-continuous solution for $p_{macro}(t)$. One way to create a  discontinuous function is by using a step function, which can be used to turn a series of other functions "on" and "off". \footnote{This step function is similar to the Dirac Delta function with the notable exception that the area underneath it is not guaranteed to be 1.}
+
+\begin{equation}
+    s_{tep}(t,s_{tart},e_{end})=
+    \lim_{c \to +\infty} 
+    \frac{1}{\left(\frac{2}{e_{end}-s_{tart}}\left(t-\frac{e_{end}+s_{tart}}{2}\right)\right)^c+1}
+\end{equation}
+
+The first function will need to be "on" over the domain $[0,d]$, and the second function will need to be "on" over the domain $(d,r_{ot}]$, creating the required discontinuity at $d$. A small constant will also be added to the start and end parameters to ensure that the step function has the correct values at each discontinuity. This is necessary because the value of the step function at each discontinuity is $\frac{1}{2}$ when it needs to be 1 for the model to work.
+
+\begin{equation}
+    p_{macro}(t)=f_1(t)s_{tep}(t,0-\epsilon,d+\epsilon)+
+                 f_2(t)s_{tep}(t,d+\epsilon,r_{ot}+\epsilon)
+\end{equation}
+\centerline{where $\epsilon$ is a constant close to 0}
+
+Two linear functions will be used to implement linear periodization. The first function will need to pass through the points $(0,b(r_{ot}))$ and $(d,p_1)$, where $p_1$is the highest percentage of the users 1RM that will be reached before the deload week occurs. The second function will need to pass through the points $(d,b(r_{ot}))$ and $(r_{ot},1)$.
+
+\begin{equation*}
+    f_1(t)=\frac{p_1-b(r_{ot})}{d}t+b(r_{ot})
+\end{equation*}
+\begin{equation}
+    f_2(t)=\frac{1-b(r_{ot})}{r_{ot}-d}(t-d)+b(r_{ot})
+\end{equation}
+
+$p_1$ will be set to $95\%$ when $r_{ot}=r_{max}$ and will decrease in proportion to the length of the rotation until $p_1=b(r_{ot})$, removing the discontinuity at $d$. $p_1$ will need to decrease with the length of the rotation because the user will not have as long to prepare for a near maximal attempt at the halfway point of shorter rotations. $95\%$ was chosen because that is typically the closest lifters will get to setting a new 1RM without attempting a new 1RM.
+
+In order to make $p_1$ approach $b(r_{ot})$ on shorter rotations as well as implement fatigue management, $f_1(t)$ will be changed to approach $f_2(t)$ as $r_{ot}\to r_{min}$ and as $f\to 9$. Fatigue management can be implemented here because $f_2(t)<f_1(t)$ when $t<d$. This means that if $f_1(t)$ approaches $f_2(t)$ then the user will be lifting a lower percentage of there 1RM, resulting in decreased stimulus and hence a way to manage fatigue. $f_1(t)$ will be redefined to support inverse percentage contributions from $f_2(t)$ and itself.
+
+\begin{equation}
+    f_1(t)=p_{contrib}\left (\frac{p_1-b(r_{ot})}{d}t+b(r_{ot}) \right)+
+           (1-p_{contrib})f_2(t)
+\end{equation}
+
+Because $p_{contrib}$ depends on two variables, a geometric average is needed.
+
+\begin{equation}
+    p_{contrib}=\sqrt{\left( -\frac{f-9}{9} \right)
+                      \left( \frac{r_{ot}-r_{min}}{r_{max}-r_{min}} \right)}
+\end{equation}
+
+With equations $1-10$ $p_{macro}$ is fully defined.
+
+\subsection{Micro Curve}
+The general idea for the micro curve is to define a function that can be multiplied by $p_{macro}$ to modify $p_{macro}$ so that it incorporates weekly lifting frequency. This can be done by defining $p_{micro}$ as percentages of $p_{macro}$.
+
+Similar to $p_{macro}$, a step function is needed to turn a function "on" and "off". This step function will need to be cyclical to represent weekly changes in percentage. The period of the step function will need to equal one week in the weight progression model, forcing $l_{ength}=1$.
+
+\begin{equation}
+    s_{tepCyc}(t,l_{ength})=
+        \lim_{c \to +\infty}
+        \frac{1}{\left( \sin\left( \frac{2\pi}{l_{ength}}t-\frac{\pi}{2} \right) +1 \right)^c+1}
+\end{equation}
+
+Multiplying the cyclical step function by another function to define the decrease in percentage across a given week is necessary. It is also necessary to shift $p_{micro}$ by the same $\epsilon$ constant that $p_{macro}$ used so that the two equations coincide.
+
+\begin{equation*}
+    p_{micro}(t)=f_3(t)s_{tepCyc}\left( t-\frac{l_{ength}}{4}+\epsilon,1 \right)
+\end{equation*}
+
+Due to the cyclical nature of the step function, a trigonometric function is needed to define $f_3(t)$. Because $p_{micro}$ represents percentages of $p_{macro}$, $f_3(t)$ will be shifted so $f_3(t)\ge 0$. The period of $f_3(t)$ will need to match the period of $s_{tepCyc}$ so that the same series of percentages is repeated every week.
+
+\begin{equation}
+    f_3(t)=a_{mp}(f_{req})\sin\left( \frac{2\pi}{l_{ength}}\left( t-\frac{3l_{ength}}{4} \right) \right)+a_{mp}(f_{req})
+\end{equation}
+
+The amplitude of the trigonometric function will be used to define how large the backoff within the week will be. Due to the amplitude defining the backoff within the week, it will need to be inversely proportional with the weekly lifting frequency. This forces users with lower lifting frequencies to lift higher percentages of there 1RM and users with higher lifting frequencies to lift lower percentages of there 1RM. The amplitude will need to range from $0$ when $f_{req}=1$, representing no change from $p_{macro}$, to $0.25$ when $f_{req}=7$, representing $50\%$ of $p_{macro}$ after shifts are applied to $f_3(t)$. 
+
+\begin{equation}
+    a_{mp}(f_{req})=\frac{f_{req}-1}{24}
+\end{equation}
+
+The last consideration is to translate $p_{micro}$.
+
+\begin{equation}
+    p_{micro}(t)=f_3(t)s_{tepCyc}\left (t-\frac{l_{ength}}{4}+\epsilon,1\right)+(1-2a_{mp}(f_{req}))
+\end{equation}
+
+With equations $11-14$ $p_{micro}$ is fully defined.
+
+\subsection{Combining the Curves and Interactive Graph}
+The weight progression over the length of the rotation, $p(t)$, is then simply defined as follows.
+
+\begin{equation}
+    p(t)=p_{macro}(t)p_{micro}(t) \text{ for $0\le t \le r_{ot}$}
+\end{equation}
+
+An interactive graph of the weight progression model can be found \href{https://carmichaeljr.github.io/powerlifting-engine/}{here\footnote{https://carmichaeljr.github.io/powerlifting-engine/}}. Figure \ref{fig:Figure1.1} shows a screenshot of the interactive graph.
+
+Figure \ref{fig:Figure1.2} demonstrates how the model responds to a decreased frequency. Note how the back-off on a per week level decreases with the lower frequency. On the extreme case when $f_{req}=1$ the model is simply reduced to $p_{macro}$. Figure \ref{fig:Figure1.3} showcases how the interactive model reacts to an increased fatigue level. Notice at $t=d$ how $p_1$ approaches $b(r_{ot})$. Figure \ref{fig:Figure1.4} showcases how the interactive model reacts to a shorter rotation length. Note how the emphasis on the deload week is less than in the longer rotation.
+
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.23]{Figure1.1.png}
+    \caption{A screenshot from the interactive graph demonstrating weight progression over time. The $t$ axis is scaled by $0.1$. $p_{macro}$ is shown in red and $p(t)$ is the black function. The deload week is highlighted in purple. The black dots are the values the user would follow assuming $f_{req}=7$.}
+    \label{fig:Figure1.1}
+\end{figure}
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.14]{Figure1.2.png}
+    \caption{A screenshot from the interactive graph demonstrating weight progression over time with decreased frequency. Note how the back-off on a per week level decreases with lower frequencies.}
+    \label{fig:Figure1.2}
+\end{figure}
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.14]{Figure1.3.png}
+    \caption{A screenshot from the interactive graph demonstrating the models adaptation to higher fatigue levels. Notice how $p_1$ approaches $b(r_{ot})$.}
+    \label{fig:Figure1.3}
+\end{figure}
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.25]{Figure1.4.png}
+    \caption{A screenshot from the interactive graph demonstrating the models adaptation to shorter rotations. Notice how $p_1$ approaches $b(r_{ot})$.}
+    \label{fig:Figure1.4}
+\end{figure}
+%---------------------------------------------------------------------------

@@ -1,0 +1,153 @@
+\documentclass[footheight=20pt, footsepline, headheight=20pt, headsepline]{book}
+%
+\usepackage[utf8]{inputenc} % below are various important packages
+%\usepackage{lmodern}
+%\usepackage[T1]{fontenc}
+%\usepackage[english]{babel}
+%\usepackage{textcomp} 
+\usepackage{amsmath}
+%\usepackage{mathrsfs}
+%\usepackage{latexsym}
+\usepackage{amssymb}	
+\usepackage{amsfonts}
+\usepackage{theorem}
+\usepackage{graphicx}
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usepackage{scrlayer-scrpage}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{framed}
+\usepackage{hyperref}
+\usepackage{relsize}
+%\usepackage{pgf,tikz,pgfplots} % possibility to insert geogebra graphs
+%\usepackage{mathrsfs}
+%\pgfplotsset{compat=1.15}\usetikzlibrary{arrows} % part of geogebra package
+%\usepackage{qrcode} % insert qr codes
+%\usepackage{multicol}
+%\usepackage{multirow}
+%\usepackage{xurl}
+%\usepackage{tabularx}
+%\usepackage{enumitem}
+\usepackage{float}
+%\usepackage{colortbl,rotating,booktabs} % required packages for Excel2Latex
+\usepackage{wrapfig}
+\usepackage{listings}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{bibliography.bib} %Import the bibliography file
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+
+% Add to length for wider margins
+\addtolength{\textwidth}{3cm} % right to margin
+\addtolength{\hoffset}{-1.6cm} % left to margin
+\addtolength{\voffset}{-2cm} % to top
+\addtolength{\textheight}{4cm} % to bottom
+
+% Headers-Footers
+\definecolor{gro}{gray}{0.6} % define color
+\setkomafont{pagehead}{\normalfont\sffamily} % define header
+\setkomafont{pagefoot}{\normalfont\sffamily} % define footer
+\addtokomafont{headsepline}{\color{gro}} % define header horizontal line
+\addtokomafont{footsepline}{\color{gro}} % define footer horizontal line
+	\ihead{\color{gro} } % header (i=inner=left)
+	\chead{\color{gro} } % header (c=center)
+	\ohead{\color{gro} \chaptername~ \thesection} % header (o=outer=right)
+	\ifoot{\color{gro} } % footer (i=inner=left)
+	\cfoot{\color{gro} - {\textbf\thepage} -} % footer (c=center)
+	\ofoot{\color{gro} } % footer (o=outer=right)
+
+
+\renewcommand{\familydefault}{\sfdefault} % font
+\linespread{1.2} % increase line spacing
+
+%---------------------------------------------------------------------------
+\begin{document} % every document starts with \begin{document}
+%\doublespacing
+
+\begingroup
+\thispagestyle{empty}
+\AddToShipoutPicture*{\put(0,-60){\includegraphics[scale=2.2]{PaperPics/Cover.png}}} % Image background
+\centering
+\vspace*{8cm}
+\par\normalfont\fontsize{35}{35}\sffamily\selectfont
+\textbf{Building An Adaptable Training Model}\\
+{\LARGE A Mathematical Characterization of a Powerlifting Program}\par % Book title
+\vspace*{1cm}
+{\Huge Jack Carmichael}\par % Author name
+\endgroup
+
+%\AddToShipoutPicture*{\put(0,-60){\includegraphics[scale=1.25]{PaperPics/esahubble.png}}} % Image background
+% \begingro
+% \par
+% \normalfont\fontsize{35}{35}\sffamily\selectfont
+% \title{\textbf{Building an Adaptable Training Model}\\[1cm]
+% Mathematical Characterization of a Powerlifting Program\\[1cm]} 
+% \author{Jack Carmichael}
+% %\date{\vspace{9cm}\normalsize{\textit{"Besides, it is a disgrace to grow old through sheer carelessness before seeing what manner of man you may become by developing your bodily strength and beauty to their highest limit. But you cannot see that, if you are careless; for it will not come of its own accord."}}\\- Socrates}
+% % \date{\vspace{10cm} Colorado School of Mines \\[0.5cm] Mathematics - your class \\[0.5cm] Investigation/IA/EE \\[0.5cm] Word Count: xx}
+% \maketitle
+%---------------------------------------------------------------------------
+\newpage
+~\vfill
+\thispagestyle{empty}
+
+\vspace*{\fill}
+\textit{"Besides, it is a disgrace to grow old through sheer carelessness before seeing what manner of man you may become by developing your bodily strength and beauty to their highest limit. But you cannot see that, if you are careless; for it will not come of its own accord."}\\
+\begin{center}
+    - Socrates
+\end{center}
+\vspace*{\fill}
+%---------------------------------------------------------------------------
+\newpage
+\tableofcontents
+%---------------------------------------------------------------------------
+\newpage
+\include{Introduction}
+%---------------------------------------------------------------------------
+
+%\include{CommonTerms}
+\include{Data}
+\include{PotentialSurface}
+\include{TimeFrame}
+\include{Macrocycle}
+%\include{Mesocycle}
+
+\include{Appendix}
+
+%\include{WeightProgression}
+%\include{SetAndRepScheme}
+%\include{BiasFunction}
+%\include{Volume}
+%\include{MaxPrediction}
+%\include{TrainingPatterns}
+%\include{AdaptationToTheUser}
+%
+
+\printbibliography[heading=bibintoc,title={References}]
+
+\end{document}

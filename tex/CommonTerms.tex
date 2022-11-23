@@ -1,0 +1,78 @@
+\chapter{
+    Common Terms
+    \\
+    \large{Getting on the Same Page}
+}
+\label{sec:CommonTermsSection}
+
+Throughout the rest of this paper several terms will be used. Because this paper is going to be read by people outside of the lifting community, some common terminology and concepts will be introduced here. If you are familiar with lifting and the concepts surrounding training, this section can be skipped.
+
+A \textit{workout program} consists of a series of \textit{exercises} to complete on a given day. Exercises vary depending on what a lifter's goals are, amongst other factors. Exercises are composed of \textit{sets}. Sets are composed of \textit{reps}, short for repetitions, making a rep the smallest unit of work in the gym. Given this, an workout program is just a list of exercises to complete over time where each exercise has a specific number of sets and reps to be done at a specific weight. Table \ref{tab:WorkoutProgramExample} exemplifies this.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c}
+        Date & Exercise & Sets & Reps & Weight & Effort \\
+        \hline
+        Mon, July 4\textsuperscript{th} & Deadlifts & $6$ & $6$ & $405$ lbs & $8.5$ \\
+        Mon, July 4\textsuperscript{th} & Barbell Rows & $5$ & $10$ & $135$ lbs & - \\
+        Mon, July 4\textsuperscript{th} & Lat Pulldowns & $5$ & $15$ & $120$ lbs & - \\
+        Tue, July 5\textsuperscript{th} & Squat & $3$ & $8$ & $345$ lbs & $9$ \\
+        Tue, July 5\textsuperscript{th} & Goblet Squats & $5$ & 15 & $85$ lbs & - \\
+        \dots & \dots & \dots & \dots & \dots & \dots \\
+    \end{tabular}
+    \caption{A table showing how a workout is represented. This data is made up for the purpose of the example.}
+    \label{tab:WorkoutProgramExample}
+\end{table}
+
+As shown in table \ref{tab:WorkoutProgramExample}, there is one more descriptive element that will give a more complete picture of what is happening across a workout program: \textit{effort}. Every combination of exercises, sets, reps, and weight will be performed at a particular effort. Effort describes how hard a lifter will need to work to complete the prescribed exercise at the given sets, reps, and weight. Effort is generally only used for \textit{compound movements}, or an exercise that requires more than one joint.
+
+Effort will be measured on a scale known as \textit{rate of perceived exertion}, or \textit{RPE}. After every set, a lifter can rate the amount of effort they feel they exerted according to table \ref{tab:RPETable}. The RPE scale is widely used, well researched, and has been proven to be the best method for a lifter to rate the effort required to complete a lift. \cite{RPE_ACCURACY}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|l}
+        Effort Rating & Description \\
+        \hline
+        $10$ & All out effort. Could not add weight or reps. \\
+        $9.5$ & Could add slightly more weight, could not add reps. \\
+        $9$ & Could do one more rep. \\
+        $8.5$ & Could definitely do one more rep, possibly two. \\
+        $8$ & Could do two more reps. \\
+        $7.5 $& Could do two more reps, possibly three. \\
+        $7$ & Could do three more reps. \\
+        $5-6$ & Could do 4-6 more reps. \\
+        $1-4$ & Very light to little effort.
+    \end{tabular}
+    \caption{A table explaining the relationship between an RPE rating and what the lifter was capable of doing.}
+    \label{tab:RPETable}
+\end{table}
+
+A workout program is generally categorized into three parts across time: the \textit{macrocycle}, the \textit{mesocycle}, and the \textit{microcycle}. A microcycle has the smallest duration, defining the building blocks that will be repeated to create a training effect, creating the 'rhythm' of the workout program. A microcycle is typically only a week in length. A mesocycle is several microcycles in length. The mesocycle is responsible for changing parameters of the microcycles over time, such as volume and intensity, to create a training effect with respect to a short term goal. The macrocycle defines the duration of the workout program, creating the long term plan that marks milestones and competition dates. The macrocycle is responsible for changing parameters of the mesocycles to create a training effect across the entire rotation and achieve long term goals.
+
+There are three more values that can be calculated from a workout program that combine several elements to describe what is happening at a more abstract level. \textit{Volume} is defined as the product of sets, reps, and weight, shown more formally in equation \ref{eq:BaseVolumeEquation}. Volume represents the total amount of weight lifted, and gives a proxy for the amount of work being done for an exercise.
+
+\begin{equation}
+    \label{eq:BaseVolumeEquation}
+    v(s,r,w)=srw
+\end{equation}
+
+The second value is \textit{intensity}. Intensity is represented as the ratio of the weight lifted to lifters \textit{one rep max}, or \textit{1RM}, for the same exercise. The closer a lifter is to there 1RM on an exercise the greater the intensity of the lift. Equation \ref{eq:BaseIntensityEquation} defines intensity.
+
+\begin{equation}
+    \label{eq:BaseIntensityEquation}
+    I(w,l_{1RM})=\frac{w}{l_{1RM}}
+\end{equation}
+
+With the definition of intensity, equation \ref{eq:BaseVolumeEquation} can be easily be modified to accept intensity values instead of weight.
+
+\begin{equation}
+    \label{eq:IntensityBasedVolumeEquation}
+    v(s,r,I,l_{1RM})=srIl_{1RM}
+\end{equation}
+
+The third value is \textit{frequency}. Frequency is simply how often a lift is performed across a microcycle. Certain exercises respond better to higher frequency than others, and some lifters can tolerate higher frequencies than others.
+
+Another important concept is \textit{fatigue}. As a lifter progresses through a workout program there fatigue will increase. Fatigue is unavoidable, and it must be properly managed. Continually training in a fatigued state will result in far greater chances of sustaining an injury and lackluster progress. \cite{FATIGUE} Fatigue can be managed in many ways such as decreasing intensity, frequency, volume, or taking extra unplanned time off from the gym.
+
+The last concept considered here is the difference between \textit{strength training} and \textit{hypertrophy}. Generally, strength training seeks to maximize a particular set of exercises 1RM's where as hypertrophy seeks to maximize muscle growth. To a certain extent, they go hand in hand, but one can be emphasized over the other. For hypertrophy there are generally fewer sets with more reps and lighter weight. For strength training there are generally more sets with fewer reps and heavier weight. This paper is concerned with powerlifting, which is a strength sport, but hypertrophy can be used as a tool to gain strength so it is important to understand it.

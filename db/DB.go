@@ -3,6 +3,7 @@ package db;
 import (
     "os"
     "fmt"
+    //"time"
     "bufio"
     "errors"
     "strings"
@@ -29,6 +30,9 @@ func NewCRUD(host string, port int, name string) (CRUD,error) {
         func(r ...any) (any,error) { return nil,r[0].(*sql.DB).Ping(); },
         func(r ...any) (any,error) {
             rv.db=r[0].(*sql.DB);
+            //rv.db.SetMaxOpenConns(100);
+            //rv.db.SetMaxIdleConns(100);
+            //rv.db.SetConnMaxLifetime(time.Minute*3);
             return nil,rv.implicitDataConversion(false);
     });
     return rv,err;
@@ -135,6 +139,10 @@ func (c *CRUD)ExecSQLScript(src string) error {
         return util.SqlScriptNotFound(fmt.Sprintf("Given file: %s",src));
     }
     return err;
+}
+
+func (c *CRUD)Stats() sql.DBStats {
+    return c.db.Stats();
 }
 
 func (c *CRUD)Close(){

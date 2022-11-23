@@ -23,6 +23,7 @@ func TestErrorEquality(t *testing.T){
         "NonStructValue": NonStructValue,
         "SliceZippingError": SliceZippingError,
         "ModelDataError": ModelDataError,
+        "InvalidPredictionState": InvalidPredictionState,
     };
     isErrs:=map[string]isErrorType{
         "UnsupportedQueryType": IsUnsupportedQueryType,
@@ -41,6 +42,7 @@ func TestErrorEquality(t *testing.T){
         "NonStructValue": IsNonStructValue,
         "SliceZippingError": IsSliceZippingError,
         "ModelDataError": IsModelDataError,
+        "InvalidPredictionState": IsInvalidPredictionState,
     };
     for k,_:=range(errs){
         iterErr:=errs[k]("testAddendum");

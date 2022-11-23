@@ -1,0 +1,73 @@
+\section{Identifying Training Patterns}
+
+Another common thing that lifters will do is attempt to find patterns within there training, both across time and per lift. A model can be used to help the user identify trends in there training. Note that the model outlined in this section is untested because the large amount of data that it would require to implement was not available during the writing of this paper.
+
+A lifter usually will break up their training history into two distinct categories and then look for patterns on a per lift basis. The first category is "good" training periods when progress was made, called a \textit{progression state}. The second is "bad" training periods when progress was either not made or lost, called a \textit{regression state}. The model must make this distinction so that progress states and regression states can be analyzed separately. 
+
+The model will also need to identify patterns based on data from a single lift. That is to say, when a user makes progress on there squat the model should identify patterns that are different from when progress is made on deadlifts.
+
+A relationship between a chosen lift, $l_{chosen}$, and the other lifts is needed. The model will start by defining a function relating 1RM's from $l_{chosen}$ and time, $S(t,l_{chosen})$, to identify progression and regression states. From there, the model will seek to find patterns in lifts other than $l_{chosen}$ related to progress in $l_{chosen}$.
+
+The model will be given:
+\begin{itemize}
+    \item A users historical lifting data: $\{(l,t)_i\}_{i=0}^n$ where:
+    \begin{itemize}
+        \item $l \equiv$ the exercise that was performed
+        \item $t \equiv$ how long ago the lift was performed
+    \end{itemize}
+    \item A users historical lifting data: $\{(l_{Rot1RM},t)_i\}_{i=0}^n$ where:
+    \begin{itemize}
+        \item $l_{Rot1RM} \equiv$ a users maximum for a particular lift per rotation
+        \item $t \equiv$ how long ago the lift was performed
+    \end{itemize}
+\end{itemize}
+
+\subsection{Progression and Regression States}
+Progress, as defined on a per lift basis, is when the 1RM for that lift increases. In order to capture this, a cubic spline can be fit to the users historical lifting data relating 1RM's of $l_{chosen}$ per rotation and time, $\{(l_{Rot1RM},t)_i\}_{i=0}^n$, creating $S(t,l_{chosen})$. Whenever $S'(t,l_{chosen})>0$ it will mean progress is being made.\footnote{The process of defining a cubic spline is long and also widely available. The derivation is skipped here for brevity.}
+
+\subsection{Identifying Patterns}
+With progress defined in relation to $l_{chosen}$, patterns can now be found in the data. Throughout the rest of this section, $P$ is the set of data points from the users historical lifting data, $P=\{(l,t)_i\}_{i=0}^n$. $P_t$ refers to the time component of a data point from the users historical lifting data, and $P_l$ corresponds to the lift component from the users historical lifting data.
+
+The first pattern to find is lifts that have a positive correlation with progress for $l_{chosen}$. In order for a lift to have a positive correlation with progress for $l_{chosen}$ it will need to be performed often when progress is being made. This can be found through a simple ratio between the number of times the lift was performed during a progression state and the total time spent in a progression state across the users lifting career, creating a rating from $0-1$ on how well a lift correlates with progress.
+
+\begin{equation}
+    l_{ProgCoor}(l)=\frac{\left| \{ P | P_l=l \land S'(P_t,l_{chosen})>0 \} \right|}
+                         {\left| \{ P | S'(P_t,l_{chosen})>0 \} \right|}
+\end{equation}
+
+In order to find similar patterns in a regression state for $l_{chosen}$ all that's needed is to change is the conditional.
+
+\begin{equation}
+    l_{RegCoor}(l)=\frac{\left| \{ P | P_l=l \land S'(P_t,l_{chosen})\le0 \} \right|}
+                        {\left| \{ P | S'(P_t,l_{chosen})\le0 \} \right|}
+\end{equation}
+
+The second pattern to find is how a lifts frequency corresponds with progress for $l_{chosen}$. The average frequency of a lift when a user is in a progress state is needed. To start with, the frequency of a lift is needed for a given week.
+
+\begin{equation}
+    l_{freq}(l,w_{eek})=\frac{
+                    \left| \left\{ P | \left\lfloor \frac{P_t}{7} \right\rfloor=w_{eek} \land 
+                    P_l=l \land
+                    S'(P_t,l_{chosen})>0 \right\} \right|
+                }{
+                    7
+                }
+\end{equation}
+
+With the frequency of a lift for a given week, the average frequency can then be calculated. Finding the average lifting frequency while a user is in a regression state does not make sense because a user will have one optimal lifting frequency and many sub-optimal lifting frequencies, making an average meaningless.
+
+\begin{equation}
+    l_{ProgFreqCoor}(l)=\frac{
+                            \sum_{
+                            \substack{
+                                    w_{eek}\in \left\{ \left\lfloor \frac{P_t}{7} \right\rfloor \right\}\\
+                                    S'(7w_{eek},l_{chosen})>0
+                                }
+                            }
+                        l_{freq}(l,w_{eek})
+                        }{
+                            \left|\left\{ \left\lfloor \frac{P_t}{7} \right\rfloor | S'(P_t,l_{chosen})>0 \right\}\right|
+                        }
+\end{equation}
+
+Frequency was left as a input to the weight progression model because the above prediction relies on large amounts of data which is not available from a new user. Initially, a user will select a frequency that they find appropriate, then, as the model collects more data, it will be able to recommend an optimal frequency to the user.

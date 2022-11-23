@@ -1,0 +1,31 @@
+\section{Adaptation to the User}
+
+The goal of this paper is to define a workout program that adapts to help a user lift within their optimal constraints. The model outlined does this in several ways.
+
+\subsection{Volume Tolerance}
+Volume forms the base for heavy 1RM attempts. If volume increases, forming a larger base, then chances are a new 1RM is in the users future. \footnote{This is not always true for advanced lifters. For beginners this is almost always the case however.} As such, volume should be increased within the users abilities to promote progress. The model does this in two ways.
+
+The first way volume is increased simply by increasing the weights lifted. When a user sets a new 1RM the percentages from the weight progression model remain constant, but the value those percentages are in relation to increases. This will result in heavier sets across the board, thereby increasing volume. This is a very typical way to increase volume in other powerlifting programs, making it important that it is implicit in the weight progression model.
+
+The second way volume is increased is through higher numbers of sets and reps. The set and rep scheme rounds sets and reps up to the nearest integer, given that fatigue is below a certain threshold. This may seem like a trivial fact but it has a very important implication: it promotes an increase in volume over time. If a user completes the rounded up sets and reps then a new data point will be generated that the potential surface will fit to. If this is performed across an entire rotation then the potential surface will be pushed out to match the users increased tolerance to volume. If this is repeated across several rotations the sets and reps will continually be rounded up and the end result will be a significant increase in volume.
+
+Volume is important, but it is not the only training factor and there will reach a point where more volume will do more harm than good. As such, a way to decrease the volume needs to be present in the model. 
+
+One way this is done is through fatigue management. If a user is feeling fatigued then the prescribed number of sets and reps will decrease, and if a very high fatigue state is reached the model will start to round sets and reps down instead of up. If a user maintains the same fatigue state throughout the length of the rotation then sets and reps will be decreased across the board, decreasing volume for the entire rotation. The decrease in volume will push the potential surface in reflecting the users decrease in tolerance to volume. This will then result in less volume for the next rotation, which is likely a good thing if the user had a high level of fatigue throughout the entire length of the previous rotation.
+
+The second way volume can decrease is if a user starts to fail lifts. This obviously represents a sub-optimal lifting state for the user so it is important that the model reacts to it. Again, the same concept applies where the potential surface will be pushed in from new data points where the user failed a set, resulting in decreased volume. If a user starts failing lifts it is a clear sign they are fatigued, and they should increase their fatigue level in the model so it can appropriately adjust and decrease volume. If this is done the user can avoid failing lifts all together.
+
+It should be clear that there is a tug of war between the model pushing the user to do more and the user telling the model that they cannot, keeping the user lifting withing their optimal constraints.
+
+
+\subsection{General Flexibility}
+There are some training parameters that the model outlined in this paper cannot account for such as stresses levels outside of the gym, time management, and injuries. Because the model cannot directly adapt to these parameters room was left in the model for the users input.
+
+The model outlined in this paper allows the user to change several parameters:
+\begin{enumerate}
+    \item The length of the rotation
+    \item There fatigue level
+    \item The frequency of a particular lift
+\end{enumerate}
+
+These parameters allow the user to dynamically change there training, even in the middle of a rotation. The model can supply recommended values for some of these parameters, but those recommendations do not account for the factors discussed earlier. The user can choose to accept the recommendation or modify it based on the outside knowledge they have.

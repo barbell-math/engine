@@ -80,5 +80,9 @@ var SliceZippingError,IsSliceZippingError=errorFactory(
 );
 
 var ModelDataError,IsModelDataError=errorFactory(
-    "An error occured reading data from the database.",
+    "An error occurred reading data from the database.",
+);
+
+var InvalidPredictionState,IsInvalidPredictionState=errorFactory(
+    "The given prediction state is invalid.",
 );

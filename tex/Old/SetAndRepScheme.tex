@@ -1,0 +1,211 @@
+\section{Set and Rep Scheme}
+
+The set and rep scheme will define what sets and reps a user will be performing at a given percentage of the users 1RM. Again, what is needed is the sets and reps for a \textit{single lift}. The model can then be generally applied to as many lifts as needed.
+
+When thinking about sets and reps, there are two steps to consider. The first is defining what combinations of sets, reps, and percentages are possible for the user to complete. Doing this will require defining a surface called the \textit{potential surface}. The second step to consider is selecting what combination of sets and reps the user will perform at each percentage. For a given surface there may be many set and rep options to choose from at a single percentage. This will require defining a line on the potential surface called the \textit{potential line} to select what combination to use for each percentage.
+
+\textit{Volume}, the total amount of weight lifted by the user, needs to be considered when creating the potential surface. When the weight is low compared to the users current 1RM greater volume is required. Greater volume at lower percentages of the users 1RM aids in hypertrophy, skill acquisition, and motor skill refinement while setting the base for the heavier weights to come in the future. When the weight is approaching the users current 1RM, less volume is required. This is to avoid burnout and prevent injury when form breaks down at near maximal loads.
+
+Volume is also an important factor for the potential line. It has been shown that the maximum volume needs to occur between $75\%$ and $85\%$ of the users current 1RM. Less than $75\%$ will not present a sufficient strength stimulus and greater than $85\%$ will be to taxing on the user and will cause burnout. The potential line will need to ensure that volume peaks within that range by selecting the appropriate path on the potential surface.
+
+There are a few additional guiding principles that the model will need to support:
+\begin{itemize}
+    \item Volume tolerance: To much volume can lead to overuse injuries and not enough can stall progress. Some people respond well to high volume and other people respond well to low volume, requiring the model to adapt to the user.
+    \item Fatigue levels: Fatigue management is an important part of any good workout program. Without it progress can stall or even regress.
+\end{itemize}
+
+A relationship between the percentage of the users 1RM and the combination of sets and reps is needed. The model will start by selecting the potential surface, $p(r,s)$, and then build the potential line, $l(p)$, off of that.
+
+The model will be given:
+\begin{itemize}
+    \item The users max for a lift: $l_{1RM}$
+    \item The users fatigue level: $f$ on a scale from $0-9$
+    \item Historical lifting data: $\{(r,s,t,p)_i\}_{i=0}^{n}$ where:
+    \begin{itemize}
+        \item $r\equiv$ reps
+        \item $s\equiv$ sets
+        \item $p\equiv$ percentage of the appropriate 1RM that the sets and reps were performed at
+        \item $t\equiv$ how long ago the lift was performed
+    \end{itemize}
+\end{itemize}
+
+
+\subsection{Potential Surface}
+The equation for the potential surface is shown below.
+\begin{equation}
+    p-1=-\frac{(r-1)^2}{a^2}-\frac{(s-1)^2}{b^2}
+\end{equation}
+The surface is reflected across the sr-plane and centered at $(1,1)$. By performing those two transformations, volume is high at low percentages and volume is low at high percentages. When $p=100\%$, there is only one option, $1$ set of $1$ rep, matching the users current abilities. The constants $a$ and $b$ need to be set so that the surface reflects plausible combinations of sets and reps for the user.
+
+Solving for $p$ in the potential surface, setting $A=a^{-2}$ and $B=b^{-2}$, and adding a function to vary the weights of the bias with respect to time, $w(t)$, results in the following error equation, $E$.
+
+\[ p=1-A(r-1)^2-B(s-1)^2 \]
+\[ E=\sum_{i=0}^{n} w(t_i)\left(p_i-1+A(r_i-1)^2+B(s_i-1)^2 \right)^2 \]
+
+The bias function $w(t)$ is needed because the potential surface needs to reflect the users current abilities. To make this happen, the bias function will place greater emphasis on lifts performed more recently and less emphasis on lifts performed in the past. The bias function will be explored in a separate section.
+
+The error equation will need to be minimized to create the potential surface of best fit.
+
+\begin{equation*}
+    \begin{split}
+        \frac{\partial E}{\partial A} & =
+        \frac{\partial}{\partial A}
+        \sum_{i=0}^{n} w(t_i)\left(p_i-1+A(r_i-1)^2+B(s_i-1)^2 \right)^2\\
+        &=2\sum_{i=0}^{n} w(t_i)\left(p_i-1+A(r_i-1)^2+B(s_i-1)^2     \right)(r_i-1)^2\\
+        &=2\sum_{i=0}^{n} w(t_i)\left(p_i(r_i-1)^2-(r_i-1)^2+A(r_i-1)^4+B(s_i-1)^2(r_i-1)^2\right)\\
+        \frac{\partial E}{\partial B}
+        &=2\sum_{i=0}^{n} w(t_i)\left(p_i(s_i-1)^2-(s_i-1)^2+A(r_i-1)^2(s_i-1)^2+B(s_i-1)^4\right)\\
+    \end{split}
+\end{equation*}
+
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^4 & \sum_{i=0}^{n}w(t_i)(s_i-1)^2(r_i-1)^2\\
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^2(s_i-1)^2 & \sum_{i=0}^{n}w(t_i)(s_i-1)^4
+    \end{bmatrix}
+    \begin{bmatrix}
+        A \\
+        B
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^2(1-p_i) \\
+        \sum_{i=0}^{n}w(t_i)(s_i-1)^2(1-p_i)
+    \end{bmatrix}    
+\end{equation*}
+
+Solving the matrix results in the values for $a$ and $b$.
+
+\begin{equation}
+    a=A^{-\frac{1}{2}}
+    =\left(
+        \frac{p_1 B_2-B_1 p_2}{B_2 A_1-B_1^2}
+    \right)^{-\frac{1}{2}}
+\end{equation}
+\begin{equation}
+    b=B^{-\frac{1}{2}}
+    =\left(
+        \frac{A_1 p_2- p_1 A_2 }{B_2 A_1 -B_1^2}
+    \right)^{-\frac{1}{2}}
+\end{equation}
+\centerline{where}
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^4 & \sum_{i=0}^{n}w(t_i)(s_i-1)^2(r_i-1)^2\\
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^2(s_i-1)^2 & \sum_{i=0}^{n}w(t_i)(s_i-1)^4
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        A_1 & B_1\\
+        A_2 & B_2
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \begin{bmatrix}
+        \sum_{i=0}^{n}w(t_i)(r_i-1)^2(1-p_i) \\
+        \sum_{i=0}^{n}w(t_i)(s_i-1)^2(1-p_i)
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        p_1 \\
+        p_2
+    \end{bmatrix}
+\end{equation*}
+
+With equations $16-19$, the potential surface is fully characterized. It is important to conceptualize that once this surface has been fitted to the users data, every point, every combination of sets, reps, and percentage, is in theory possible for the user to complete. This is the base that the following section will build off of.
+
+
+\subsection{Potential Line}
+A parametric equation relating $p$ to $s$ and $r$ following the potential surface is required, $l(p)=\left<s(r(p)),r(p),p\right>$.
+In order to do this, the potential surface will conceptually be simplified to an infinite set of two-dimensional ellipses on the sr-plane. For each ellipse, $p$ is known. The equation for the ellipses is determined by solving the potential surface equation for $s$ in terms of $r$, treating $p$ as a constant.
+
+\begin{equation}
+    s(r)=1+b\sqrt{-\frac{(r-1)^2}{a^2}-p+1} \text{ where }r\ge1
+\end{equation}
+
+On each of these ellipses, a tangent line can be chosen in relation to $p$ so that when all the ellipses are combined and treated as a surface, the tangent line intersections with the surface create a continuous line up the side of the surface. This will require relating the tangent line slopes to $p$, $t_{slope}(p)$. The slope of the tangent line is calculated with a derivative.
+
+\[ \frac{ds}{dr}=\frac{d}{dr}\left( 1+b\sqrt{-\frac{(r-1)^2}{a^2}-p+1}\right)=-\frac{b(r-1)}{a^2}\left( 1-\frac{(r-1)^2}{a^2}-p \right)^{-\frac{1}{2}} \]
+
+Setting the slope equal to $t_{slope}(p)$ and solving for $r$ in terms of $t_{slope}(p)$ results in the equation $r(p)$.
+\begin{equation}
+    \begin{split}
+        t_{slope}(p)&=-\frac{b(r-1)}{a^2}\left( 1-\frac{(r-1)^2}{a^2}-p\right)^{-\frac{1}{2}}\\
+        t_{slope}(p)^2\left( 1-\frac{(r-1)^2}{a^2}-p \right)&=\frac{b^2}{a^4}(r-1)^2\\
+        t_{slope}(p)^2(1-p)&=\frac{b^2}{a^4}(r-1)^2+\frac{t_{slope}(p)^2}{a^2}(r-1)^2\\
+        r(p)&=\left(\frac{t_{slope}(p)^2(1-p)}{\frac{b^2}{a^4}+\frac{t_{slope}(p)^2}{a^2}}\right)^{\frac{1}{2}}+1
+    \end{split}
+\end{equation}
+
+The equation for $t_{slope}(p)$ is shown below. This equation was chosen because it allows $t_{slope}$ to vary from large numbers at $p=0$ to $0$ at $p=1$, which is the range that the slope of the tangent line needs to be capable of covering. The constant $v_{peak}$ is left in the equation so that it can be set to ensure that volume peaks at $v_{max}$.
+\begin{equation}
+    t_{slope}(p)=e^{v_{peak}(1-p)}-p
+\end{equation}
+
+The equation to calculate volume is shown below.
+\begin{equation}
+    v(p)=r(p)s(r(p))
+\end{equation}
+
+The goal is to find $v_{peak}$ such that the maximum of $v(p)$ occurs at $v_{max}$. In order to do this, $v'(p)$ is needed. However, little is gained from substituting $r$ into $s$ besides a headache. The headache is even worse trying to take the derivative of $v(p)$ with respect to $p$, and worsens still when trying to solve that derivative for $v_{peak}$.\footnote{Try putting 
+    "derivative of ((((e\char`^(c(1-x))-x)\char`^2*(1-x))/(b\char`^2/a\char`^4+(e\char`^(c*(1-x))-x)\char`^2/a\char`^2))\char`^(1/2)+1)*(1+b(-1/a\char`^2*(((((e\char`^(c*(1-x))-x)\char`^2*(1-x))/(b\char`^2/a\char`^4+((e\char`^(c*(1-x))-x)\char`^2)/a\char`^2))\char`^(1/2)+1)-1)\char`^2-x+1)\char`^(1/2))"
+into Wolfram Alpha and you'll get an idea.} It is clear that numerical differentiation methods are needed. The five point formula for computing a first derivative is shown below.
+\begin{equation}
+    v'(p)\approx\frac{-v(p+2h_1)+8v(p+h_1)-8v(p-h_1)+v(p-2h_1)}{12h_1} \text{ where } h_1 \text{ is a number close to 0}
+\end{equation}
+
+Since numerical differentiation methods are in use, the way to solve for $v_{peak}$ changes. Instead of solving for $v_{peak}$ directly as with analog differentiation methods, a series of guesses will be made and then the best guess will be used as $v_{peak}$.
+
+A set of guesses called $v_{potential}$ will take place of $v_{peak}$. This will redefine $t_{slope}(p)$ as a set of functions.
+\begin{equation}
+    v_{potential}=\{ 0,h_2,2h_2,3h_2,... \} \text{ where } h_2 \text{ is a number close to 0}
+\end{equation}
+\begin{equation}
+    t_{slope}(p)=e^{v_{potential}(1-p)}-p
+\end{equation}
+
+Redefining $t_{slope}(p)$ as a set of functions also redefines $r(p)$, $s(p)$, $v(p)$, and $v'(p)$ as corresponding sets of functions. Plugging $v_{max}$ into $v'(p)$ results in a set of numbers that correspond to each functions value of $v'$ at $p=v_{max}$. From this set of numbers, the number closest to $0$ is found and the corresponding value of $v_{potential}$ is chosen to be $v_{peak}$. By doing this, the value in $v_{potential}$ that's closest to setting the maximum of $v(p)$ at $v_{max}$ is chosen.
+\begin{equation}
+        v_{peak}=\{ -\epsilon\le v'(v_{max})\le \epsilon: v_{potential}\}
+\end{equation}
+\begin{center}
+    where $\epsilon$ is a number that guarantees $v'(v_{max})$ is sufficiently close to $0$ .
+\end{center}
+
+As stated before, volume needs to peak in the range of $75\%$-$85\%$ of the users 1RM. To determine the exact percentage where volume peaks within that range, fatigue needs to be taken into account. If the user is fatigued, volume will be peaked later in the program to increase recovery time. A simple linear equation relating $v_{max}$ and $f$, the users fatigue level from $0-9$, will suffice.
+\begin{equation}
+    v_{max}(f)=\frac{f}{90}+0.75 \text{ where }0\le f\le 9
+\end{equation}
+
+One final consideration has to be taken care of: sets and reps are whole numbers. The solution is to round up or down to the nearest integer. Again, a way to implement fatigue management has presented itself. If fatigue is below some threshold then round up, and if fatigue is at or above some threshold round down.
+\begin{equation}
+    l(p) =
+    \begin{cases}
+        \left<\lceil s(r(p))\rceil,\lceil r(p)\rceil,p\right> & \text{if $f<n$} \\
+        \left<\lfloor s(r(p))\rfloor,\lfloor r(p)\rfloor,p\right> & \text{if $f\ge n$} \\
+    \end{cases} 
+\end{equation}
+
+
+With equations $20$-$28$, the potential line is fully characterized, and the set and rep scheme is complete. 
+
+\subsection{Interactive Graph}
+An interactive graph of the sets and rep scheme can be found \href{https://carmichaeljr.github.io/powerlifting-engine/}{here\footnote{https://carmichaeljr.github.io/powerlifting-engine/}}. Figure \ref{fig:Figure2.1} shows a screenshot of the interactive graph. In the graph, squats are shown in blue, bench is shown in red, and deadlifts are shown in green.
+
+Figure \ref{fig:Figure2.2} showcases how the interactive model reacts to an increased fatigue level. The overall volume is decreased, the peak in volume is pushed farther back in the program, and the potential line rounds down instead of up. All of these things combine together to create a strong fatigue management system that takes into account both volume and intensity.
+
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.16]{Figure2.1.png}
+    \caption{A screenshot from the interactive graph demonstrating the set and rep scheme. Squats are shown in blue, bench is shown in red, and deadlifts are shown in green. The large ovals represent the Potential Surface when $p=0$. The three curves near the origin are the potential lines. The darker lines near the potential lines are the potential lines but rounded up to the nearest integer.}
+    \label{fig:Figure2.1}
+\end{figure}
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.25]{Figure2.2.png}
+    \caption{A screenshot from the interactive graph demonstrating the models adaptation to higher fatigue levels. Notice the overall drop in volume and the delayed peak in volume.}
+    \label{fig:Figure2.2}
+\end{figure}
+%---------------------------------------------------------------------------

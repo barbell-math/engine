@@ -156,8 +156,8 @@ func getQueryReflectResults[R DBTable](
     err:=util.GetErrorFromReflectValue(&reflectVals[1]);
     if err==nil {
         rows:=reflectVals[0].Interface().(*sql.Rows);
-        defer rows.Close();
         err=readRows(rows,callback);
+        rows.Close();
     }
     return err;
 }

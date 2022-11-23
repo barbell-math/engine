@@ -1,0 +1,128 @@
+\section{Volume}
+
+As stated in the introduction, volume is already partially defined by the previous two sections. However, there are still a couple missing factors that need to be explored. The previous two sections outlined operations that need to occur for a single lift. This section is concerned with what needs to happen \textit{per workout program}, with many lifts being performed.
+
+Volume will be split between four different categories. This is necessary because the reason for performing lifts in each category is different, necessitating a different approach to the volume.
+
+\begin{enumerate}
+    \item Main compound: Volume from squat, bench, and deadlift.
+    \item Main compound accessory: Volume from variations of the squat, bench, and deadlift that do not significantly change the mechanics of the lift itself. These accessories can change variables such as the force curve or time under tension and are useful for breaking plateaus and forcing otherwise unattainable adaptations. Examples of these would be banded variations, paused variations, tempo variations, and variations with different bars.
+    \item Compound accessory: Volume from multi-joint accessories that are not part of the main compound accessory group. These accessories are necessary to maintain symmetry and coordination as well as promote hypertrophy. Examples of these would be Bulgarian split squats, incline bench, and Romanian deadlifts.
+    \item Accessory: Volume from single joint lifts. These accessories are necessary to focous on any specific weaknesses and promote active recovery. Examples of these would be machine work in general and some dumbbell exercises. Note that core work will be placed in this category due to it's relative ease of recovery.
+\end{enumerate}
+
+
+\subsection{Main Compound Volume}
+
+Volume for this category is already full defined. The volume over time for a lift is shown below.
+
+\begin{equation*}
+    v_{mc}(t) = 
+    \begin{cases}
+        l_{1RM}p(t)\lceil s(r(p(t)))\rceil \lceil r(p(t))\rceil & \text{if $f<n$} \\
+        l_{1RM}p(t)\lfloor s(r(p(t)))\rfloor \lfloor r(p(t))\rfloor & \text{if $f\ge n$} \\
+    \end{cases} 
+\end{equation*}
+
+The set of 1RM's for all possible lifts in this category is defined as $MC$.
+\begin{equation}
+    MC=\{S_{1RM},B_{1RM},D_{1RM}\}
+\end{equation}
+
+The total volume would simply be the summation of volume across $MC$.
+
+\begin{equation}
+    v_{mc}(t) = 
+    \sum_{l_{1RM}\in MC}
+    \begin{cases}
+        l_{1RM}p(t)\lceil s(r(p(t)))\rceil \lceil r(p(t))\rceil & \text{if $f<n$} \\
+        l_{1RM}p(t)\lfloor s(r(p(t)))\rfloor \lfloor r(p(t))\rfloor & \text{if $f\ge n$} \\
+    \end{cases} 
+\end{equation}
+
+
+\subsection{Main Compound Accessory Volume}
+
+Volume for this category is similar to the previous category, but with more emphasis on rep work at lighter percentages. In order to enforce this, the percentage back-off at the start of the rotation will be greater for lifts in this category.
+
+\begin{equation}
+    b_2(r)=0.7b(r) \text{ where $b(r)$ is defined by equations $1-4$.}
+\end{equation}
+
+The set of 1RM's for all possible lifts in this category is defined as $MCA$. If the 1RM of a particular lift is not known a conservative estimate can be made by the user.
+
+\begin{equation}
+    MCA=\{\text{paused bench 1RM, paused squat 1RM, paused deadlift 1RM, etc}\dots\}
+\end{equation}
+
+The set of lifts that the user chooses to do, $l_{MCA}$, is subject to the constraints below. Typically, one exercise per main compound lift is chosen as an 'accessory' to work on a weak point of the main compound lift. This creates a size constraint on $l_{MCA}$.
+
+\begin{equation}
+    \begin{split}
+        l_{MCA} & \subseteq MCA\\
+        \left| l_{MCA} \right| & = \left| MC \right|
+    \end{split}
+\end{equation}
+
+The total volume for this category is now fully defined.
+
+\begin{equation}
+    v_{mca}(t) = 
+    \sum_{l_{1RM}\in l_{MCA}}
+    \begin{cases}
+        l_{1RM}p(t)\lceil s(r(p(t)))\rceil \lceil r(p(t))\rceil & \text{if $f<n$} \\
+        l_{1RM}p(t)\lfloor s(r(p(t)))\rfloor \lfloor r(p(t))\rfloor & \text{if $f\ge n$} \\
+    \end{cases} 
+\end{equation}
+\centerline{where $p(t)$ utilizes $b_2(r)$ in place of $b(r)$}
+
+\subsection{Compound Accessory and Accessory Volume}
+\label{sec:CompoundAccessoryVolume}
+Volume for these two categories is not driven by 1RM attempts. Instead, it is used to form a basis of hypertrophy, which dictates high volume and lighter weights. Due to lifts in this category not being based on 1RM attempts, the model that has been outlined in the previous sections cannot be used.
+
+Sets in these categories are typically in the range of $3-5$ and reps are typically in the range of $12-15$. The weight will need to be determined by the user due to the set and rep model relying on percentages of 1RM's. 1RM's are not known for lifts in these categories making the percentage of a 1RM also unknown. This will make fully defining volume for these categories impossible.
+
+The set of lifts in each category is defined as follows.
+
+\begin{equation}
+    CA=\{\text{Bulgarian Split Squats, Incline Bench, Romanian Deadlifts, etc}\dots\}
+\end{equation}
+\begin{equation}
+    ACC=\{\text{Core work, machine work, etc}\dots\}
+\end{equation}
+
+The set of lifts the user will choose to perform from each category, $l_{CA}$ and $l_{ACC}$, are subject to the constraints below.
+
+\begin{equation}
+    \begin{split}
+            l_{CA} &\subseteq CA\\
+            \left| l_{CA} \right| &= 3\left| MC \right|\\
+            l_{ACC} &\subseteq ACC\\
+            \left| l_{ACC} \right| &= 2\left| MC \right|
+    \end{split}
+\end{equation}
+
+
+\subsection{Interactive Graph}
+
+Figure \ref{fig:Figure3.1} shows the total volume over different rotation lengths for one exercise. The purple lines represent main compound volume and main compound accessory volume. The green line is the summation of the two purple lines, representing volume across a rotation. Note how, in general, volume peaks early and quickly regains after the deload week so that it can taper off again as the user approaches a 1RM attempt. Note how for the shorter rotation the volume curve approaches having a single peak. This is due to shorter rotations not having as significant of a deload week.
+
+Figure \ref{fig:Figure3.2} shows how volume reacts to increased fatigue levels. The total amount of volume decreases across the length of the rotation. Note how the peak in volume is pushed closer to the end of the program to aid in recovery now.
+
+The properties just pointed out are not a direct result from any one equation forcing the behaviors to exist. They are a result of the considerations taken into account when making the weight progression and set and rep scheme. This is important because the volume graphs are showing that the actions taken to manage volume previously are working as intended.
+
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.5]{Figure3.1.png}
+    \caption{A screenshot from the interactive graph showing volume over different rotation lengths for one exercise. The solid lines are the fractional set and rep values produced from the model and the lighter lines are rounded set and rep values also produced according to the model.}
+    \label{fig:Figure3.1}
+\end{figure}
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.2]{Figure3.2.png}
+    \caption{A screenshot from the interactive graph demonstrating how the volume drops with higher fatigue levels. Note how the peak in volume is pushed closer to the end of the rotation to aid in recovery now.}
+    \label{fig:Figure3.2}
+\end{figure}
+%---------------------------------------------------------------------------

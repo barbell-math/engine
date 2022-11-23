@@ -21,8 +21,8 @@ func CustomReadQuery[S any](
     if SelectStmt.isQueryType(sqlStmt) {
         rows,err:=c.db.Query(sqlStmt,vals...);
         if err==nil {
-            defer rows.Close();
             err=readRows(rows,callback);
+            rows.Close();
         }
         return err;
     }

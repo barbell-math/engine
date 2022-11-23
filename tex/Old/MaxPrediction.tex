@@ -1,0 +1,48 @@
+\section{Max Prediction}
+
+A model is no use if it cannot be used to make predictions. One common prediction lifters make is there current 1RM for a lift. Going back to the sets and reps scheme, slight modifications can be made to create an estimation of the users 1RM.
+
+As data is collected on the users current rotation, the potential surface will diverge from what it originally was, representing a change in the users abilities. If this new potential surface is not constrained to peak at $p=1$, the users estimated new 1RM can be represented as a percentage of the users current 1RM. To allow for this a new constant, $n_{max}$, is added and solved for.
+
+\begin{equation*}
+    p-n_{max}=-\frac{(r-1)^2}{a^2}-\frac{(s-1)^2}{b^2}
+\end{equation*}
+
+Solving for $p$ in the potential surface, setting $A=a^{-2}$ and $B=b^{-2}$, and adding a function to vary the weights of the biases with respect to time, $w(t)$, results in the following error equation, $E$. Recall that $A$ and $B$ are known.
+
+\[ p=n_{max}-A(r-1)^2-B(s-1)^2 \]
+\[ E=\sum_{i=0}^{n} w(t_i)\left(p_i-n_{max}+A(r_i-1)^2+B(s_i-1)^2 \right)^2 \]
+
+The error equation will need to be minimized to create the surface of best fit.
+
+\begin{equation*}
+    \begin{split}
+        \frac{d E}{d n_{max}}
+        &=2\sum_{i=0}^{n}w(t_i)\left( -p_i+n_{max}-A(r_i-1)^2-B(s_i-1)^2 \right)
+    \end{split}
+\end{equation*}
+
+Solving for $n_{max}$ results in the following equation.
+
+\begin{equation}
+    n_{max}=\frac{\sum_{i=0}^{n}w(t_i)p_i+
+                  A\sum_{i=0}^{n}w(t_i)(r_i-1)^2+
+                  B\sum_{i=0}^{n}w(t_i)(s_i-1)^2}{\sum_{i=0}^{n}w(t_i)}
+\end{equation}
+
+The predicted new 1RM is then simply the product of the users current 1RM and $n_{max}$.
+
+\begin{equation}
+    n_{1RM}=n_{max}l_{1RM}
+\end{equation}
+
+An interactive graph of the max prediction can be found \href{https://carmichaeljr.github.io/powerlifting-engine/}{here\footnote{https://carmichaeljr.github.io/powerlifting-engine/}}. Figure \ref{fig:Figure4.1} shows how the potential surface diverges with the addition of new data. The first set of data creates the potential surface shown in red. The second set of data is the first set of data with more recent training data added to it and is shown in green. For the first set of data the estimated 1RM is 444 lbs. For the second set of data the estimated 1RM is 475 lbs.\footnote{The exact data used is available in the interactive graph under the data folder.}
+
+%---------------------------------------------------------------------------
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=.25]{Figure4.1.png}
+    \caption{A screenshot from the interactive graph demonstrating the change in the potential surface. The first set of data creates the potential surface shown in red. The second set of data is the first set of data with more recent training data added to it and is shown in green. The original max prediction is 444 lbs, and the new one is 475 lbs.}
+    \label{fig:Figure4.1}
+\end{figure}
+%---------------------------------------------------------------------------

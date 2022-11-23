@@ -3,3 +3,4 @@
 *.o
 *.db
 dbEnv.sh
+tex/build
