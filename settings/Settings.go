@@ -21,6 +21,8 @@ type DatabaseInfo struct {
 };
 type SqlScripts struct {
     GlobalInit string `json:"globalInit"`;
+};
+type SetupData struct {
     ExerciseFocusInit string `json:"exerciseFocusInit"`;
     ExerciseTypeInit string `json:"exerciseTypeInit"`;
     ExerciseInit string `json:"exerciseInit"`;
@@ -29,6 +31,7 @@ type SqlScripts struct {
 type Settings struct {
     DBInfo DatabaseInfo `json:"database"`;
     SqlFiles SqlScripts `json:"sqlScripts"`;
+    InitData SetupData `json:"setupData"`;
 };
 var s Settings;
 
@@ -83,13 +86,13 @@ func SQLGlobalInitScript() string {
     return s.SqlFiles.GlobalInit;
 }
 func ExerciseFocusInitData() string {
-    return s.SqlFiles.ExerciseFocusInit;
+    return s.InitData.ExerciseFocusInit;
 }
 func ExerciseTypeInitData() string {
-    return s.SqlFiles.ExerciseTypeInit;
+    return s.InitData.ExerciseTypeInit;
 }
 func ExerciseInitData() string {
-    return s.SqlFiles.ExerciseInit;
+    return s.InitData.ExerciseInit;
 }
 
 func valid(set *Settings) (bool,error) {
@@ -104,17 +107,17 @@ func valid(set *Settings) (bool,error) {
                 rv,SettingsFileNotFound(fmt.Sprintf("GlobalInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseFocusInit);
+            rv,err:=customIO.FileExists(set.InitData.ExerciseFocusInit);
             return rv,customerr.ErrorOnBool(
                 rv,SettingsFileNotFound(fmt.Sprintf("ExerciseFocusInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseTypeInit);
+            rv,err:=customIO.FileExists(set.InitData.ExerciseTypeInit);
             return rv,customerr.ErrorOnBool(
                 rv,SettingsFileNotFound(fmt.Sprintf("ExerciseTypeInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseInit);
+            rv,err:=customIO.FileExists(set.InitData.ExerciseInit);
             return rv,customerr.ErrorOnBool(
                 rv,SettingsFileNotFound(fmt.Sprintf("ExerciseInit | %v",err)),
             );
@@ -133,9 +136,11 @@ func _copy() Settings {
     };
     rv.SqlFiles=SqlScripts{
         GlobalInit: s.SqlFiles.GlobalInit,
-        ExerciseFocusInit: s.SqlFiles.ExerciseFocusInit,
-        ExerciseTypeInit: s.SqlFiles.ExerciseTypeInit,
-        ExerciseInit: s.SqlFiles.ExerciseInit,
+    };
+    rv.InitData=SetupData{
+        ExerciseFocusInit: s.InitData.ExerciseFocusInit,
+        ExerciseTypeInit: s.InitData.ExerciseTypeInit,
+        ExerciseInit: s.InitData.ExerciseInit,
     };
     return rv;
 }

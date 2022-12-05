@@ -11,7 +11,7 @@ func TestReadSettings(t *testing.T){
     test.BasicTest("localhost",DBHost(),"DB host not parsed correctly.",t);
     test.BasicTest(5432,DBPort(),"DB port not parsed correctly.",t);
     test.BasicTest("dbTest",DBName(),"DB name not parsed correctly.",t);
-    test.BasicTest("testData/globalInit.sql",SQLGlobalInitScript(),
+    test.BasicTest("testData/dummyFile.txt",SQLGlobalInitScript(),
         "Sql scripts not parsed correctly.",t,
     );
 }

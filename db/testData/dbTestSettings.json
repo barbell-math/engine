@@ -6,6 +6,9 @@
         "name": "dbTest"
     },
     "sqlScripts": {
+        "globalInit": "sql/globalInit.sql"
+    },
+    "setupData": {
         "globalInit": "sql/globalInit.sql",
         "exerciseFocusInit": "../../fuel/setupData/ExerciseFocusInit.csv",
         "exerciseTypeInit": "../../fuel/setupData/ExerciseTypeInit.csv",

@@ -5,10 +5,12 @@
         "port": 5432,
         "name": "dbTest"
     },
-    "sqlScripts": {
-        "globalInit": "testData/globalInit.sql",
-        "exerciseFocusInit": "testData/ExerciseFocusInit.csv",
-        "exerciseTypeInit": "testData/ExerciseTypeInit.csv",
-        "exerciseInit": "testData/ExerciseInit.csv"
+    "sqlscripts": {
+        "globalinit": "testData/dummyFile.txt"
+    },
+    "setupData": {
+        "exerciseFocusInit": "testData/dummyFile.txt",
+        "exerciseTypeInit": "testData/dummyFile.txt",
+        "exerciseInit": "testData/dummyFile.txt"
     }
 }
