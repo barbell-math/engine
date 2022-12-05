@@ -1,7 +1,7 @@
 package csv;
 
 import (
-    "github.com/barbell-math/block/util/customerr"
+    customerr "github.com/barbell-math/block/util/err"
 )
 
 var MalformedCSVFile,IsMalformedCSVFile=customerr.ErrorFactory(

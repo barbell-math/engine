@@ -1,4 +1,4 @@
-package customerr;
+package err;
 
 import (
     "fmt"

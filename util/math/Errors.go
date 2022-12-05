@@ -1,7 +1,7 @@
 package math;
 
 import (
-    "github.com/barbell-math/block/util/customerr"
+    customerr "github.com/barbell-math/block/util/err"
 )
 
 var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=customerr.ErrorFactory(

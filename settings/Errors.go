@@ -1,7 +1,7 @@
 package settings;
 
 import (
-    "github.com/barbell-math/block/util/customerr"
+    customerr "github.com/barbell-math/block/util/err"
 )
 
 var DataVersionMalformed,IsDataVersionMalformed=customerr.ErrorFactory(

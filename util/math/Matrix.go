@@ -2,7 +2,7 @@ package math;
 
 import (
     "fmt"
-    "github.com/barbell-math/block/util/customerr"
+    customerr "github.com/barbell-math/block/util/err"
 )
 
 type Matrix[N Number] struct {
