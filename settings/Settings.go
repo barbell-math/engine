@@ -7,6 +7,7 @@ import (
     "sync"
     "io/ioutil"
     "encoding/json"
+    customIO "github.com/barbell-math/block/util/io"
     "github.com/barbell-math/block/util/customerr"
 )
 
@@ -98,24 +99,24 @@ func valid(set *Settings) (bool,error) {
             rv=(set.DBInfo.DataVersion>=0);
             return rv,customerr.ErrorOnBool(rv,DataVersionMalformed("Should be >=0."));
         }, func(r ...any) (any,error) {
-            rv,err:=util.FileExists(set.SqlFiles.GlobalInit);
+            rv,err:=customIO.FileExists(set.SqlFiles.GlobalInit);
             return rv,customerr.ErrorOnBool(
-                rv,SettingsFileNotFound(fmt.Sprintf("GlobalInit | %s",err)),
+                rv,SettingsFileNotFound(fmt.Sprintf("GlobalInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=util.FileExists(set.SqlFiles.ExerciseFocusInit);
+            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseFocusInit);
             return rv,customerr.ErrorOnBool(
-                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseFocusInit | %s",err)),
+                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseFocusInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=util.FileExists(set.SqlFiles.ExerciseTypeInit);
+            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseTypeInit);
             return rv,customerr.ErrorOnBool(
-                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseTypeInit | %s",err)),
+                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseTypeInit | %v",err)),
             );
         }, func(r ...any) (any,error) {
-            rv,err:=util.FileExists(set.SqlFiles.ExerciseInit);
+            rv,err:=customIO.FileExists(set.SqlFiles.ExerciseInit);
             return rv,customerr.ErrorOnBool(
-                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseInit | %s",err)),
+                rv,SettingsFileNotFound(fmt.Sprintf("ExerciseInit | %v",err)),
             );
         },
     );

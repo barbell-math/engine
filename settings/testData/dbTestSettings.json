@@ -1,0 +1,14 @@
+{
+    "database": {
+        "dataVersion": 0,
+        "host": "localhost",
+        "port": 5432,
+        "name": "dbTest"
+    },
+    "sqlScripts": {
+        "globalInit": "testData/globalInit.sql",
+        "exerciseFocusInit": "testData/ExerciseFocusInit.csv",
+        "exerciseTypeInit": "testData/ExerciseTypeInit.csv",
+        "exerciseInit": "testData/ExerciseInit.csv"
+    }
+}
