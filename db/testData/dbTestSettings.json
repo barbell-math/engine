@@ -10,8 +10,8 @@
     },
     "setupData": {
         "globalInit": "sql/globalInit.sql",
-        "exerciseFocusInit": "../../fuel/setupData/ExerciseFocusInit.csv",
-        "exerciseTypeInit": "../../fuel/setupData/ExerciseTypeInit.csv",
-        "exerciseInit": "../../fuel/setupData/ExerciseInit.csv"
+        "exerciseFocusInit": "../../data/setupData/ExerciseFocusInit.csv",
+        "exerciseTypeInit": "../../data/setupData/ExerciseTypeInit.csv",
+        "exerciseInit": "../../data/setupData/ExerciseInit.csv"
     }
 }
