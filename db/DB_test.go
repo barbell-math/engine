@@ -7,18 +7,18 @@ import (
     "github.com/barbell-math/block/util/test"
 )
 
-var testDB CRUD;
+var testDB DB;
 
 func TestMain(m *testing.M){
     //setup();
-    settings.ReadSettings("../testData/dbTestSettings.json");
+    settings.ReadSettings("testData/dbTestSettings.json");
     m.Run();
     teardown();
 }
 
 func setup(){
     var err error=nil;
-    testDB,err=NewCRUD(settings.DBHost(),settings.DBPort(),settings.DBName());
+    testDB,err=NewDB(settings.DBHost(),settings.DBPort(),settings.DBName());
     if err!=nil && err!=DataVersionNotAvailable {
         panic("Could not open database for testing.");
     }

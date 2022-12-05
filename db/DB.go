@@ -3,7 +3,6 @@ package db;
 import (
     "os"
     "fmt"
-    //"time"
     "bufio"
     "errors"
     "strings"
@@ -15,12 +14,12 @@ import (
     _ "github.com/lib/pq"
 )
 
-type CRUD struct {
+type DB struct {
     db *sql.DB;
 };
 
-func NewCRUD(host string, port int, name string) (CRUD,error) {
-    var rv CRUD;
+func NewDB(host string, port int, name string) (DB,error) {
+    var rv DB;
     err:=customerr.ChainedErrorOps(
         func(r ...any) (any,error) {
             return sql.Open("postgres",
@@ -39,11 +38,11 @@ func NewCRUD(host string, port int, name string) (CRUD,error) {
     return rv,err;
 }
 
-func (c *CRUD)RunDataConversion() error {
+func (c *DB)RunDataConversion() error {
     return c.implicitDataConversion(false);
 }
 
-func (c *CRUD)implicitDataConversion(check bool) error {
+func (c *DB)implicitDataConversion(check bool) error {
     cont:=true;
     return customerr.ChainedErrorOpsWithCustomErrors([]error{
             DataVersionNotAvailable,
@@ -68,7 +67,7 @@ func (c *CRUD)implicitDataConversion(check bool) error {
     });
 }
 
-func (c *CRUD)execDataConversion(toVersion int, fromVersion int) error {
+func (c *DB)execDataConversion(toVersion int, fromVersion int) error {
     return customerr.ChainedErrorOpsWithCustomErrors(
         []error{
             NoKnownDataConversion(
@@ -89,12 +88,12 @@ func (c *CRUD)execDataConversion(toVersion int, fromVersion int) error {
     });
 }
 
-func (c *CRUD)getDataVersion() (int,error) {
+func (c *DB)getDataVersion() (int,error) {
     var rv int;
     err:=c.db.QueryRow("SELECT * FROM Version;").Scan(&rv);
     return rv,err;
 }
-func (c *CRUD)setDataVersion(v int) error {
+func (c *DB)setDataVersion(v int) error {
     val,err:=c.getDataVersion();
     if err==sql.ErrNoRows {
         _,err=c.db.Exec("INSERT INTO Version(num) VALUES ($1);",v);
@@ -104,12 +103,12 @@ func (c *CRUD)setDataVersion(v int) error {
     return err;
 }
 
-func (c *CRUD)ResetDB() error {
+func (c *DB)ResetDB() error {
     err:=c.ExecSQLScript(settings.SQLGlobalInitScript());
     return err;
 }
 
-func (c *CRUD)ExecSQLScript(src string) error {
+func (c *DB)ExecSQLScript(src string) error {
     var err error=nil;
     var globalInit *os.File=nil;
     if globalInit,err=os.Open(src); err==nil {
@@ -125,11 +124,11 @@ func (c *CRUD)ExecSQLScript(src string) error {
     return err;
 }
 
-func (c *CRUD)Stats() sql.DBStats {
+func (c *DB)Stats() sql.DBStats {
     return c.db.Stats();
 }
 
-func (c *CRUD)Close(){
+func (c *DB)Close(){
     if c.db!=nil {
         c.db.Close();
     }

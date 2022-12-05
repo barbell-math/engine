@@ -5,12 +5,12 @@ import (
     "github.com/barbell-math/block/settings"
 )
 
-type DataVersionConversion func(crud *CRUD) error;
+type DataVersionConversion func(crud *DB) error;
 var DataVersionOps map[int]DataVersionConversion=map[int]DataVersionConversion{
     1: zeroToOne,
 };
 
-func zeroToOne(crud *CRUD) error {
+func zeroToOne(crud *DB) error {
     crud.ResetDB();
     crud.setDataVersion(1);
     var err error=nil;
