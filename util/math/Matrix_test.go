@@ -2,7 +2,7 @@ package math;
 
 import (
     "testing"
-    "github.com/barbell-math/block/test"
+    "github.com/barbell-math/block/util/test"
 )
 
 func TestCreateMatrix(t *testing.T){

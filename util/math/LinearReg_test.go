@@ -4,8 +4,8 @@ import (
     "fmt"
     "strconv"
     "testing"
-    "github.com/barbell-math/block/test"
-    "github.com/barbell-math/block/csv"
+    "github.com/barbell-math/block/util/csv"
+    "github.com/barbell-math/block/util/test"
 )
 
 func TestCreateLinReg(t *testing.T){
@@ -237,7 +237,7 @@ func TestNonStdLinearReg(t *testing.T){
     test.BasicTest(nil,err,
         "Linear reg returned error when it shouldn't have.",t,
     );
-    csv.CSVFileSplitter("../testData/NonStdLinRegActual.csv",',',false,
+    csv.CSVFileSplitter("testData/NonStdLinRegActual.csv",',',false,
         func(col []string) bool {
             cntr,_:=strconv.Atoi(col[0]);
             v,err:=res.Predict(map[string]float64{
@@ -258,7 +258,7 @@ func TestNonStdLinearReg(t *testing.T){
 
 //func TestLinearityOfBenchmarkResults(t *testing.T){
 //    l:=NewLinearReg[float64](LinearSumOpGen[float64]([]string{"x1"},"y"));
-//    util.CSVFileSplitter("../testData/LinRegBenchmarkResults.csv",',',false,
+//    util.CSVFileSplitter("testData/LinRegBenchmarkResults.csv",',',false,
 //        func(cols []string) bool {
 //            x1,_:=strconv.ParseFloat(cols[0],64);
 //            y,_:=strconv.ParseFloat(cols[0],64);

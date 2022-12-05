@@ -4,7 +4,7 @@ import (
     "fmt"
     "time"
     "testing"
-    "github.com/barbell-math/block/test"
+    "github.com/barbell-math/block/util/test"
 )
 
 type csvTest struct {
@@ -21,7 +21,7 @@ type csvTest struct {
 
 func TestNonStruct(t *testing.T){
     cntr:=0;
-    err:=CSVToStruct("../testData/csv/ValidCSV.csv",',',"",func(v *int){
+    err:=CSVToStruct("testData/ValidCSV.csv",',',"",func(v *int){
         cntr++;
     });
     fmt.Println(err);
@@ -38,7 +38,7 @@ func TestNonStruct(t *testing.T){
 func TestValidStruct(t *testing.T){
     cntr:=0;
     baseTime,_:=time.Parse("01/02/2006","12/12/2012");
-    err:=CSVToStruct("../testData/csv/ValidCSV.csv",',',"01/02/2006",
+    err:=CSVToStruct("testData/ValidCSV.csv",',',"01/02/2006",
     func(v *csvTest){
         test.BasicTest(cntr+1,v.I,"Did not parse 'I' column correctly.",t);
         test.BasicTest(int8(-cntr-2),v.I8,
@@ -74,7 +74,7 @@ func TestValidStruct(t *testing.T){
 func TestMissingColumns(t *testing.T){
     cntr:=0;
     baseTime,_:=time.Parse("01/02/2006","12/12/2012");
-    err:=CSVToStruct("../testData/csv/MissingColumns.csv",',',"01/02/2006",
+    err:=CSVToStruct("testData/MissingColumns.csv",',',"01/02/2006",
     func(v *csvTest){
         test.BasicTest(0, v.I,"Missing I column was not zero-initialized.",t);
         test.BasicTest(int8(-cntr-2),v.I8,
@@ -110,7 +110,7 @@ func TestMissingColumns(t *testing.T){
 func TestMissingValues(t *testing.T){
     cntr:=0;
     baseTime,_:=time.Parse("01/02/2006","00/00/0000");
-    err:=CSVToStruct("../testData/csv/MissingValues.csv",',',"01/02/2006",
+    err:=CSVToStruct("testData/MissingValues.csv",',',"01/02/2006",
     func(v *csvTest){
         test.BasicTest(cntr+1, v.I,"Did not parse 'I' column correctly.",t);
         test.BasicTest(int8(0),v.I8,
@@ -144,7 +144,7 @@ func TestMissingValues(t *testing.T){
 
 func TestMissingHeaders(t *testing.T){
     cntr:=0;
-    err:=CSVToStruct("../testData/csv/MissingHeaders.csv",',',"01/02/2006",
+    err:=CSVToStruct("testData/MissingHeaders.csv",',',"01/02/2006",
     func(v *csvTest){
         cntr++;
     });
@@ -161,7 +161,7 @@ func TestMissingHeaders(t *testing.T){
 
 func TestMalformedTypes(t *testing.T){
     cntr:=0;
-    err:=CSVToStruct("../testData/csv/MalformedInt.csv",',',"",
+    err:=CSVToStruct("testData/MalformedInt.csv",',',"",
     func(v *csvTest){
         cntr++;
     });
@@ -174,7 +174,7 @@ func TestMalformedTypes(t *testing.T){
             "Did not raise error with malformed integer.",t,
         );
     }
-    err=CSVToStruct("../testData/csv/MalformedUint.csv",',',"",
+    err=CSVToStruct("testData/MalformedUint.csv",',',"",
     func(v *csvTest){
         cntr++;
     });
@@ -187,7 +187,7 @@ func TestMalformedTypes(t *testing.T){
             "Did not raise error with malformed unsigned integer.",t,
         );
     }
-    err=CSVToStruct("../testData/csv/MalformedFloat.csv",',',"",
+    err=CSVToStruct("testData/MalformedFloat.csv",',',"",
     func(v *csvTest){
         cntr++;
     });
@@ -200,7 +200,7 @@ func TestMalformedTypes(t *testing.T){
             "Did not raise error with malformed float.",t,
         );
     }
-    err=CSVToStruct("../testData/csv/MalformedTime.csv",',',"01/02/2006",
+    err=CSVToStruct("testData/MalformedTime.csv",',',"01/02/2006",
     func(v *csvTest){
         cntr++;
     });

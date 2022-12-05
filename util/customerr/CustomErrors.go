@@ -4,7 +4,6 @@ import (
     "fmt"
     "errors"
     "strings"
-    "reflect"
 )
 
 type errorType func(addendum string) error;
@@ -47,13 +46,6 @@ func ErrorOnBool(in bool, e error) error {
         return nil;
     }
     return e;
-}
-
-func GetErrorFromReflectValue(in *reflect.Value) error {
-    switch in.Interface().(type) {
-        case error: return in.Interface().(error);
-        default: return nil;
-    }
 }
 
 //func safeMapAcc[K comparable, V any](m map[K]V, _var K, err error) (V,error) {
