@@ -6,9 +6,9 @@
         "name": "dbTest"
     },
     "sqlScripts": {
-        "globalInit": "../sql/globalInit.sql",
-        "exerciseFocusInit": "../sql/ExerciseFocusInit.csv",
-        "exerciseTypeInit": "../sql/ExerciseTypeInit.csv",
-        "exerciseInit": "../sql/ExerciseInit.csv"
+        "globalInit": "sql/globalInit.sql",
+        "exerciseFocusInit": "../../fuel/setupData/ExerciseFocusInit.csv",
+        "exerciseTypeInit": "../../fuel/setupData/ExerciseTypeInit.csv",
+        "exerciseInit": "../../fuel/setupData/ExerciseInit.csv"
     }
 }
