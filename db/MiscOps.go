@@ -46,7 +46,7 @@ func getRowFromUniqueValGenerator[
 }
 
 func InitClient(
-        crud *DB,
+        db *DB,
         c *Client,
         sMax float32,
         bMax float32,
@@ -64,12 +64,12 @@ func InitClient(
         };
     }
     return customerr.ChainedErrorOps(
-        func(r ...any) (any,error) { return GetExerciseByName(crud,"Squat"); },
-        func(r ...any) (any,error) { return GetExerciseByName(crud,"Bench"); },
-        func(r ...any) (any,error) { return GetExerciseByName(crud,"Deadlift"); },
-        func(r ...any) (any,error) { return Create(crud,*c); },
+        func(r ...any) (any,error) { return GetExerciseByName(db,"Squat"); },
+        func(r ...any) (any,error) { return GetExerciseByName(db,"Bench"); },
+        func(r ...any) (any,error) { return GetExerciseByName(db,"Deadlift"); },
+        func(r ...any) (any,error) { return Create(db,*c); },
         func(r ...any) (any,error) {
-            return Create(crud,Rotation{
+            return Create(db,Rotation{
                 ClientID: r[3].([]int)[0],
                 StartDate: time.Now().AddDate(0, 0, -1),
                 EndDate: time.Now(),
@@ -78,31 +78,42 @@ func InitClient(
             s:=f(r[3].([]int)[0],r[4].([]int)[0],r[0].(Exercise).Id,sMax);
             b:=f(r[3].([]int)[0],r[4].([]int)[0],r[1].(Exercise).Id,bMax);
             d:=f(r[3].([]int)[0],r[4].([]int)[0],r[2].(Exercise).Id,dMax);
-            return Create(crud,s,d,b);
+            return Create(db,s,d,b);
         },
     );
 }
 
-func RmClient(crud *DB, c *Client) (int64,error) {
+func RmClient(db *DB, c *Client) (int64,error) {
     var rv int64=0;
     err:=customerr.ChainedErrorOps(
         func(r ...any) (any,error) {
-            return Delete(
-                crud,TrainingLog{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
+            return CustomDeleteQuery(db,
+                `DELETE FROM Prediction
+                 WHERE Id IN (
+                    SELECT Prediction.Id
+                    FROM Prediction
+                    JOIN TrainingLog
+                    ON Prediction.TrainingLogID=TrainingLog.Id
+                    WHERE TrainingLog.ClientID=$1
+                 );`,[]any{c.Id},
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,Rotation{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
+                db,TrainingLog{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,BodyWeight{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
+                db,Rotation{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
             );
         }, func(r ...any) (any,error) {
             return Delete(
-                crud,ModelState{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
+                db,BodyWeight{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
             );
-        }, func(r ...any) (any,error) { return Delete(crud,*c,OnlyIDFilter); },
+        }, func(r ...any) (any,error) {
+            return Delete(
+                db,ModelState{ClientID: c.Id},algo.GenFilter(false,"ClientID"),
+            );
+        }, func(r ...any) (any,error) { return Delete(db,*c,OnlyIDFilter); },
         func(r ...any) (any,error) {
             for _,v:=range(r) {
                 rv+=v.(int64);

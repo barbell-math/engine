@@ -32,6 +32,16 @@ func teardown(){
     testDB.Close();
 }
 
+func createExerciseTestData(){
+    Create(&testDB,ExerciseFocus{Focus: "Squat"});
+    Create(&testDB,ExerciseType{T: "Accessory"});
+    Create(&testDB,
+        Exercise{Name: "Squat", FocusID: 1, TypeID: 1},
+        Exercise{Name: "Bench", FocusID: 1, TypeID: 1},
+        Exercise{Name: "Deadlift", FocusID: 1, TypeID: 1},
+    );
+}
+
 func TestVersion(t *testing.T){
     setup();
     //val,err:=testDB.getDataVersion();

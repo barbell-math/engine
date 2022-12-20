@@ -26,3 +26,16 @@ func CustomReadQuery[S any](
         "CustomReadQuery only accepts 'SELECT' query's.",
     );
 }
+
+func CustomDeleteQuery(c *DB, sqlStmt string, vals []any) (int64,error) {
+    if DeleteStmt.isQueryType(sqlStmt) {
+        res,err:=c.db.Exec(sqlStmt,vals...);
+        if err==nil {
+            return res.RowsAffected();
+        }
+        return 0, err;
+    }
+    return 0, UnsupportedQueryType(
+        "CustomDeleteQuery only accepts 'DELETE' query's.",
+    );
+}

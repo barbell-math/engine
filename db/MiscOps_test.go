@@ -8,16 +8,6 @@ import (
     customerr "github.com/barbell-math/block/util/err"
 )
 
-func createExerciseTestData(){
-    Create(&testDB,ExerciseFocus{Focus: "Squat"});
-    Create(&testDB,ExerciseType{T: "Accessory"});
-    Create(&testDB,
-        Exercise{Name: "Squat", FocusID: 1, TypeID: 1},
-        Exercise{Name: "Bench", FocusID: 1, TypeID: 1},
-        Exercise{Name: "Deadlift", FocusID: 1, TypeID: 1},
-    );
-}
-
 func TestGetExerciseByName(t *testing.T){
     setup();
     createExerciseTestData();
@@ -171,6 +161,7 @@ func TestRmClient(t *testing.T){
     setup();
     //settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
     //testDB.RunDataConversion();
+    Create(&testDB,StateGenerator{T: "State Generator"});
     createExerciseTestData();
     c:=Client{
         Id: 1,
@@ -187,13 +178,22 @@ func TestRmClient(t *testing.T){
             });
         }, func (r ...any) (any,error) {
             return Create(&testDB,ModelState{
-                ClientID: 1, ExerciseID: 1, Date: time.Now(), TimeFrame: 100,
+                ClientID: 1, ExerciseID: 1, StateGeneratorID: 1,
+                Date: time.Now(), TimeFrame: 100,
                 A: 1, B: 1, C: 1, D: 1, Eps: 1, Eps2: 1,
+            });
+        }, func (r ...any) (any,error) {
+            return Create(&testDB,StateGenerator{
+                T: "TestPredictor", Description: "TestDescription",
+            });
+        }, func (r ...any) (any,error) {
+            return Create(&testDB,Prediction{
+                StateGeneratorID: 1, TrainingLogID: 1, IntensityPred: 0,
             });
         },
     );
     test.BasicTest(nil,err,"Database was not setup correctly to run test.",t);
     val,err:=RmClient(&testDB,&c);
     test.BasicTest(nil,err,"RmClient created an error when it shouldn't have.",t);
-    test.BasicTest(int64(7),val,"RmClient did not delete all client data.",t);
+    test.BasicTest(int64(8),val,"RmClient did not delete all client data.",t);
 }

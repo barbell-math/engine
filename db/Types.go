@@ -18,6 +18,7 @@ type DBTable  interface {
     TrainingLog |
     Client |
     ModelState |
+    StateGenerator |
     Prediction
 };
 
@@ -76,10 +77,17 @@ type Client struct {
     Email string;
 };
 
+type StateGenerator struct {
+    Id int;
+    T string;
+    Description string;
+};
+
 type ModelState struct {
     Id int;
     ClientID int;
     ExerciseID int;
+    StateGeneratorID int;
     Date time.Time;
     A,B,C,D,Eps,Eps2 float64;
     TimeFrame int;
@@ -89,6 +97,7 @@ type ModelState struct {
 
 type Prediction struct {
     Id int;
+    StateGeneratorID int;
     TrainingLogID int;
     IntensityPred float64;
 };

@@ -17,13 +17,15 @@ func readRows[S any](rows *sql.Rows, callback func(r *S)) error {
     for ; err==nil && rows.Next(); cntr++ {
         var s S;
         rowPntrs,err=customReflect.GetStructFieldPntrs(&s,algo.NoFilter[string]);
-        potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
-        err=customReflect.GetErrorFromReflectValue(&potErr[0]);
         if err==nil {
-            callback(&s);
+            potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
+            err=customReflect.GetErrorFromReflectValue(&potErr[0]);
+            if err==nil {
+                callback(&s);
+            }
         }
     }
-    if cntr==0 {
+    if cntr==0 && err==nil {
         return sql.ErrNoRows;
     }
     return err;
