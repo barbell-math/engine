@@ -6,7 +6,7 @@ import (
 )
 
 func missingModelStatesForGivenStateGenQuery() string {
-    return `SELECT newTl.DatePerformed
+    return `SELECT newTl.DatePerformed, newTl.ExerciseID
         FROM (SELECT *
             FROM TrainingLog
             WHERE TrainingLog.ClientID=1
@@ -25,7 +25,7 @@ func missingModelStatesForGivenStateGenQuery() string {
         WHERE newMs.Id IS NULL
             AND (ExerciseType.T='Main Compound'
                 OR ExerciseType.T='Main Compound Accessory'
-        ) GROUP BY newTl.DatePerformed;`
+        ) GROUP BY newTl.DatePerformed, newTl.ExerciseID;`
 }
 
 //func msMissingQuery(sg db.StateGenerator) string {

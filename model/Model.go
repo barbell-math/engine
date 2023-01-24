@@ -88,7 +88,7 @@ func fatigueAwareModel() mathUtil.LinearReg[float64] {
     return mathUtil.NewLinearReg[float64](fatigueAwareSumOpGen());
 }
 //The ordering of the functions makes for this ordering of constants:
-//  d,a,b,c,eps_1,eps_2
+//  Eps,Eps1,Eps2,Eps3,Eps4,Eps5,Eps6,Eps7
 func fatigueAwareSumOpGen() ([]mathUtil.SummationOp[float64],
         mathUtil.SummationOp[float64]) {
     return []mathUtil.SummationOp[float64]{
@@ -127,10 +127,11 @@ func intensityPredFromLinReg(
         tl *db.TrainingLog) (float64,error) {
     return res.Predict(map[string]float64{
         "I": tl.Intensity,
-        "R": float64(tl.Reps),
         "E": tl.Effort,
+        "R": float64(tl.Reps),
         "S": float64(tl.Sets),
         "F_w": float64(tl.InterWorkoutFatigue),
         "F_e": float64(tl.InterExerciseFatigue),
+        //"F_l": float64(tl.LatentFatigue),
     });
 }

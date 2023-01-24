@@ -258,26 +258,3 @@ func TestRepsPrediction(t *testing.T){
         "Reps prediction produced incorrect value.",t,
     );
 }
-//func TestRepsPrediction(t *testing.T){
-//    //C has to be 1 to avoid div by 0 error
-//    ms:=db.ModelState{A: 0, B: 0, C: 1, D: 0, Eps: 0, Eps2: 0};
-//    tl:=db.TrainingLog{
-//        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
-//    };
-//    res:=RepsPrediction(&ms,&tl);
-//    test.BasicTest(float64(1.0),res,
-//        "Effort prediction produced incorrect value.",t,
-//    );
-//}
-//
-//func TestFatigueIndexPrediction(t *testing.T){
-//    //Eps2 has to be 1 to avoid div by 0 error
-//    ms:=db.ModelState{A: 0, B: 0, C: 0, D: 0, Eps: 0, Eps2: 1};
-//    tl:=db.TrainingLog{
-//        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
-//    };
-//    res:=FatigueIndexPrediction(&ms,&tl);
-//    test.BasicTest(float64(0.0),res,
-//        "Effort prediction produced incorrect value.",t,
-//    );
-//}
