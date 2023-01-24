@@ -4,6 +4,11 @@ import (
     "fmt"
 )
 
+type Pair[T any] struct {
+    First T;
+    Second T;
+};
+
 func AppendWithPreallocation[T any](slices ...[]T) []T {
     var totLen,i int=0, 0;
     for _,s:=range(slices) {

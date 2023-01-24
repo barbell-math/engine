@@ -5,11 +5,12 @@ import (
     "github.com/barbell-math/block/db"
 )
 
-type StateGenerator interface {
-    GenerateModelState(c *db.DB, tl db.TrainingLog, ch chan<- StateGenerationRes);
+type stateGenerator interface {
+    GenerateClientModelStates(d *db.DB, c db.Client, ch chan<- []error);
+    GenerateModelState(d *db.DB, tl db.TrainingLog, ch chan<- StateGeneratorRes);
 };
 
-type StateGenerationRes struct {
+type StateGeneratorRes struct {
     Ms db.ModelState;
     Err error;
 };
@@ -25,3 +26,24 @@ type dataPoint struct {
     Intensity float64;
     FatigueIndex float64;
 };
+
+func msMissingQuery(sg db.StateGenerator) string {
+    return `SELECT TrainingLog.DatePerformed,
+        TrainingLog.ExerciseID
+    FROM TrainingLog
+    LEFT JOIN ModelState
+    ON TrainingLog.ExerciseID=ModelState.ExerciseID
+        AND ModelState.ClientID=TrainingLog.ClientID
+        AND TrainingLog.DatePerformed=ModelState.Date
+    JOIN Exercise
+    ON Exercise.Id=TrainingLog.ExerciseID
+    JOIN ExerciseType
+    ON ExerciseType.Id=Exercise.TypeID
+    JOIN
+    WHERE TrainingLog.ClientID=$1
+        AND ModelState.Id IS NULL
+        AND (ExerciseType.T='Main Compound'
+        OR ExerciseType.T='Main Compound Accessory')
+    GROUP BY TrainingLog.DatePerformed,
+        TrainingLog.ExerciseID;`;
+}

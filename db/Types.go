@@ -66,8 +66,9 @@ type TrainingLog struct {
     Reps int;
     Intensity float64;
     Effort float64;
-    FatigueIndex int;
     Volume float64;
+    InterExerciseFatigue int;
+    InterWorkoutFatigue int;
 };
 
 type Client struct {
@@ -89,7 +90,8 @@ type ModelState struct {
     ExerciseID int;
     StateGeneratorID int;
     Date time.Time;
-    A,B,C,D,Eps,Eps2 float64;
+    Eps,Eps1,Eps2,Eps3 float64;
+    Eps4,Eps5,Eps6,Eps7 float64;
     TimeFrame int;
     Rcond float64;
     Mse float64;

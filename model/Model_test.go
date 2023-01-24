@@ -98,6 +98,12 @@ func uploadTestData() error {
             });
         }, func(r ...any) (any,error) {
             return nil,csv.CSVToStruct(
+                "../../data/testData/StateGeneratorTestData.csv",',',"",
+                func(s *db.StateGenerator){
+                    db.Create(&testDB,*s);
+            });
+        }, func(r ...any) (any,error) {
+            return nil,csv.CSVToStruct(
                 "../../data/testData/ExerciseTypeTestData.csv",',',"",
                 func(e *db.ExerciseType){
                     db.Create(&testDB,*e);
@@ -140,18 +146,22 @@ func TestModelCreation(t *testing.T){
     m.IterLHS(func(r int, c int, v float64){
         cntr++;
     });
-    test.BasicTest(36,cntr,"LHS Lin reg wrong size for model.",t);
+    test.BasicTest(49,cntr,"LHS Lin reg wrong size for model.",t);
     cntr=0;
     m.IterRHS(func(r int, c int, v float64){
         cntr++;
     });
-    test.BasicTest(6,cntr,"RHS Lin reg wrong size for model.",t);
+    test.BasicTest(7,cntr,"RHS Lin reg wrong size for model.",t);
 }
 
 func TestIntensityPrediction(t *testing.T){
-    ms:=db.ModelState{A: 0, B: 0, C: 0, D: 0, Eps: 0, Eps2: 0};
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0, Eps4: 0,
+        Eps5: 0, Eps6: 0, Eps7: 0,
+    };
     tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+        InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
     };
     res:=IntensityPrediction(&ms,&tl);
     test.BasicTest(float64(0.0),res,
@@ -160,10 +170,13 @@ func TestIntensityPrediction(t *testing.T){
 }
 
 func TestEffortPrediction(t *testing.T){
-    //Eps has to be 1 to avoid div by 0 error
-    ms:=db.ModelState{A: 0, B: 0, C: 0, D: 0, Eps: 1, Eps2: 0};
+    //Eps1 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 1, Eps2: 0, Eps3: 0,
+        Eps4: 0, Eps5: 0, Eps6: 0, Eps7: 0,
+    };
     tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
     };
     res:=EffortPrediction(&ms,&tl);
     test.BasicTest(float64(0.0),res,
@@ -171,38 +184,100 @@ func TestEffortPrediction(t *testing.T){
     );
 }
 
-func TestSetsPrediction(t *testing.T){
-    //B has to be 1 to avoid div by 0 error
-    ms:=db.ModelState{A: 0, B: 1, C: 0, D: 0, Eps: 0, Eps2: 0};
+func TestLatentFatiguePrediction(t *testing.T){
+    //Eps2 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 1, Eps3: 0,
+        Eps4: 0, Eps5: 0, Eps6: 0, Eps7: 0,
+    };
     tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+    };
+    res:=LatentFatiguePrediction(&ms,&tl);
+    test.BasicTest(float64(0.0),res,
+        "Latent fatigue prediction produced incorrect value.",t,
+    );
+}
+
+func TestInterWorkoutFatiguePrediction(t *testing.T){
+    //Eps3 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 1,
+        Eps4: 0, Eps5: 0, Eps6: 0, Eps7: 0,
+    };
+    tl:=db.TrainingLog{
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+    };
+    res:=InterWorkoutFatiguePrediciton(&ms,&tl);
+    test.BasicTest(float64(0.0),res,
+        "Inter workout fatigue prediction produced incorrect value.",t,
+    );
+}
+
+func TestInterExerciseFatiguePrediction(t *testing.T){
+    //Eps4 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0,
+        Eps4: 1, Eps5: 0, Eps6: 0, Eps7: 0,
+    };
+    tl:=db.TrainingLog{
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+    };
+    res:=InterExerciseFatiguePrediction(&ms,&tl);
+    test.BasicTest(float64(0.0),res,
+        "Inter exercise fatigue prediction produced incorrect value.",t,
+    );
+}
+
+func TestSetsPrediction(t *testing.T){
+    //Eps6 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0,
+        Eps4: 0, Eps5: 0, Eps6: 1, Eps7: 0,
+    };
+    tl:=db.TrainingLog{
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
     };
     res:=SetsPrediction(&ms,&tl);
     test.BasicTest(float64(1.0),res,
-        "Effort prediction produced incorrect value.",t,
+        "Sets prediction produced incorrect value.",t,
     );
 }
 
 func TestRepsPrediction(t *testing.T){
-    //C has to be 1 to avoid div by 0 error
-    ms:=db.ModelState{A: 0, B: 0, C: 1, D: 0, Eps: 0, Eps2: 0};
+    //Eps7 has to be 1 to avoid div by 0 error
+    ms:=db.ModelState{
+        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0,
+        Eps4: 0, Eps5: 0, Eps6: 0, Eps7: 1,
+    };
     tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
     };
     res:=RepsPrediction(&ms,&tl);
     test.BasicTest(float64(1.0),res,
-        "Effort prediction produced incorrect value.",t,
+        "Reps prediction produced incorrect value.",t,
     );
 }
-
-func TestFatigueIndexPrediction(t *testing.T){
-    //Eps2 has to be 1 to avoid div by 0 error
-    ms:=db.ModelState{A: 0, B: 0, C: 0, D: 0, Eps: 0, Eps2: 1};
-    tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
-    };
-    res:=FatigueIndexPrediction(&ms,&tl);
-    test.BasicTest(float64(0.0),res,
-        "Effort prediction produced incorrect value.",t,
-    );
-}
+//func TestRepsPrediction(t *testing.T){
+//    //C has to be 1 to avoid div by 0 error
+//    ms:=db.ModelState{A: 0, B: 0, C: 1, D: 0, Eps: 0, Eps2: 0};
+//    tl:=db.TrainingLog{
+//        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+//    };
+//    res:=RepsPrediction(&ms,&tl);
+//    test.BasicTest(float64(1.0),res,
+//        "Effort prediction produced incorrect value.",t,
+//    );
+//}
+//
+//func TestFatigueIndexPrediction(t *testing.T){
+//    //Eps2 has to be 1 to avoid div by 0 error
+//    ms:=db.ModelState{A: 0, B: 0, C: 0, D: 0, Eps: 0, Eps2: 1};
+//    tl:=db.TrainingLog{
+//        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0, FatigueIndex: 0,
+//    };
+//    res:=FatigueIndexPrediction(&ms,&tl);
+//    test.BasicTest(float64(0.0),res,
+//        "Effort prediction produced incorrect value.",t,
+//    );
+//}

@@ -92,6 +92,24 @@ func TestGetExerciseFocusByName(t *testing.T){
     }
 }
 
+func TestGetStateGeneratorByName(t *testing.T){
+    setup();
+    Create(&testDB,StateGenerator{T: "TestingStateGenerator"});
+    gen,err:=GetStateGeneratorByName(&testDB,"TestingStateGenerator");
+    test.BasicTest(nil,err,
+        "State Generator was not found when it should have been.",t,
+    );
+    if gen.Id<=0 {
+        test.FormatError(">0",gen.Id,"ID was not set appropriately.",t);
+    }
+    gen,err=GetStateGeneratorByName(&testDB,"NotAStateGenerator");
+    if err!=sql.ErrNoRows {
+        test.FormatError(nil,err,
+            "No error was generated when getting non-existent state generator.",t,
+        );
+    }
+}
+
 func TestInitClient(t *testing.T){
     setup();
     createExerciseTestData();
@@ -159,8 +177,6 @@ func TestInitClient(t *testing.T){
 
 func TestRmClient(t *testing.T){
     setup();
-    //settings.Modify(func(s *settings.Settings){ s.DBInfo.DataVersion=1; });
-    //testDB.RunDataConversion();
     Create(&testDB,StateGenerator{T: "State Generator"});
     createExerciseTestData();
     c:=Client{
@@ -180,7 +196,7 @@ func TestRmClient(t *testing.T){
             return Create(&testDB,ModelState{
                 ClientID: 1, ExerciseID: 1, StateGeneratorID: 1,
                 Date: time.Now(), TimeFrame: 100,
-                A: 1, B: 1, C: 1, D: 1, Eps: 1, Eps2: 1,
+                Eps5: 1, Eps6: 1, Eps7: 1, Eps: 1, Eps2: 1, Eps3: 1,
             });
         }, func (r ...any) (any,error) {
             return Create(&testDB,StateGenerator{

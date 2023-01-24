@@ -68,8 +68,9 @@ CREATE TABLE TrainingLog (
 	Reps SMALLINT NOT NULL,
 	Intensity FLOAT,
     Effort FLOAT,
-    FatigueIndex INT NOT NULL,
     Volume FLOAT NOT NULL,
+    InterExerciseFatigue INT NOT NULL,
+    InterWorkoutFatigue INT NOT NULL,
 	FOREIGN KEY (ClientID) REFERENCES Client(ID),
 	FOREIGN KEY (ExerciseID) REFERENCES Exercise(ID),
 	FOREIGN KEY (RotationID) REFERENCES Rotation(ID)
@@ -87,12 +88,14 @@ CREATE TABLE ModelState (
     ExerciseID INTEGER NOT NULL,
     StateGeneratorID INTEGER NOT NULL,
     Date DATE NOT NULL,
-    A FLOAT NOT NULL,
-    B FLOAT NOT NULL,
-    C FLOAT NOT NULL,
-    D FLOAT NOT NULL,
     Eps FLOAT NOT NULL,
+    Eps1 FLOAT NOT NULL,
     Eps2 FLOAT NOT NULL,
+    Eps3 FLOAT NOT NULL,
+    Eps4 FLOAT NOT NULL,
+    Eps5 FLOAT NOT NULL,
+    Eps6 FLOAT NOT NULL,
+    Eps7 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
     Rcond FLOAT NOT NULL,
     Mse FLOAT NOT NULL,
@@ -113,5 +116,9 @@ CREATE TABLE Prediction (
 ALTER TABLE ModelState
 ADD CONSTRAINT uniqueDayExerciseClient
 UNIQUE(ClientID,ExerciseID,StateGeneratorID,Date);
+
+ALTER TABLE Prediction
+ADD CONSTRAINT uniqueGeneratorTrainingLogID
+UNIQUE(StateGeneratorID,TrainingLogID);
 
 INSERT INTO Version(num) VALUES (0);
