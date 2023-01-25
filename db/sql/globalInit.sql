@@ -114,7 +114,7 @@ CREATE TABLE Prediction (
 );
 
 ALTER TABLE ModelState
-ADD CONSTRAINT uniqueDayExerciseClient
+ADD CONSTRAINT uniqueDayExerciseClientState
 UNIQUE(ClientID,ExerciseID,StateGeneratorID,Date);
 
 ALTER TABLE Prediction

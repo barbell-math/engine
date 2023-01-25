@@ -1,7 +1,6 @@
 package model;
 
 import (
-    "fmt"
     "time"
     "testing"
     "database/sql"
@@ -9,37 +8,68 @@ import (
     "github.com/barbell-math/block/util/test"
 )
 
+const TEST_CG_NAME string="TestSG";
+
+func createPredictionData(createSg bool, createMs bool, createTl bool) (func ()){
+    sgId,msId,tlId:=[]int{}, []int{}, []int{};
+    if createSg {
+        sgId,_=db.Create(&testDB,db.StateGenerator{T: TEST_CG_NAME});
+    }
+    if createMs {
+        msId,_=db.Create(&testDB,db.ModelState{
+            ClientID: 1, ExerciseID: 15, StateGeneratorID: sgId[0],
+            Date: time.Now().AddDate(0, 0, -1),
+            Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0, Eps4: 0,
+            Eps5: 0, Eps6: 0, Eps7: 0,
+        });
+    }
+    if createTl {
+        tlId,_=db.Create(&testDB,db.TrainingLog{
+            ClientID: 1, ExerciseID: 15, RotationID: 1,
+            DatePerformed: time.Now().AddDate(0, 0, -1),
+        });
+    }
+    return func(){
+        if createSg {
+            db.Delete[db.StateGenerator](
+                &testDB,
+                db.StateGenerator{ Id: sgId[0] },
+                db.OnlyIDFilter,
+            );
+        }
+        if createMs {
+            db.Delete[db.ModelState](
+                &testDB,
+                db.ModelState{ Id: msId[0] },
+                db.OnlyIDFilter,
+            );
+        }
+        if createTl {
+            db.Delete[db.TrainingLog](
+                &testDB,
+                db.TrainingLog{ Id: tlId[0] },
+                db.OnlyIDFilter,
+            );
+        }
+    }
+}
+
 func TestGeneratePrediction(t *testing.T){
-    sgId,e:=db.Create(&testDB,db.StateGenerator{T: "TestSG"});
-    msId,e1:=db.Create(&testDB,db.ModelState{
-        ClientID: 1, ExerciseID: 15, StateGeneratorID: sgId[0],
-        Date: time.Now().AddDate(0, 0, -1),
-        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0, Eps4: 0,
-        Eps5: 0, Eps6: 0, Eps7: 0,
-    });
-    fmt.Println(e);
-    fmt.Println(e1);
-    fmt.Println(sgId[0]);
-    fmt.Println(msId[0]);
+    defer createPredictionData(true,true,true)();
     tl:=db.TrainingLog{
         ClientID: 1,
         Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
         ExerciseID: 15, DatePerformed: time.Now(),
     };
-    sg,_:=db.GetStateGeneratorByName(&testDB,"TestSG");
-    fmt.Println(sg);
-    p,err:=GeneratePrediction(&testDB,&tl,&sg);
-    fmt.Println(err,p);
-    db.Delete[db.ModelState](&testDB,db.ModelState{ Id: msId[0] },db.OnlyIDFilter);
-    db.Delete[db.StateGenerator](
-        &testDB,
-        db.StateGenerator{ Id: sgId[0] },
-        db.OnlyIDFilter,
+    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_CG_NAME);
+    _,err:=GeneratePrediction(&testDB,&tl,&sg);
+    test.BasicTest(nil,err,
+        "Generate prediction returned an error when it was not supposed to.",t,
     );
 }
 
-func TestGeneratePredictionNoState(t *testing.T){
+func TestGeneratePredictionNoStateGenerator(t *testing.T){
     tl:=db.TrainingLog{
         Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
@@ -49,5 +79,20 @@ func TestGeneratePredictionNoState(t *testing.T){
     _,err:=GeneratePrediction(&testDB,&tl,&sg);
     test.BasicTest(sql.ErrNoRows,err,
         "The wrong error was raised when no predictions where found.",t,
+    );
+}
+
+func TestGeneratePredictionNoModelState(t *testing.T){
+    defer createPredictionData(true,false,true)();
+    tl:=db.TrainingLog{
+        ClientID: 1,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+        InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
+        ExerciseID: 15, DatePerformed: time.Now(),
+    };
+    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_CG_NAME);
+    _,err:=GeneratePrediction(&testDB,&tl,&sg);
+    test.BasicTest(sql.ErrNoRows,err,
+        "Generate prediction returned incorrect error.",t,
     );
 }

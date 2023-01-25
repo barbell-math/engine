@@ -1,7 +1,6 @@
 package model;
 
 import (
-    //"fmt"
     "github.com/barbell-math/block/db"
 )
 
