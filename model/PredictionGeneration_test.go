@@ -8,13 +8,11 @@ import (
     "github.com/barbell-math/block/util/test"
 )
 
-const TEST_CG_NAME string="TestSG";
+const TEST_SG_NAME string="TestSG";
 
-func createPredictionData(createSg bool, createMs bool, createTl bool) (func ()){
+func createPredictionData(createMs bool, createTl bool) (func ()){
     sgId,msId,tlId:=[]int{}, []int{}, []int{};
-    if createSg {
-        sgId,_=db.Create(&testDB,db.StateGenerator{T: TEST_CG_NAME});
-    }
+    sgId,_=db.Create(&testDB,db.StateGenerator{T: TEST_SG_NAME});
     if createMs {
         msId,_=db.Create(&testDB,db.ModelState{
             ClientID: 1, ExerciseID: 15, StateGeneratorID: sgId[0],
@@ -30,13 +28,11 @@ func createPredictionData(createSg bool, createMs bool, createTl bool) (func ())
         });
     }
     return func(){
-        if createSg {
-            db.Delete[db.StateGenerator](
-                &testDB,
-                db.StateGenerator{ Id: sgId[0] },
-                db.OnlyIDFilter,
-            );
-        }
+        db.Delete[db.StateGenerator](
+            &testDB,
+            db.StateGenerator{ Id: sgId[0] },
+            db.OnlyIDFilter,
+        );
         if createMs {
             db.Delete[db.ModelState](
                 &testDB,
@@ -55,14 +51,14 @@ func createPredictionData(createSg bool, createMs bool, createTl bool) (func ())
 }
 
 func TestGeneratePrediction(t *testing.T){
-    defer createPredictionData(true,true,true)();
+    defer createPredictionData(true,true)();
     tl:=db.TrainingLog{
         ClientID: 1,
         Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
         ExerciseID: 15, DatePerformed: time.Now(),
     };
-    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_CG_NAME);
+    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_SG_NAME);
     _,err:=GeneratePrediction(&testDB,&tl,&sg);
     test.BasicTest(nil,err,
         "Generate prediction returned an error when it was not supposed to.",t,
@@ -83,14 +79,14 @@ func TestGeneratePredictionNoStateGenerator(t *testing.T){
 }
 
 func TestGeneratePredictionNoModelState(t *testing.T){
-    defer createPredictionData(true,false,true)();
+    defer createPredictionData(false,true)();
     tl:=db.TrainingLog{
         ClientID: 1,
         Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
         ExerciseID: 15, DatePerformed: time.Now(),
     };
-    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_CG_NAME);
+    sg,_:=db.GetStateGeneratorByName(&testDB,TEST_SG_NAME);
     _,err:=GeneratePrediction(&testDB,&tl,&sg);
     test.BasicTest(sql.ErrNoRows,err,
         "Generate prediction returned incorrect error.",t,

@@ -62,7 +62,5 @@ func nearestModelStateToExerciseQuery(tl *db.TrainingLog) string {
             AND TrainingLog.ClientID=$4
         ORDER BY TrainingLog.DatePerformed DESC,
             TrainingLog.InterWorkoutFatigue ASC;`,
-        //LIMIT 1;`,
-        //tl.DatePerformed.Format("01/02/2006"),
     );
 }
