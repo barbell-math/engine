@@ -15,6 +15,14 @@ type StateGeneratorRes struct {
     Err error;
 };
 
+//The struct that holds values when searching for missing model states.
+//Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
+//IN THE QUERY. Otherwise the values returned will be all jumbled up.
+type missingModelStateData struct {
+    Date time.Time;
+    ExerciseID int;
+};
+
 //The struct that holds values when linear regression is performed.
 //Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
 //IN THE QUERY. Otherwise the values returned will be all jumbled up.

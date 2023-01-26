@@ -33,7 +33,7 @@ func NewSlidingWindowStateGen(
         windowLimits dataStruct.Pair[int],
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
-        allotedThreads: allotedThreads,
+        allotedThreads: mathUtil.Constrain(allotedThreads,1,stdMath.MaxInt),
         timeFrameLimits: dataStruct.Pair[int]{
             First: -mathUtil.Abs(timeFrameLimits.First),
             Second: -mathUtil.Abs(timeFrameLimits.Second),
@@ -61,7 +61,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     stateGenType,err:=db.GetStateGeneratorByName(d,"Sliding Window");
     err=db.CustomReadQuery(d,missingModelStatesForGivenStateGenQuery(),[]any{
         c.Id,stateGenType.Id,
-    }, func (t *db.TrainingLog){
+    }, func (t *missingModelStateData){
         fmt.Printf("Need ms for %+v\n",t);
     });
     fmt.Println(err);

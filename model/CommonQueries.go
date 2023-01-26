@@ -9,12 +9,12 @@ func missingModelStatesForGivenStateGenQuery() string {
     return `SELECT newTl.DatePerformed, newTl.ExerciseID
         FROM (SELECT *
             FROM TrainingLog
-            WHERE TrainingLog.ClientID=1
+            WHERE TrainingLog.ClientID=$1
         ) newTl
         LEFT JOIN (SELECT *
             FROM ModelState
-            WHERE ModelState.ClientID=1
-            AND ModelState.StateGeneratorID=1
+            WHERE ModelState.ClientID=$1
+            AND ModelState.StateGeneratorID=$2
         ) newMs
         ON newMs.Date=newTl.DatePerformed
             AND newMs.ExerciseID=newTl.ExerciseID

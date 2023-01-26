@@ -47,6 +47,15 @@ func Abs[N Number](v N) N {
     return v;
 }
 
-func SquareError[N Number](act N, given N) N {
+func SqErr[N Number](act N, given N) N {
     return (act-given)*(act-given);
+}
+
+func Constrain[N Number](given N, min N, max N) N {
+    if given<min {
+        return min;
+    } else if given>max {
+        return max;
+    }
+    return given;
 }
