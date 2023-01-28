@@ -7,7 +7,11 @@ import (
 
 type stateGenerator interface {
     GenerateClientModelStates(d *db.DB, c db.Client, ch chan<- []error);
-    GenerateModelState(d *db.DB, tl db.TrainingLog, ch chan<- StateGeneratorRes);
+    GenerateModelState(
+        d *db.DB,
+        missingData missingModelStateData,
+        ch chan<- StateGeneratorRes,
+    );
 };
 
 type StateGeneratorRes struct {
@@ -19,8 +23,9 @@ type StateGeneratorRes struct {
 //Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES
 //IN THE QUERY. Otherwise the values returned will be all jumbled up.
 type missingModelStateData struct {
-    Date time.Time;
+    ClientID int;
     ExerciseID int;
+    Date time.Time;
 };
 
 //The struct that holds values when linear regression is performed.
@@ -32,7 +37,8 @@ type dataPoint struct {
     Reps float64;
     Effort float64;
     Intensity float64;
-    FatigueIndex float64;
+    InterExerciseFatigue float64;
+    InterWorkoutFatigue float64;
 };
 
 func msMissingQuery(sg db.StateGenerator) string {

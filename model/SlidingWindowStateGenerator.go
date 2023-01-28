@@ -50,6 +50,8 @@ func NewSlidingWindowStateGen(
         return rv,InvalidPredictionState("min window > max window");
     } else if rv.windowLimits.Second<rv.timeFrameLimits.Second {
         return rv,InvalidPredictionState("max window > max time frame");
+    } else if rv.windowLimits.First>rv.timeFrameLimits.First {
+        return rv,InvalidPredictionState("min window < min time frame");
     }
     return rv,nil;
 }
@@ -61,8 +63,33 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     stateGenType,err:=db.GetStateGeneratorByName(d,"Sliding Window");
     err=db.CustomReadQuery(d,missingModelStatesForGivenStateGenQuery(),[]any{
         c.Id,stateGenType.Id,
-    }, func (t *missingModelStateData){
-        fmt.Printf("Need ms for %+v\n",t);
+    }, func (m *missingModelStateData){
+        fmt.Printf("Need ms for %+v\n",m);
+    });
+    fmt.Println(err);
+}
+
+func (s SlidingWindowStateGen)GenerateModelState(
+        d *db.DB,
+        missingData missingModelStateData,
+        ch chan<- StateGeneratorRes){
+    var curDate time.Time;
+    s.lr=fatigueAwareModel();
+    err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
+        missingData.Date,
+        missingData.Date.AddDate(0, 0, s.timeFrameLimits.Second),
+        missingData.ExerciseID,
+        missingData.ClientID,
+    }, func (d *db.dataPoint){
+        if !curDate.Equal(d.DatePerformed) && !missingData.Date.Add(
+            s.windowLimits.First,
+        ).Before(curDate) {
+
+        }
+        s.lr.UpdateSummations(map[string]float64{
+            "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
+            "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
+        });
     });
     fmt.Println(err);
 }

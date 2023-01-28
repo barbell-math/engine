@@ -1,12 +1,23 @@
 package model;
 
 import (
-    "fmt"
     "github.com/barbell-math/block/db"
 )
 
+func timeFrameQuery() string {
+    return `SELECT DatePerformed,
+            Sets, Reps, Effort, Intensity,
+            InterExerciseFatigue, InterWorkoutFatigue
+        FROM TrainingLog
+        WHERE TrainingLog.DatePerformed<$1
+            AND TrainingLog.DatePerformed>$2
+            AND ExerciseID=$3
+            AND TrainingLog.ClientID=$4
+        ORDER BY DatePerformed DESC;`;
+}
+
 func missingModelStatesForGivenStateGenQuery() string {
-    return `SELECT newTl.DatePerformed, newTl.ExerciseID
+    return `SELECT newTl.ClientID, newTl.ExerciseID, newTl.DatePerformed
         FROM (SELECT *
             FROM TrainingLog
             WHERE TrainingLog.ClientID=$1
@@ -25,7 +36,7 @@ func missingModelStatesForGivenStateGenQuery() string {
         WHERE newMs.Id IS NULL
             AND (ExerciseType.T='Main Compound'
                 OR ExerciseType.T='Main Compound Accessory'
-        ) GROUP BY newTl.DatePerformed, newTl.ExerciseID;`
+        ) GROUP BY newTl.DatePerformed, newTl.ExerciseID, newTl.ClientID;`;
 }
 
 //func msMissingQuery(sg db.StateGenerator) string {
@@ -50,7 +61,7 @@ func missingModelStatesForGivenStateGenQuery() string {
 //}
 
 func nearestModelStateToExerciseQuery(tl *db.TrainingLog) string {
-    return fmt.Sprintf(`SELECT ModelState.*
+    return `SELECT ModelState.*
         FROM TrainingLog
         JOIN ModelState
         ON TrainingLog.ExerciseID=ModelState.ExerciseID
@@ -61,6 +72,5 @@ func nearestModelStateToExerciseQuery(tl *db.TrainingLog) string {
             AND ModelState.StateGeneratorID=$3
             AND TrainingLog.ClientID=$4
         ORDER BY TrainingLog.DatePerformed DESC,
-            TrainingLog.InterWorkoutFatigue ASC;`,
-    );
+            TrainingLog.InterWorkoutFatigue ASC;`;
 }

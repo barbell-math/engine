@@ -4,6 +4,10 @@ import (
     customerr "github.com/barbell-math/block/util/err"
 )
 
+var DimensionsDoNotAgree,IsDimensionsDoNotAgree=customerr.ErrorFactory(
+    "Dimensions do not agree.",
+);
+
 var MatrixDimensionsDoNotAgree,IsMatrixDimensionsDoNotAgree=customerr.ErrorFactory(
     "Matrix dimensions do not agree.",
 );

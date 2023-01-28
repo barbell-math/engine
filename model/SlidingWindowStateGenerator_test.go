@@ -30,6 +30,9 @@ func TestNewSlidingWindowStateGenInvalidWindowSize(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
         dataStruct.Pair[int]{0, 1},dataStruct.Pair[int]{0, 2},1,
     ))(t);
+    invalidCheck(NewSlidingWindowStateGen(
+        dataStruct.Pair[int]{1, 2},dataStruct.Pair[int]{0, 2},1,
+    ))(t);
 }
 func TestNewSlidingWindowValid(t *testing.T){
     _,err:=NewSlidingWindowStateGen(
