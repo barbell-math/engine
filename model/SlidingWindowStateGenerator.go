@@ -5,9 +5,12 @@ import (
     "time"
     stdMath "math"
     "github.com/barbell-math/block/db"
-    mathUtil "github.com/barbell-math/block/util/math"
     "github.com/barbell-math/block/util/dataStruct"
+    logUtil "github.com/barbell-math/block/util/log"
+    mathUtil "github.com/barbell-math/block/util/math"
 )
+
+var DEBUG_LOG=logUtil.NewLog(logUtil.Debug,"./debugLogs/SlidingWindow.log");
 
 type SavedIntensityValue struct {
     intensity float64;
@@ -65,6 +68,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
         c.Id,stateGenType.Id,
     }, func (m *missingModelStateData){
         fmt.Printf("Need ms for %+v\n",m);
+        DEBUG_LOG("Need ms: %+v\n",m);
     });
     fmt.Println(err);
 }
@@ -80,9 +84,9 @@ func (s SlidingWindowStateGen)GenerateModelState(
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.Second),
         missingData.ExerciseID,
         missingData.ClientID,
-    }, func (d *db.dataPoint){
-        if !curDate.Equal(d.DatePerformed) && !missingData.Date.Add(
-            s.windowLimits.First,
+    }, func (d *dataPoint){
+        if !curDate.Equal(d.DatePerformed) && !missingData.Date.AddDate(
+            0, 0, s.windowLimits.First,
         ).Before(curDate) {
 
         }
@@ -90,6 +94,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
             "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
             "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
         });
+        DEBUG_LOG("Added dp: %+v\n",d);
     });
     fmt.Println(err);
 }
