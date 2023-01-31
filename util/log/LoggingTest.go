@@ -11,16 +11,17 @@ import (
 )
 
 func NewLog(status LogStatus, file string) Logger {
-    var logger *log.Logger;
-    if f,err:=os.OpenFile(
+    var rv Logger;
+    var err error;
+    if rv.logFile,err=os.OpenFile(
         file,
         os.O_APPEND | os.O_CREATE | os.O_WRONLY,
         0644,
     ); err==nil {
-        defer f.Close();
-        logger=log.New(f,status.String(),log.LstdFlags);
+        rv.logger=log.New(rv.logFile,status.String(),log.LstdFlags);
     }
-    return func(message string, args ...any){
-        logger.Printf(message,args...);
+    rv.Log=func(message string, args ...any){
+        rv.logger.Printf(message,args...);
     }
+    return rv;
 }

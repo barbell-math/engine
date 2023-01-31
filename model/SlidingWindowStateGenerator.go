@@ -10,7 +10,7 @@ import (
     mathUtil "github.com/barbell-math/block/util/math"
 )
 
-var DEBUG_LOG=logUtil.NewLog(logUtil.Debug,"./debugLogs/SlidingWindow.log");
+var DEBUG=logUtil.NewLog(logUtil.Debug,"./debugLogs/SlidingWindow.log");
 
 type SavedIntensityValue struct {
     intensity float64;
@@ -68,7 +68,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
         c.Id,stateGenType.Id,
     }, func (m *missingModelStateData){
         fmt.Printf("Need ms for %+v\n",m);
-        DEBUG_LOG("Need ms: %+v\n",m);
+        DEBUG.Log("Need ms: %+v\n",m);
     });
     fmt.Println(err);
 }
@@ -94,7 +94,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
             "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
             "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
         });
-        DEBUG_LOG("Added dp: %+v\n",d);
+        DEBUG.Log("Added dp: %+v\n",d);
     });
     fmt.Println(err);
 }

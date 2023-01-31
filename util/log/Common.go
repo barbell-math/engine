@@ -1,5 +1,10 @@
 package log;
 
+import (
+    "os"
+    "log"
+)
+
 type LogStatus int;
 const (
     Error LogStatus =iota
@@ -8,8 +13,6 @@ const (
     Info
     Debug
 );
-
-type Logger func(message string, args ...any);
 
 func (l LogStatus)String() string {
     switch l {
@@ -20,4 +23,14 @@ func (l LogStatus)String() string {
         case Debug: return "Debug";
         default: return "";
     }
+}
+
+type Logger struct {
+    logFile *os.File;
+    logger *log.Logger;
+    Log func(message string, args ...any);
+};
+
+func (l *Logger)Close(){
+    l.logFile.Close();
 }

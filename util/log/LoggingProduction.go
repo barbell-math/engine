@@ -6,5 +6,5 @@
 package log;
 
 func NewLog(status LogStatus, file string) Logger {
-    return func(message string, args ...any){}
+    return Logger{};
 }
