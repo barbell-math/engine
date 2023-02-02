@@ -1,8 +1,9 @@
 package model;
 
 import (
+    "time"
     "testing"
-    "github.com/barbell-math/block/db"
+    //"github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/test"
     "github.com/barbell-math/block/util/dataStruct"
 )
@@ -55,10 +56,25 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
     );
 }
 
-func TestGenerateModelStates(t *testing.T){
-    ch:=make(chan<- []error);
+//func TestGenerateModelStates(t *testing.T){
+//    setLogs("./debugLogs/SlidingWindow.log");
+//    ch:=make(chan<- []error);
+//    sw,_:=NewSlidingWindowStateGen(
+//        dataStruct.Pair[int]{0, 1},dataStruct.Pair[int]{0, 1},0,
+//    );
+//    sw.GenerateClientModelStates(&testDB,db.Client{ Id: 1 },ch);
+//}
+
+func TestGenerateModelState(t *testing.T){
+    setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log");
+    baseTime,_:=time.Parse("01/02/2006","09/10/2022");
+    ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(
-        dataStruct.Pair[int]{0, 1},dataStruct.Pair[int]{0, 1},0,
+        dataStruct.Pair[int]{0, 500},dataStruct.Pair[int]{0, 5},0,
     );
-    sw.GenerateClientModelStates(&testDB,db.Client{ Id: 1 },ch);
+    sw.GenerateModelState(&testDB,missingModelStateData{
+        ClientID: 1,
+        ExerciseID: 15,
+        Date: baseTime,
+    },ch);
 }

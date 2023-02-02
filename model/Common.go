@@ -3,6 +3,7 @@ package model;
 import (
     "time"
     "github.com/barbell-math/block/db"
+    logUtil "github.com/barbell-math/block/util/log"
 )
 
 type stateGenerator interface {
@@ -41,23 +42,25 @@ type dataPoint struct {
     InterWorkoutFatigue float64;
 };
 
-func msMissingQuery(sg db.StateGenerator) string {
-    return `SELECT TrainingLog.DatePerformed,
-        TrainingLog.ExerciseID
-    FROM TrainingLog
-    LEFT JOIN ModelState
-    ON TrainingLog.ExerciseID=ModelState.ExerciseID
-        AND ModelState.ClientID=TrainingLog.ClientID
-        AND TrainingLog.DatePerformed=ModelState.Date
-    JOIN Exercise
-    ON Exercise.Id=TrainingLog.ExerciseID
-    JOIN ExerciseType
-    ON ExerciseType.Id=Exercise.TypeID
-    JOIN
-    WHERE TrainingLog.ClientID=$1
-        AND ModelState.Id IS NULL
-        AND (ExerciseType.T='Main Compound'
-        OR ExerciseType.T='Main Compound Accessory')
-    GROUP BY TrainingLog.DatePerformed,
-        TrainingLog.ExerciseID;`;
-}
+var DEBUG=logUtil.NewBlankLog();
+
+//func msMissingQuery(sg db.StateGenerator) string {
+//    return `SELECT TrainingLog.DatePerformed,
+//        TrainingLog.ExerciseID
+//    FROM TrainingLog
+//    LEFT JOIN ModelState
+//    ON TrainingLog.ExerciseID=ModelState.ExerciseID
+//        AND ModelState.ClientID=TrainingLog.ClientID
+//        AND TrainingLog.DatePerformed=ModelState.Date
+//    JOIN Exercise
+//    ON Exercise.Id=TrainingLog.ExerciseID
+//    JOIN ExerciseType
+//    ON ExerciseType.Id=Exercise.TypeID
+//    JOIN
+//    WHERE TrainingLog.ClientID=$1
+//        AND ModelState.Id IS NULL
+//        AND (ExerciseType.T='Main Compound'
+//        OR ExerciseType.T='Main Compound Accessory')
+//    GROUP BY TrainingLog.DatePerformed,
+//        TrainingLog.ExerciseID;`;
+//}

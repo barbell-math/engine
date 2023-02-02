@@ -6,11 +6,8 @@ import (
     stdMath "math"
     "github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/dataStruct"
-    logUtil "github.com/barbell-math/block/util/log"
     mathUtil "github.com/barbell-math/block/util/math"
 )
-
-var DEBUG=logUtil.NewLog(logUtil.Debug,"./debugLogs/SlidingWindow.log");
 
 type SavedIntensityValue struct {
     intensity float64;
@@ -18,13 +15,13 @@ type SavedIntensityValue struct {
 };
 
 type SlidingWindowStateGen struct {
-    window int;
     allotedThreads int;
     windowLimits dataStruct.Pair[int];
     timeFrameLimits dataStruct.Pair[int];
     windowValues []SavedIntensityValue;
     optimalMs db.ModelState;
     lr mathUtil.LinearReg[float64];
+    withinWindowLimits (func(t time.Time) bool);
 };
 
 //The lr and window values are not created until the generate prediction method
@@ -78,6 +75,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
         missingData missingModelStateData,
         ch chan<- StateGeneratorRes){
     var curDate time.Time;
+    s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
     err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
         missingData.Date,
@@ -88,13 +86,56 @@ func (s SlidingWindowStateGen)GenerateModelState(
         if !curDate.Equal(d.DatePerformed) && !missingData.Date.AddDate(
             0, 0, s.windowLimits.First,
         ).Before(curDate) {
-
+            //calc model state, set
+            curDate=d.DatePerformed;
         }
-        s.lr.UpdateSummations(map[string]float64{
-            "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
-            "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
-        });
-        DEBUG.Log("Added dp: %+v\n",d);
+        //if within window, add to window vals
+        if s.withinWindowLimits(curDate) {
+            s.updateWindowValues(d);
+        }
+        s.updateLrSummations(d);
     });
     fmt.Println(err);
+}
+
+func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
+    s.windowValues=append(s.windowValues,SavedIntensityValue{
+        intensity: d.Intensity,
+        date: d.DatePerformed,
+    });
+    DEBUG.Log("Added to window: %+v\n",d);
+}
+
+func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
+    s.lr.UpdateSummations(map[string]float64{
+        "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
+        "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
+    });
+    DEBUG.Log("Added dp: %+v\n",d);
+}
+
+func (s *SlidingWindowStateGen)setWithinWindowLimits(
+        missingDataTime time.Time){
+    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.First));
+    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.Second));
+    s.withinWindowLimits=between(
+        missingDataTime.AddDate(0, 0, s.windowLimits.First),
+        missingDataTime.AddDate(0, 0, s.windowLimits.Second),
+    );
+}
+
+//this will eventually need to be moved to some common utility file
+//Due to the confusing nature of time, both after and before are **inclusive**
+//After is the 'future' time, before is the 'past' time
+func between(after time.Time, before time.Time) (func(t time.Time) bool) {
+    //if the 'past' time is after the 'future' time then switch them
+    if before.After(after) {
+        tmp:=before;
+        before=after;
+        after=tmp;
+    }
+    return func(t time.Time) bool {
+        return (before.AddDate(0, 0, -1).Before(t) &&
+            after.AddDate(0, 0, 1).After(t));
+    }
 }
