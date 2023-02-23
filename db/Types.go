@@ -93,6 +93,7 @@ type ModelState struct {
     Eps,Eps1,Eps2,Eps3 float64;
     Eps4,Eps5,Eps6,Eps7 float64;
     TimeFrame int;
+    Win int;
     Rcond float64;
     Mse float64;
 };

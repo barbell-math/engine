@@ -51,24 +51,40 @@ func Abs[N Number](v N) N {
     return v;
 }
 
-func SqErr[N Number](act N, given N) N {
-    return (act-given)*(act-given);
-}
-func MeanSqErr[N Number](act []N, given []N) (N,error) {
-    var rv N=N(0);
-    if la,lg:=len(act),len(given); la!=lg {
-        return rv,DimensionsDoNotAgree(fmt.Sprintf(
-            "MSE requires lists of equal length. | len(Given)=%d len(act)=%d",
-            la,lg,
-        ));
+func SqErr[N Number](act []N, given []N) []N,error {
+    if err:=arrayDimsArgree(
+        act,given,"MSE requires lists of equal length.",
+    ); err!=nil {
+        return rv,err;
     }
     if len(act)==0 {
         return N(0),nil;
     }
+    rv:=make([]N,len(act));
     for i,actIter:=range(act) {
-        rv+=(actIter-given[i])*(actIter-given[i]);
+        rv[i]=(actIter-given[i])*(actIter-given[i]);
     }
-    return rv/N(len(act)),nil;
+    return rv;
+}
+func MeanSqErr[N Number](act []N, given []N) (N,error) {
+    var sum N=N(0);
+    rv,err:=SqErr(act,given);
+    if err!=nil {
+        return sum,err;
+    }
+    for _,v:=range(rv) {
+        sum+=v;
+    }
+    return sum/N(len(act)),err;
+}
+
+func arrayDimsArgree[N any](one []N, two []N, message string) error {
+    if la,lg:=len(act),len(given); la!=lg {
+        return rv,DimensionsDoNotAgree(fmt.Sprintf(
+            "%s | len(Given)=%d len(act)=%d",
+            message,la,lg,
+        ));
+    }
 }
 
 func Constrain[N Number](given N, min N, max N) N {

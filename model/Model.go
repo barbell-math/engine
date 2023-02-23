@@ -122,16 +122,31 @@ func fatigueAwareSumOpGen() ([]mathUtil.SummationOp[float64],
     }},mathUtil.LinearSummationOp[float64]("I");
 }
 
-func intensityPredFromLinReg(
+func intensityPredFromLinReg[V *db.TrainingLog | *dataPoint](
         res mathUtil.LinRegResult[float64],
-        tl *db.TrainingLog) (float64,error) {
+        v V) (float64,error) {
+    var dp dataPoint;
+    switch any(v).(type) {
+        case db.TrainingLog:
+            tmp:=any(v).(db.TrainingLog);
+            dp=dataPoint{
+                Intensity: tmp.Intensity,
+                Sets: float64(tmp.Sets),
+                Reps: float64(tmp.Reps),
+                Effort: tmp.Effort,
+                InterWorkoutFatigue: float64(tmp.InterWorkoutFatigue),
+                InterExerciseFatigue: float64(tmp.InterExerciseFatigue),
+            };
+        case dataPoint:
+            dp=any(v).(dataPoint);
+    }
     return res.Predict(map[string]float64{
-        "I": tl.Intensity,
-        "E": tl.Effort,
-        "R": float64(tl.Reps),
-        "S": float64(tl.Sets),
-        "F_w": float64(tl.InterWorkoutFatigue),
-        "F_e": float64(tl.InterExerciseFatigue),
-        //"F_l": float64(tl.LatentFatigue),
+        "I": dp.Intensity,
+        "E": dp.Effort,
+        "R": float64(dp.Reps),
+        "S": float64(dp.Sets),
+        "F_w": float64(dp.InterWorkoutFatigue),
+        "F_e": float64(dp.InterExerciseFatigue),
+        //"F_l": float64(dp.LatentFatigue),
     });
 }

@@ -97,6 +97,7 @@ CREATE TABLE ModelState (
     Eps6 FLOAT NOT NULL,
     Eps7 FLOAT NOT NULL,
     TimeFrame INTEGER NOT NULL,
+    Win INTEGER NOT NULL,
     Rcond FLOAT NOT NULL,
     Mse FLOAT NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES Client(Id),

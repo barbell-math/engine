@@ -37,9 +37,11 @@ func setup(){
     }
 }
 
-func setupLogs(debugFile string){
-    DEBUG.Close();
+func setupLogs(debugFile string) (func()) {
     DEBUG=logUtil.NewLog(logUtil.Debug,debugFile);
+    return func(){
+        DEBUG.Close();
+    }
 }
 
 func uploadTestData() error {

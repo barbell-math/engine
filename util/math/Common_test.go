@@ -5,6 +5,8 @@ import (
     "github.com/barbell-math/block/util/test"
 )
 
+//write sqerr tests
+
 func TestMeanSqErrIncorrectDimensions(t *testing.T){
     _,err:=MeanSqErr[int]([]int{1,2},[]int{1,2,3});
     if !IsDimensionsDoNotAgree(err) {

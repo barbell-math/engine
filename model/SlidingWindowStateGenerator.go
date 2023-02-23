@@ -9,16 +9,16 @@ import (
     mathUtil "github.com/barbell-math/block/util/math"
 )
 
-type SavedIntensityValue struct {
-    intensity float64;
-    date time.Time;
-};
+//type SavedIntensityValue struct {
+//    intensity float64;
+//    date time.Time;
+//};
 
 type SlidingWindowStateGen struct {
     allotedThreads int;
-    windowLimits dataStruct.Pair[int];
-    timeFrameLimits dataStruct.Pair[int];
-    windowValues []SavedIntensityValue;
+    windowLimits dataStruct.Pair[int,int];
+    timeFrameLimits dataStruct.Pair[int,int];
+    windowValues []dataPoint;
     optimalMs db.ModelState;
     lr mathUtil.LinearReg[float64];
     withinWindowLimits (func(t time.Time) bool);
@@ -29,29 +29,29 @@ type SlidingWindowStateGen struct {
 //threads don't access the same slices because they are not deep copied even
 //though the method does not have a pointer receiver.)
 func NewSlidingWindowStateGen(
-        timeFrameLimits dataStruct.Pair[int],
-        windowLimits dataStruct.Pair[int],
+        timeFrameLimits dataStruct.Pair[int,int],
+        windowLimits dataStruct.Pair[int,int],
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
         allotedThreads: mathUtil.Constrain(allotedThreads,1,stdMath.MaxInt),
-        timeFrameLimits: dataStruct.Pair[int]{
+        timeFrameLimits: dataStruct.Pair[int,int]{
             First: -mathUtil.Abs(timeFrameLimits.First),
             Second: -mathUtil.Abs(timeFrameLimits.Second),
-        }, windowLimits: dataStruct.Pair[int]{
+        }, windowLimits: dataStruct.Pair[int,int]{
             First: -mathUtil.Abs(windowLimits.First),
             Second: -mathUtil.Abs(windowLimits.Second),
         }, optimalMs: db.ModelState{
             Mse: stdMath.Inf(1),
         },
     };
-    if rv.timeFrameLimits.First<=rv.timeFrameLimits.Second {
+    if rv.timeFrameLimits.First<rv.timeFrameLimits.Second {
         return rv,InvalidPredictionState("min time frame > max time frame");
-    } else if rv.windowLimits.First<=rv.windowLimits.Second {
-        return rv,InvalidPredictionState("min window > max window");
+    } else if rv.windowLimits.First<rv.windowLimits.Second {
+        return rv,InvalidPredictionState("min window >= max window, should be <");
     } else if rv.windowLimits.Second<rv.timeFrameLimits.Second {
-        return rv,InvalidPredictionState("max window > max time frame");
+        return rv,InvalidPredictionState("max window >= max time frame, should be <");
     } else if rv.windowLimits.First>rv.timeFrameLimits.First {
-        return rv,InvalidPredictionState("min window < min time frame");
+        return rv,InvalidPredictionState("min window <= min time frame, should be >");
     }
     return rv,nil;
 }
@@ -70,6 +70,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     fmt.Println(err);
 }
 
+//TODO - abort query early if no data in window
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData missingModelStateData,
@@ -83,26 +84,70 @@ func (s SlidingWindowStateGen)GenerateModelState(
         missingData.ExerciseID,
         missingData.ClientID,
     }, func (d *dataPoint){
-        if !curDate.Equal(d.DatePerformed) && !missingData.Date.AddDate(
-            0, 0, s.windowLimits.First,
-        ).Before(curDate) {
-            //calc model state, set
+        if !curDate.Equal(d.DatePerformed) {
+            if len(s.windowValues)>0 {
+                s.calcAndSetModelState(d,&missingData);
+            }
             curDate=d.DatePerformed;
         }
-        //if within window, add to window vals
         if s.withinWindowLimits(curDate) {
             s.updateWindowValues(d);
         }
-        s.updateLrSummations(d);
+        s.updateLrSummations(d);    //Time frame limits guaranteed by query
+        //return curDate>max win && len(s.windowValues)==0;
     });
+    if len(s.windowValues)==0 {
+        //return error - no data in selected window
+    }
     fmt.Println(err);
 }
 
+//TODO - group iterations by days not just entrys
+func (s *SlidingWindowStateGen)calcAndSetModelState(
+        d *dataPoint,
+        missingData *missingModelStateData) error {
+    var cumulativeSe float64=0.0;
+    res,rcond,_:=s.lr.Run();
+    for i,w:=range(s.windowValues) {
+        if pred,err:=intensityPredFromLinReg(res,&w); err==nil {
+            cumulativeSe+=mathUtil.SqErr(w.Intensity,pred);
+            if cumulativeSe/float64(i+1)<s.optimalMs.Mse {
+                s.saveModelState(
+                    res,rcond,cumulativeSe/float64(i+1),
+                    daysBetween(s.windowValues[0].DatePerformed,w.DatePerformed),
+                    daysBetween(missingData.Date,d.DatePerformed),
+                );
+            }
+        } else {
+            return err;
+        }
+    }
+    return nil;
+}
+
+func (s *SlidingWindowStateGen)saveModelState(
+        res mathUtil.LinRegResult[float64],
+        rcond float64,
+        mse float64,
+        winLen int,
+        timeFrameLen int){
+    s.optimalMs.Eps=stdMath.Max(res.GetConstant(0),0);
+    //s.optimalMs.Eps1=res.GetConstant(1);
+    s.optimalMs.Eps2=res.GetConstant(1);
+    s.optimalMs.Eps3=res.GetConstant(2);
+    s.optimalMs.Eps4=res.GetConstant(3);
+    s.optimalMs.Eps5=stdMath.Max(res.GetConstant(4),0);
+    s.optimalMs.Eps6=stdMath.Max(res.GetConstant(5),0);
+    s.optimalMs.Eps7=stdMath.Max(res.GetConstant(6),0);
+    s.optimalMs.TimeFrame=timeFrameLen;
+    s.optimalMs.Win=winLen;
+    s.optimalMs.Rcond=rcond;
+    s.optimalMs.Mse=mse;
+    DEBUG.Log("Changed optimal model state: %+v\n",s.optimalMs);
+}
+
 func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
-    s.windowValues=append(s.windowValues,SavedIntensityValue{
-        intensity: d.Intensity,
-        date: d.DatePerformed,
-    });
+    s.windowValues=append(s.windowValues,*d);
     DEBUG.Log("Added to window: %+v\n",d);
 }
 
@@ -138,4 +183,13 @@ func between(after time.Time, before time.Time) (func(t time.Time) bool) {
         return (before.AddDate(0, 0, -1).Before(t) &&
             after.AddDate(0, 0, 1).After(t));
     }
+}
+
+func daysBetween(after time.Time, before time.Time) int {
+    if before.After(after) {
+        tmp:=before;
+        before=after;
+        after=tmp;
+    }
+    return int(after.Sub(before).Hours()/24);
 }

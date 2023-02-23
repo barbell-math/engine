@@ -66,11 +66,11 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
 //}
 
 func TestGenerateModelState(t *testing.T){
-    setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log");
+    defer setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log")();
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(
-        dataStruct.Pair[int]{0, 500},dataStruct.Pair[int]{0, 5},0,
+        dataStruct.Pair[int]{0, 500},dataStruct.Pair[int]{0, 10},0,
     );
     sw.GenerateModelState(&testDB,missingModelStateData{
         ClientID: 1,

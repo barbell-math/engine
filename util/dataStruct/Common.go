@@ -4,9 +4,9 @@ import (
     "fmt"
 )
 
-type Pair[T any] struct {
+type Pair[T any, U any] struct {
     First T;
-    Second T;
+    Second U;
 };
 
 func AppendWithPreallocation[T any](slices ...[]T) []T {
