@@ -40,3 +40,7 @@ func ZipSlices[K comparable, V any](keys []K, vals []V) (map[K]V,error) {
     }
     return rv,nil;
 }
+
+func SlicesEqual[T any](one []T, two []T) bool {
+
+}

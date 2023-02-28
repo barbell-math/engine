@@ -51,20 +51,20 @@ func Abs[N Number](v N) N {
     return v;
 }
 
-func SqErr[N Number](act []N, given []N) []N,error {
+func SqErr[N Number](act []N, given []N) ([]N,error) {
     if err:=arrayDimsArgree(
         act,given,"MSE requires lists of equal length.",
     ); err!=nil {
-        return rv,err;
+        return []N{},err;
     }
     if len(act)==0 {
-        return N(0),nil;
+        return []N{},nil;
     }
     rv:=make([]N,len(act));
     for i,actIter:=range(act) {
         rv[i]=(actIter-given[i])*(actIter-given[i]);
     }
-    return rv;
+    return rv,nil;
 }
 func MeanSqErr[N Number](act []N, given []N) (N,error) {
     var sum N=N(0);
@@ -78,13 +78,14 @@ func MeanSqErr[N Number](act []N, given []N) (N,error) {
     return sum/N(len(act)),err;
 }
 
-func arrayDimsArgree[N any](one []N, two []N, message string) error {
+func arrayDimsArgree[N any](act []N, given []N, message string) error {
     if la,lg:=len(act),len(given); la!=lg {
-        return rv,DimensionsDoNotAgree(fmt.Sprintf(
+        return DimensionsDoNotAgree(fmt.Sprintf(
             "%s | len(Given)=%d len(act)=%d",
             message,la,lg,
         ));
     }
+    return nil;
 }
 
 func Constrain[N Number](given N, min N, max N) N {
