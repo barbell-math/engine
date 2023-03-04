@@ -1,9 +1,9 @@
 package algo;
 
-type Filter[V comparable] func(thing V) bool;
+type Filter[V any] func(thing V) bool;
 
-func NoFilter[V comparable](thing V) bool { return true; }
-func AllFilter[V comparable](thing V) bool { return false; }
+func NoFilter[V any](thing V) bool { return true; }
+func AllFilter[V any](thing V) bool { return false; }
 
 func GenFilter[V comparable](inverse bool, things ...V) Filter[V] {
     return func(thing V) bool {

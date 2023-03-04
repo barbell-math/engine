@@ -4,11 +4,6 @@ import (
     "fmt"
 )
 
-type Pair[T any, U any] struct {
-    First T;
-    Second U;
-};
-
 func AppendWithPreallocation[T any](slices ...[]T) []T {
     var totLen,i int=0, 0;
     for _,s:=range(slices) {
@@ -41,6 +36,10 @@ func ZipSlices[K comparable, V any](keys []K, vals []V) (map[K]V,error) {
     return rv,nil;
 }
 
-func SlicesEqual[T any](one []T, two []T) bool {
-
-}
+//func SlicesEqual[T comparable](one []T, two []T) bool {
+//    i:=-1;
+//    return len(one)==len(two) && SliceElems(one).All(func(other T) bool {
+//        i++;
+//        return other==two[i];
+//    });
+//}

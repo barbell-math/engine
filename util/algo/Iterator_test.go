@@ -4,6 +4,8 @@ import (
     "fmt"
     "testing"
     "github.com/barbell-math/block/util/test"
+    customerr "github.com/barbell-math/block/util/err"
+    "github.com/barbell-math/block/util/dataStruct/base"
 )
 
 func sliceElemsIterHelper[T any](vals []T, t *testing.T){
@@ -43,6 +45,25 @@ func TestSliceElems(t *testing.T){
 //
 //}
 
+func testChanIterHelper(chanNum int, t *testing.T){
+    c:=make(chan int);
+    go func(c chan int, numElems int){
+        for i:=0; i<numElems; i++ {
+            c <- i;
+        }
+        close(c);
+    }(c,chanNum);
+    test.BasicTest(chanNum,ChanElems(c).Count(),
+        "ChanElems did not get proper numner of values",t,
+    );
+}
+func TestChanElems(t *testing.T){
+    testChanIterHelper(0,t);
+    testChanIterHelper(1,t);
+    testChanIterHelper(5,t);
+    testChanIterHelper(20,t);
+}
+
 func TestMap(t *testing.T){
     s:=[]int{1,2,3,4};
     mapped:=Map(SliceElems(s),func(val int) (string,error) {
@@ -50,13 +71,124 @@ func TestMap(t *testing.T){
     }).Collect();
     for i,v:=range(s) {
         test.BasicTest(fmt.Sprintf("%d",v),mapped[i],
-            "Mapping did not mutate values as expected.",t,
+            "Mapping did not mutate elements as expected.",t,
         );
     }
 }
 
-func TestForEach(t *testing.T) {
-    
+func forEachIterHelper[T any](vals []T, op func(val T) T, t *testing.T){
+    i:=0;
+    cpy:=append([]T{},vals...);
+    err:=SliceElems(vals).ForEach(func(val T) error {
+        vals[i]=op(val);
+        i++;
+        return nil;
+    });
+    test.BasicTest(nil,err,"ForEach returned an error when it shouldn't have.",t);
+    test.BasicTest(len(cpy),len(vals),"ForEach changed size of slice.",t);
+    for i,v:=range(cpy) {
+        test.BasicTest(op(v),vals[i],"ForEach did not mutate elements properly.",t);
+    }
+}
+func TestForEach(t *testing.T){
+    forEachIterHelper([]int{1,2,3,4},func(val int) int {
+        return val+1;
+    },t);
+    forEachIterHelper([]int{1},func(val int) int {
+        return val+1;
+    },t);
+    forEachIterHelper([]int{},func(val int) int {
+        return val+1;
+    },t);
+}
+
+func forEachParallelIterHelper(vals []int, numThreads int, t *testing.T){
+    rv:=SliceElems(vals).ForEachParallel(func(val int) error {
+        tmp:=val*100;
+        fmt.Println(tmp);
+        return nil;
+    },numThreads);
+    test.BasicTest(0,len(rv),
+        "ForEachParallel returned errors when it shouldn't have.",t,
+    );
+}
+func TestForEachParallel(t *testing.T) {
+    rv:=SliceElems([]int{1,2,3,4}).ForEachParallel(func(val int) error {
+        tmp:=val*100;
+        fmt.Println(tmp);
+        return nil;
+    },0);
+    test.BasicTest(1,len(rv),"ForEachParallel should have returned error.",t);
+    if !customerr.IsValOutsideRange(rv[0]) {
+        test.FormatError(customerr.IsValOutsideRange,rv[0],
+            "ForEachParallel returned incorrect error when one was expected.",t,
+        );
+    }
+    vals:=make([]int,200);
+    for i:=0; i<200; i++ {
+        vals[i]=i;
+    }
+    for _,i:=range([]int{25,50,75,100}) {
+        //forEachParallelIterHelper([]int{},i,t);
+        //forEachParallelIterHelper([]int{1},i,t);
+        forEachParallelIterHelper(vals,i,t);
+    }
+}
+
+func TestFilter(t *testing.T){
+    test.BasicTest(2,SliceElems([]int{1,2,3,4}).
+    Filter(func(val base.Pair[int,error]) bool {
+        return val.First<3;
+    }).Count(),"Filter did not work appropriately.",t);
+    test.BasicTest(4,SliceElems([]int{1,2,3,4}).
+    Filter(func(val base.Pair[int,error]) bool {
+        return val.First<5;
+    }).Count(),"Filter did not work appropriately.",t);
+    test.BasicTest(1,SliceElems([]int{1,2,3,4}).
+    Filter(func(val base.Pair[int,error]) bool {
+        return val.First<2;
+    }).Count(),"Filter did not work appropriately.",t);
+    test.BasicTest(0,SliceElems([]int{1,2,3,4}).
+    Filter(func(val base.Pair[int,error]) bool {
+        return val.First<1;
+    }).Count(),"Filter did not work appropriately.",t);
+}
+
+func TestTake(t *testing.T){
+    test.BasicTest(2,SliceElems([]int{1,2,3,4}).Take(2).Count(),
+        "Take took more items than it should have.",t,
+    );
+    test.BasicTest(4,SliceElems([]int{1,2,3,4}).Take(4).Count(),
+        "Take took more items than it should have.",t,
+    );
+    test.BasicTest(4,SliceElems([]int{1,2,3,4}).Take(5).Count(),
+        "Take took more items than it should have.",t,
+    );
+    test.BasicTest(0,SliceElems([]int{1,2,3,4}).Take(0).Count(),
+        "Take took more items than it should have.",t,
+    );
+    test.BasicTest(1,SliceElems([]int{1,2,3,4}).Take(1).Count(),
+        "Take took more items than it should have.",t,
+    );
+}
+
+func TestTakeWhile(t *testing.T){
+    test.BasicTest(2,SliceElems([]int{1,2,3,4}).
+    TakeWhile(func(val int, err error) bool {
+        return val<3;
+    }).Count(),"TakeWhile did not take correct number of elements.",t);
+    test.BasicTest(0,SliceElems([]int{1,2,3,4}).
+    TakeWhile(func(val int, err error) bool {
+        return val<1;
+    }).Count(),"TakeWhile did not take correct number of elements.",t);
+    test.BasicTest(1,SliceElems([]int{1,2,3,4}).
+    TakeWhile(func(val int, err error) bool {
+        return val<2;
+    }).Count(),"TakeWhile did not take correct number of elements.",t);
+    test.BasicTest(4,SliceElems([]int{1,2,3,4}).
+    TakeWhile(func(val int, err error) bool {
+        return val<5;
+    }).Count(),"TakeWhile did not take correct number of elements.",t);
 }
 
 func collectIterHelper[T any](vals []T, t *testing.T){
@@ -175,7 +307,7 @@ func TestFind(t *testing.T){
     );
 }
 
-func TestIndex(t *testing.T) {
+func TestIndex(t *testing.T){
     test.BasicTest(0,SliceElems([]int{1,2,3,4}).Index(func(val int) bool {
         return val==1;
     }),"Index returned incorrect value.",t);
