@@ -68,11 +68,11 @@ func SqErr[N Number](act []N, given []N) ([]N,error) {
 }
 func MeanSqErr[N Number](act []N, given []N) (N,error) {
     var sum N=N(0);
-    rv,err:=SqErr(act,given);
-    if err!=nil {
+    sqErrs,err:=SqErr(act,given);
+    if err!=nil || len(sqErrs)==0 {
         return sum,err;
     }
-    for _,v:=range(rv) {
+    for _,v:=range(sqErrs) {
         sum+=v;
     }
     return sum/N(len(act)),err;

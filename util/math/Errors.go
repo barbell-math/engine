@@ -4,6 +4,10 @@ import (
     customerr "github.com/barbell-math/block/util/err"
 )
 
+var DivByZero,IsDivByZero=customerr.ErrorFactory(
+    "Attempted division by zero.",
+);
+
 var DimensionsDoNotAgree,IsDimensionsDoNotAgree=customerr.ErrorFactory(
     "Dimensions do not agree.",
 );

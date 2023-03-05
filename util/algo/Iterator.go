@@ -2,11 +2,23 @@ package algo
 
 import (
 	"fmt"
-	"github.com/barbell-math/block/util/dataStruct/base"
 	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/block/util/dataStruct/base"
 )
 
 type Iter[T any] func()(T,error,bool);
+
+func ValElem[T any](val T, err error) Iter[T] {
+    cntr:=0;
+    return func() (T,error,bool) {
+        var rv T;
+        if cntr==0 {
+            cntr++;
+            return val,err,true;
+        }
+        return rv,nil,false;    
+    }
+}
 
 func SliceElems[T any](s []T) Iter[T] {
     i:=-1;
@@ -46,10 +58,12 @@ func (i Iter[T])Map(op func(val T) (T,error)) Iter[T] {
     return Map(i,op);
 }
 
-func (i Iter[T])ForEach(op func(val T) error) error {
+func (i Iter[T])ForEach(op func(index int, val T) error) error {
     var rv error;
+    j:=0;
     for next,err,cont:=i(); cont && err==nil && rv==nil; next,err,cont=i() {
-        rv=op(next);
+        rv=op(j,next);
+        j++;
     }
     return rv;
 }
@@ -65,42 +79,28 @@ func (i Iter[T])ForEachParallel(op func(val T) error, numThreads int) []error {
             "Expected >0 | Got: %d",numThreads,
         ))};
     }
-    j,taken:=0,0;
+    taken,j:=0,0;
     rv:=make([]error,0);
     jobs, errs:=make(chan T), make(chan error);
     for next,err,cont:=i(); cont && err==nil; next,err,cont=i() {
-        fmt.Println("Next: ",next);
-        fmt.Println("err: ",err);
-        fmt.Println("Cont: ",cont);
         if j<numThreads {
+            //If another worker can be created, make one
             go threadRunner(jobs,errs,op);
-        }
-        fmt.Println("Writing to jobs...");
-        //if all the threads are working, wait to add a value
-        if j>=numThreads {
-            if tmp,ok:= <- errs; ok {
-                taken++;
-                if tmp!=nil {
-                    rv=append(rv,tmp);
-                }
-            }
+        } else {
+            //If all the worker threads are used wait for one to finish
+            tmp:= <- errs;
+            taken++;
+            ValElem(tmp,nil).Filter(NoNilFirstError).AppendTo(&rv);
         }
         jobs <- next;
         j++;
     }
     close(jobs);
-    //need to wait for all results!!
-    fmt.Println("len: ",taken);
-    fmt.Println("Waiting on ",j-taken," threads");
-    rv=append(rv,ChanElems(errs).Take(j-taken).
-    Filter(func(val base.Pair[error,error]) bool {
-        return val.First!=nil;
-    }).Collect()...);
+    //Need to wait for all the results!!
+    ChanElems(errs).Take(j-taken).Filter(NoNilFirstError).AppendTo(&rv);
     close(errs);
     return rv;
 }
-
-//reduce
 
 func (i Iter[T])Filter(op Filter[base.Pair[T,error]]) Iter[T] {
     return func() (T,error,bool) {
@@ -113,7 +113,27 @@ func (i Iter[T])Filter(op Filter[base.Pair[T,error]]) Iter[T] {
         return val,err,cont;
     }
 }
-//filterParallel??
+
+func (i Iter[T])FilterParallel(op Filter[base.Pair[T,error]], numThreads int) []T {
+    rv:=make([]T,0);
+    i.ForEachParallel(func(val T) error {
+        if op(base.Pair[T,error]{First: val, Second: nil}) {
+            rv=append(rv,val);
+        }
+        return nil;
+    },numThreads);
+    return rv;
+}
+
+func (i Iter[T])Reduce(op func(accum *T, iter T) error) (T,error) {
+    var accum T;
+    var rvErr error;
+    for next,err,cont:=i(); cont && err==nil && rvErr==nil; next,err,cont=i() {
+        rvErr=op(&accum,next);
+    }
+    return accum,rvErr;
+}
+
 
 func (i Iter[T])Take(num int) Iter[T] {
     cntr:=0;
@@ -157,6 +177,15 @@ func (i Iter[T])CollectInto(buffer []T) int {
     j:=0;
     for val,err,cont:=i(); cont && err==nil && j<len(buffer); val,err,cont=i() {
         buffer[j]=val;
+        j++;
+    }
+    return j;
+}
+
+func (i Iter[T])AppendTo(orig *[]T) int {
+    j:=0;
+    for val,err,cont:=i(); cont && err==nil; val,err,cont=i() {
+        *orig=append(*orig,val);
         j++;
     }
     return j;

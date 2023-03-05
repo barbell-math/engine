@@ -1,5 +1,4 @@
 package math;
-
 import (
     "testing"
     "github.com/barbell-math/block/util/test"
@@ -79,7 +78,7 @@ func TestFill(t *testing.T){
     });
 }
 
-func TestAdd(t *testing.T){
+func TestMatrixAdd(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c-1;
     });
@@ -103,7 +102,7 @@ func TestAdd(t *testing.T){
     });
 }
 
-func TestAddScalar(t *testing.T){
+func TestMatrixAddScalar(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c-1;
     });
@@ -113,7 +112,7 @@ func TestAddScalar(t *testing.T){
     });
 }
 
-func TestSub(t *testing.T){
+func TestMatrixSub(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c+1;
     });
@@ -137,7 +136,7 @@ func TestSub(t *testing.T){
     });
 }
 
-func TestSubScalar(t *testing.T){
+func TestMatrixSubScalar(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c+1;
     });
@@ -147,7 +146,7 @@ func TestSubScalar(t *testing.T){
     });
 }
 
-func TestEquals(t *testing.T){
+func TestMatrixEquals(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c-1;
     });
@@ -177,7 +176,7 @@ func TestEquals(t *testing.T){
     test.BasicTest(nil,err,"Equal returned error it wasn't supposed to.",t);
 }
 
-func TestMul(t *testing.T){
+func TestMatrixMul(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c+1;
     });
@@ -203,7 +202,7 @@ func TestMul(t *testing.T){
     });
 }
 
-func TestMulScalar(t *testing.T){
+func TestMatrixMulScalar(t *testing.T){
     m1:=NewMatrix[int](3,4,func(r int, c int) int {
         return c+1;
     });
@@ -225,7 +224,7 @@ func TestTranspose(t *testing.T){
     });
 }
 
-func TestInverse(t *testing.T){
+func TestMatrixInverse(t *testing.T){
     m1:=NewMatrix[float32](2,4,func(r int, c int) float32{
         return float32(c+4*r);
     });
@@ -279,7 +278,7 @@ func TestInverse(t *testing.T){
     test.BasicTest(true,res,"Inverse was not calculated correctly.",t);
 }
 
-func TestRcond(t *testing.T){
+func TestMatrixRcond(t *testing.T){
     m1:=NewMatrix[float32](4,4,IdentityFill[float32]);
     rcond,err:=m1.Inverse();
     test.BasicTest(float64(1),rcond,"Rcond was not calculated correctly.",t);
