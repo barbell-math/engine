@@ -1,9 +1,5 @@
 package algo;
 
-import (
-	"github.com/barbell-math/block/util/dataStruct/base"
-)
-
 type Filter[V any] func(thing V) bool;
 
 func NoFilter[V any](thing V) bool { return true; }
@@ -25,9 +21,3 @@ func GenFilter[V comparable](inverse bool, things ...V) Filter[V] {
 
 func NoNil[P any, V *P](thing V) bool { return thing!=nil; }
 func NoNilError(thing error) bool { return thing!=nil; }
-func NoNilFirst[P any, V *P](thing base.Pair[V,error]) bool {
-    return thing.First!=nil;
-}
-func NoNilFirstError(thing base.Pair[error,error]) bool {
-    return thing.First!=nil;
-}

@@ -4,8 +4,6 @@ import (
     "fmt"
     "testing"
     "github.com/barbell-math/block/util/test"
-    customerr "github.com/barbell-math/block/util/err"
-    "github.com/barbell-math/block/util/dataStruct/base"
 )
 
 func valElemIterHelper[T any](val T, err error, t *testing.T){
@@ -133,66 +131,22 @@ func TestForEach(t *testing.T){
     },t);
 }
 
-func forEachParallelIterHelper(vals []int, numThreads int, t *testing.T){
-    rv:=SliceElems(vals).ForEachParallel(func(val int) error {
-        return nil;
-    },numThreads);
-    test.BasicTest(0,len(rv),
-        "ForEachParallel returned errors when it shouldn't have.",t,
-    );
-}
-func TestForEachParallel(t *testing.T) {
-    rv:=SliceElems([]int{1,2,3,4}).ForEachParallel(func(val int) error {
-        return nil;
-    },0);
-    test.BasicTest(1,len(rv),"ForEachParallel should have returned error.",t);
-    if !customerr.IsValOutsideRange(rv[0]) {
-        test.FormatError(customerr.IsValOutsideRange,rv[0],
-            "ForEachParallel returned incorrect error when one was expected.",t,
-        );
-    }
-    vals:=make([]int,200);
-    for i:=0; i<200; i++ {
-        vals[i]=i;
-    }
-    for _,i:=range([]int{1,25,50,75,100}) {
-        forEachParallelIterHelper([]int{},i,t);
-        forEachParallelIterHelper([]int{1},i,t);
-        forEachParallelIterHelper(vals,i,t);
-    }
-}
-
-func TestForEachParallelWithErrors(t *testing.T){
-    err:=fmt.Errorf("NEW ERROR!");
-    rv:=SliceElems([]int{1,2,3,4}).ForEachParallel(func(val int) error {
-        return err;
-    },1);
-    test.BasicTest(4,len(rv),
-        "ForEachParallel returned incorrect number of errors.",t,
-    );
-    for _,v:=range(rv) {
-        test.BasicTest(err,v,
-            "ForEachParallel returned incorrect errors.",t,
-        );
-    }
-}
-
-func TestFilter(t *testing.T){
+func TestFilterVal(t *testing.T){
     test.BasicTest(2,SliceElems([]int{1,2,3,4}).
-    Filter(func(val base.Pair[int,error]) bool {
-        return val.First<3;
+    Filter(func(val int) bool {
+        return val<3;
     }).Count(),"Filter did not work appropriately.",t);
     test.BasicTest(4,SliceElems([]int{1,2,3,4}).
-    Filter(func(val base.Pair[int,error]) bool {
-        return val.First<5;
+    Filter(func(val int) bool {
+        return val<5;
     }).Count(),"Filter did not work appropriately.",t);
     test.BasicTest(1,SliceElems([]int{1,2,3,4}).
-    Filter(func(val base.Pair[int,error]) bool {
-        return val.First<2;
+    Filter(func(val int) bool {
+        return val<2;
     }).Count(),"Filter did not work appropriately.",t);
     test.BasicTest(0,SliceElems([]int{1,2,3,4}).
-    Filter(func(val base.Pair[int,error]) bool {
-        return val.First<1;
+    Filter(func(val int) bool {
+        return val<1;
     }).Count(),"Filter did not work appropriately.",t);
 }
 
@@ -202,13 +156,13 @@ func TestReduce(t *testing.T){
     tmp,err:=SliceElems([]int{1,2,3,4}).Reduce(func(accum *int, iter int) error {
         *accum=*accum+iter;
         return nil;
-    });
+    },0);
     test.BasicTest(10,tmp,"Reduce did not return appropriate value.",t);
     test.BasicTest(nil,err,"Reduce did not return appropriate error.",t);
     tmp,err=SliceElems([]int{1,2,3,4}).Reduce(func(accum *int, iter int) error {
         i++;
         return newErr;
-    });
+    },0);
     test.BasicTest(1,i,"Reduce did not short circuit properly.",t);
     test.BasicTest(newErr,err,"Reduce did not return appropriate error.",t);
 }

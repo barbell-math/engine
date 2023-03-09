@@ -1,11 +1,5 @@
 package algo
 
-import (
-	"fmt"
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/dataStruct/base"
-)
-
 type Iter[T any] func()(T,error,bool);
 
 func ValElem[T any](val T, err error) Iter[T] {
@@ -68,65 +62,18 @@ func (i Iter[T])ForEach(op func(index int, val T) error) error {
     return rv;
 }
 
-func threadRunner[T any](jobs chan T, errs chan error, op func(val T) error){
-    for val:=range(jobs) {
-        errs <- op(val);
-    }
-}
-func (i Iter[T])ForEachParallel(op func(val T) error, numThreads int) []error {
-    if numThreads<1 {
-        return []error{customerr.ValOutsideRange(fmt.Sprintf(
-            "Expected >0 | Got: %d",numThreads,
-        ))};
-    }
-    taken,j:=0,0;
-    rv:=make([]error,0);
-    jobs, errs:=make(chan T), make(chan error);
-    for next,err,cont:=i(); cont && err==nil; next,err,cont=i() {
-        if j<numThreads {
-            //If another worker can be created, make one
-            go threadRunner(jobs,errs,op);
-        } else {
-            //If all the worker threads are used wait for one to finish
-            tmp:= <- errs;
-            taken++;
-            ValElem(tmp,nil).Filter(NoNilFirstError).AppendTo(&rv);
-        }
-        jobs <- next;
-        j++;
-    }
-    close(jobs);
-    //Need to wait for all the results!!
-    ChanElems(errs).Take(j-taken).Filter(NoNilFirstError).AppendTo(&rv);
-    close(errs);
-    return rv;
-}
-
-func (i Iter[T])Filter(op Filter[base.Pair[T,error]]) Iter[T] {
+func (i Iter[T])Filter(op Filter[T]) Iter[T] {
     return func() (T,error,bool) {
         var val T;
         var err error;
         var cont bool;
-        for val,err,cont=i(); err==nil && cont && !op(base.Pair[T,error]{
-            First: val, Second: err,
-        }); val,err,cont=i() {}
+        for val,err,cont=i(); err==nil && cont && !op(val); val,err,cont=i() {}
         return val,err,cont;
     }
 }
 
-func (i Iter[T])FilterParallel(op Filter[base.Pair[T,error]], numThreads int) []T {
-    rv:=make([]T,0);
-    i.ForEachParallel(func(val T) error {
-        if op(base.Pair[T,error]{First: val, Second: nil}) {
-            rv=append(rv,val);
-        }
-        return nil;
-    },numThreads);
-    return rv;
-}
-
-func (i Iter[T])Reduce(op func(accum *T, iter T) error) (T,error) {
-    var accum T;
+func (i Iter[T])Reduce(op func(accum *T, iter T) error, start T) (T,error) {
+    accum:=start;
     var rvErr error;
     for next,err,cont:=i(); cont && err==nil && rvErr==nil; next,err,cont=i() {
         rvErr=op(&accum,next);
@@ -249,3 +196,5 @@ func (i Iter[T])Nth(idx int) (T,bool) {
     }
     return tmp,false;
 }
+
+//ToChan
