@@ -388,3 +388,27 @@ func TestNth(t *testing.T) {
     nthIterHelper([]int{1},1,0,false,t);
     nthIterHelper([]int{},0,0,false,t);
 }
+
+func toChanIterHelper[T any](vals []T, t *testing.T) {
+    cntr:=0;
+    c:=make(chan T);
+    go func(){
+        for val:=range(c) {
+            test.BasicTest(cntr,val,"ToChan returned incorrect values.",t);
+            cntr++;
+        }
+    }()
+    SliceElems(vals).ToChan(c);
+    close(c);
+}
+func TestToChan(t *testing.T) {
+    vals:=make([]int,200);
+    for i:=0; i<200; i++ {
+        vals[i]=i;
+    }
+    for _,i:=range([]int{1,25,50,75,100}) {
+        filterParallelHelper([]int{},i,t);
+        filterParallelHelper([]int{0},i,t);
+        filterParallelHelper(vals,i,t);
+    }
+}

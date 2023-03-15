@@ -1,7 +1,7 @@
 package math;
 
 import (
-    "fmt"
+    customerr "github.com/barbell-math/block/util/err"
 )
 
 const WORKING_PRECISION float64=1e-16;
@@ -52,13 +52,10 @@ func Abs[N Number](v N) N {
 }
 
 func SqErr[N Number](act []N, given []N) ([]N,error) {
-    if err:=arrayDimsArgree(
+    if err:=customerr.ArrayDimsArgree(
         act,given,"MSE requires lists of equal length.",
-    ); err!=nil {
+    ); err!=nil || len(act)==0 {
         return []N{},err;
-    }
-    if len(act)==0 {
-        return []N{},nil;
     }
     rv:=make([]N,len(act));
     for i,actIter:=range(act) {
@@ -76,16 +73,6 @@ func MeanSqErr[N Number](act []N, given []N) (N,error) {
         sum+=v;
     }
     return sum/N(len(act)),err;
-}
-
-func arrayDimsArgree[N any](act []N, given []N, message string) error {
-    if la,lg:=len(act),len(given); la!=lg {
-        return DimensionsDoNotAgree(fmt.Sprintf(
-            "%s | len(Given)=%d len(act)=%d",
-            message,la,lg,
-        ));
-    }
-    return nil;
 }
 
 func Constrain[N Number](given N, min N, max N) N {

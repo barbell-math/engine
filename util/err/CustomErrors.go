@@ -48,6 +48,16 @@ func ErrorOnBool(in bool, e error) error {
     return e;
 }
 
+func ArrayDimsArgree[N any, P any](one []N, given []P, message string) error {
+    if lOne,lTwo:=len(one),len(given); lOne!=lTwo {
+        return DimensionsDoNotAgree(fmt.Sprintf(
+            "%s | len(one)=%d len(two)=%d",
+            message,lOne,lTwo,
+        ));
+    }
+    return nil;
+}
+
 //func safeMapAcc[K comparable, V any](m map[K]V, _var K, err error) (V,error) {
 //    var i interface{};
 //    if v,ok:=m[_var]; ok {

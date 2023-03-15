@@ -197,4 +197,8 @@ func (i Iter[T])Nth(idx int) (T,bool) {
     return tmp,false;
 }
 
-//ToChan
+func (i Iter[T])ToChan(c chan T) {
+    for val,err,cont:=i(); cont && err==nil; val,err,cont=i() {
+        c <- val;
+    }
+}

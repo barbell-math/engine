@@ -65,16 +65,16 @@ func (i Iter[T])ForEachParallel(
     return ForEachParallel(i,workerOp,resOp,numThreads);
 }
 
-func (i Iter[T])FilterParallel(op Filter[T], numThreads int) []T {
+func (i Iter[T])FilterParallel(op Filter[T], numThreads int) ([]T,error) {
     rv:=make([]T,0);
-    ForEachParallel(i,func(val T) (bool,error) {
+    err:=ForEachParallel(i,func(val T) (bool,error) {
         return op(val),nil;
     },func(val T, res bool, err error){
         if res {
             rv=append(rv,val);
         }
     },numThreads);
-    return rv;
+    return rv,err;
 }
 
 func numThreadsCheck(numThreads int) error {

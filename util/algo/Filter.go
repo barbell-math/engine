@@ -20,4 +20,4 @@ func GenFilter[V comparable](inverse bool, things ...V) Filter[V] {
 }
 
 func NoNil[P any, V *P](thing V) bool { return thing!=nil; }
-func NoNilError(thing error) bool { return thing!=nil; }
+func NoNilError(err error) bool { return err!=nil; }

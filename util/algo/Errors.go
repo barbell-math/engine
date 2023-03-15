@@ -1,4 +1,4 @@
-package dataStruct;
+package algo;
 
 import (
     customerr "github.com/barbell-math/block/util/err"
