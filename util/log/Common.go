@@ -1,8 +1,9 @@
-package log;
+package log
 
 import (
-    "os"
-    "log"
+	"os"
+	"log"
+	"encoding/json"
 )
 
 type LogStatus int;
@@ -29,7 +30,7 @@ type Logger struct {
     file string;
     logFile *os.File;
     logger *log.Logger;
-    Log func(message string, args ...any);
+    Log func(message string, val any);
 };
 
 func NewLog(status LogStatus, file string) Logger {
@@ -42,15 +43,17 @@ func NewLog(status LogStatus, file string) Logger {
     ); err==nil {
         rv.logger=log.New(rv.logFile,status.String(),log.LstdFlags);
     }
-    rv.Log=func(message string, args ...any){
-        rv.logger.Printf(message,args...);
+    rv.Log=func(message string, val any){
+        if b,err:=json.Marshal(val); err==nil {
+            rv.logger.Printf("%s: %s",message,b);
+        }
     }
     return rv;
 }
 
 func NewBlankLog() Logger {
     return Logger{
-        Log: func(message string, args ...any){},
+        Log: func(message string, val any){},
     };
 }
 

@@ -5,7 +5,7 @@ import (
     "testing"
     //"github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/test"
-    "github.com/barbell-math/block/util/dataStruct"
+    "github.com/barbell-math/block/util/dataStruct/base"
 )
 
 func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *testing.T)){
@@ -19,25 +19,25 @@ func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *tes
 }
 func TestNewSlidingWindowStateGenInvalidTimeFrameLimits(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{1,0},dataStruct.Pair[int,int]{0, 1},1,
+        base.Pair[int,int]{1,0},base.Pair[int,int]{0, 1},1,
     ))(t);
 }
 func TestNewSlidingWindowStateGenInvalidWindowLimits(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{1, 0},1,
+        base.Pair[int,int]{0, 1},base.Pair[int,int]{1, 0},1,
     ))(t);
 }
 func TestNewSlidingWindowStateGenInvalidWindowSize(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 2},1,
+        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 2},1,
     ))(t);
     invalidCheck(NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{1, 2},dataStruct.Pair[int,int]{0, 2},1,
+        base.Pair[int,int]{1, 2},base.Pair[int,int]{0, 2},1,
     ))(t);
 }
 func TestNewSlidingWindowValid(t *testing.T){
     _,err:=NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 1},1,
+        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 1},1,
     );
     test.BasicTest(nil,err,
         "Creating a sliding window resulted in an error when it shouldn't have.",t,
@@ -46,7 +46,7 @@ func TestNewSlidingWindowValid(t *testing.T){
 
 func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
     sw,err:=NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 1},0,
+        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 1},0,
     );
     test.BasicTest(nil,err,
         "Creating a sliding window resulted in an error when it shouldn't have.",t,
@@ -70,7 +70,7 @@ func TestGenerateModelState(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(
-        dataStruct.Pair[int,int]{0, 500},dataStruct.Pair[int,int]{0, 10},0,
+        base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 10},0,
     );
     sw.GenerateModelState(&testDB,missingModelStateData{
         ClientID: 1,

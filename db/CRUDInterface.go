@@ -6,7 +6,6 @@ import (
     "database/sql"
     "github.com/barbell-math/block/util/csv"
     "github.com/barbell-math/block/util/algo"
-    "github.com/barbell-math/block/util/dataStruct"
     customReflect "github.com/barbell-math/block/util/reflect"
 )
 
@@ -31,7 +30,7 @@ func Create[R DBTable](c *DB, rows ...R) ([]int,error) {
     var err error=nil;
     rv:=make([]int,len(rows));
     for i:=0; err==nil && i<len(rows); i++ {
-        rv[i],err=getQueryRowReflectResults(c,dataStruct.AppendWithPreallocation(
+        rv[i],err=getQueryRowReflectResults(c,algo.AppendWithPreallocation(
                 []reflect.Value{reflect.ValueOf(sqlStmt)},
                 getTableVals(&rows[i],AllButIDFilter),
         ));
@@ -55,7 +54,7 @@ func Read[R DBTable](
         "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr,
     );
     return getQueryReflectResults(c,
-        dataStruct.AppendWithPreallocation(
+        algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
             getTableVals(&rowVals,filter),
         ), callback,
@@ -94,7 +93,7 @@ func Update[R DBTable](
         "UPDATE %s SET %s WHERE %s;",getTableName(&searchVals),setStr,whereStr,
     );
     return getExecReflectResults(c,
-        dataStruct.AppendWithPreallocation(
+        algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
             getTableVals(&updateVals,updateValsFilter),
             getTableVals(&searchVals,searchValsFilter),
@@ -116,7 +115,7 @@ func UpdateAll[R DBTable](
     });
     sqlStmt:=fmt.Sprintf("UPDATE %s SET %s;",getTableName(&updateVals),setStr);
     return getExecReflectResults(c,
-        dataStruct.AppendWithPreallocation(
+        algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
             getTableVals(&updateVals,updateValsFilter),
         ),
@@ -138,7 +137,7 @@ func Delete[R DBTable](
         "DELETE FROM %s WHERE %s;",getTableName(&searchVals),whereStr,
     );
     return getExecReflectResults(c,
-        dataStruct.AppendWithPreallocation(
+        algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
             getTableVals(&searchVals,searchValsFilter),
         ),

@@ -5,8 +5,9 @@ import (
     "time"
     stdMath "math"
     "github.com/barbell-math/block/db"
-    "github.com/barbell-math/block/util/dataStruct"
+    "github.com/barbell-math/block/util/algo"
     mathUtil "github.com/barbell-math/block/util/math"
+    "github.com/barbell-math/block/util/dataStruct/base"
 )
 
 //type SavedIntensityValue struct {
@@ -16,9 +17,9 @@ import (
 
 type SlidingWindowStateGen struct {
     allotedThreads int;
-    windowLimits dataStruct.Pair[int,int];
-    timeFrameLimits dataStruct.Pair[int,int];
-    windowValues []dataPoint;
+    windowLimits base.Pair[int,int];
+    timeFrameLimits base.Pair[int,int];
+    windowValues [][]dataPoint;
     optimalMs db.ModelState;
     lr mathUtil.LinearReg[float64];
     withinWindowLimits (func(t time.Time) bool);
@@ -29,15 +30,15 @@ type SlidingWindowStateGen struct {
 //threads don't access the same slices because they are not deep copied even
 //though the method does not have a pointer receiver.)
 func NewSlidingWindowStateGen(
-        timeFrameLimits dataStruct.Pair[int,int],
-        windowLimits dataStruct.Pair[int,int],
+        timeFrameLimits base.Pair[int,int],
+        windowLimits base.Pair[int,int],
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
         allotedThreads: mathUtil.Constrain(allotedThreads,1,stdMath.MaxInt),
-        timeFrameLimits: dataStruct.Pair[int,int]{
+        timeFrameLimits: base.Pair[int,int]{
             First: -mathUtil.Abs(timeFrameLimits.First),
             Second: -mathUtil.Abs(timeFrameLimits.Second),
-        }, windowLimits: dataStruct.Pair[int,int]{
+        }, windowLimits: base.Pair[int,int]{
             First: -mathUtil.Abs(windowLimits.First),
             Second: -mathUtil.Abs(windowLimits.Second),
         }, optimalMs: db.ModelState{
@@ -94,7 +95,9 @@ func (s SlidingWindowStateGen)GenerateModelState(
             s.updateWindowValues(d);
         }
         s.updateLrSummations(d);    //Time frame limits guaranteed by query
-        //return curDate>max win && len(s.windowValues)==0;
+        //return !(curDate.Before(
+        //    missingData.Date.AddDate(0, 0, s.windowLimits.Second),
+        //) && len(s.windowValues)==0);
     });
     if len(s.windowValues)==0 {
         //return error - no data in selected window
@@ -102,20 +105,39 @@ func (s SlidingWindowStateGen)GenerateModelState(
     fmt.Println(err);
 }
 
-//TODO - group iterations by days not just entrys
+//Algo steps:
+//  1. For each day in the window values array
+//      1. Generate a prediction for every value in that day
+//      2. Calculate the square error (SE) for every value in that day. If the
+//         pred and actual lists are different lengths then it means there was
+//         an error generating intensity predictions and the model state should
+//         be dis-regarded
+//      3. Assuming the previous step succeeded, calculate the total SE
+//      4. Calculate the mean SE (MSE)
+//      5. If the MSE is less than the current lowest MSE then save a new
+//         model state
 func (s *SlidingWindowStateGen)calcAndSetModelState(
         d *dataPoint,
         missingData *missingModelStateData) error {
+    var numPoints float64=0;
     var cumulativeSe float64=0.0;
     res,rcond,_:=s.lr.Run();
-    for i,w:=range(s.windowValues) {
-        if pred,err:=intensityPredFromLinReg(res,&w); err==nil {
-            cumulativeSe+=mathUtil.SqErr(w.Intensity,pred);
-            if cumulativeSe/float64(i+1)<s.optimalMs.Mse {
-                s.saveModelState(
-                    res,rcond,cumulativeSe/float64(i+1),
-                    daysBetween(s.windowValues[0].DatePerformed,w.DatePerformed),
-                    daysBetween(missingData.Date,d.DatePerformed),
+    for _,w:=range(s.windowValues) {
+        if se,err:=mathUtil.SqErr(algo.Map(algo.SliceElems(w),
+            func(w dataPoint) (float64,error) {
+                return w.Intensity,nil;
+        }).Collect(), algo.Map(algo.SliceElems(w),
+            func(w dataPoint) (float64,error) {
+                return intensityPredFromLinReg(res,&w);
+        }).Collect()); err==nil {
+            seTot,_:=algo.SliceElems(se).Reduce(mathUtil.Add[float64],0);
+            cumulativeSe+=seTot;
+            numPoints+=float64(len(w));
+            if cumulativeSe/numPoints<s.optimalMs.Mse {
+                s.saveModelState(res,rcond,cumulativeSe/numPoints,
+                    daysBetween(s.windowValues[0][0].DatePerformed,
+                        w[0].DatePerformed,
+                    ), daysBetween(missingData.Date,d.DatePerformed),
                 );
             }
         } else {
@@ -143,12 +165,17 @@ func (s *SlidingWindowStateGen)saveModelState(
     s.optimalMs.Win=winLen;
     s.optimalMs.Rcond=rcond;
     s.optimalMs.Mse=mse;
-    DEBUG.Log("Changed optimal model state: %+v\n",s.optimalMs);
+    DEBUG.Log("ModelState",s.optimalMs);
 }
 
 func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
-    s.windowValues=append(s.windowValues,*d);
-    DEBUG.Log("Added to window: %+v\n",d);
+    l:=len(s.windowValues);
+    if l==0 || !s.windowValues[l-1][0].DatePerformed.Equal(d.DatePerformed) {
+        s.windowValues=append(s.windowValues,[]dataPoint{*d});
+    } else {
+        s.windowValues[l-1]=append(s.windowValues[l-1],*d);
+    }
+    DEBUG.Log("WindowDataPoint",d);
 }
 
 func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
@@ -156,7 +183,7 @@ func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
         "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
         "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
     });
-    DEBUG.Log("Added dp: %+v\n",d);
+    DEBUG.Log("DataPoint",d);
 }
 
 func (s *SlidingWindowStateGen)setWithinWindowLimits(
