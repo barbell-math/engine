@@ -64,27 +64,27 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     stateGenType,err:=db.GetStateGeneratorByName(d,"Sliding Window");
     err=db.CustomReadQuery(d,missingModelStatesForGivenStateGenQuery(),[]any{
         c.Id,stateGenType.Id,
-    }, func (m *missingModelStateData){
+    }, func (m *missingModelStateData) bool {
         fmt.Printf("Need ms for %+v\n",m);
         DEBUG.Log("Need ms: %+v\n",m);
+        return true;
     });
     fmt.Println(err);
 }
 
-//TODO - abort query early if no data in window
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData missingModelStateData,
-        ch chan<- StateGeneratorRes){
+        ch chan<- StateGeneratorRes) error {
     var curDate time.Time;
     s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
     err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
-        missingData.Date,
+        missingData.Date.AddDate(0, 0, s.timeFrameLimits.First),
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.Second),
         missingData.ExerciseID,
         missingData.ClientID,
-    }, func (d *dataPoint){
+    }, func (d *dataPoint) bool {
         if !curDate.Equal(d.DatePerformed) {
             if len(s.windowValues)>0 {
                 s.calcAndSetModelState(d,&missingData);
@@ -95,14 +95,20 @@ func (s SlidingWindowStateGen)GenerateModelState(
             s.updateWindowValues(d);
         }
         s.updateLrSummations(d);    //Time frame limits guaranteed by query
-        //return !(curDate.Before(
-        //    missingData.Date.AddDate(0, 0, s.windowLimits.Second),
-        //) && len(s.windowValues)==0);
+        return !(curDate.Before(
+            missingData.Date.AddDate(0, 0, s.windowLimits.Second),
+        ) && len(s.windowValues)==0);
     });
-    if len(s.windowValues)==0 {
-        //return error - no data in selected window
+    if err==nil && len(s.windowValues)==0 {
+        return NoDataInSelectedWindow(fmt.Sprintf(
+            "Date: %s Min window: %d Max window: %d",
+            missingData.Date,
+            s.windowLimits.First,
+            s.windowLimits.Second,
+        ));
     }
     fmt.Println(err);
+    return err;
 }
 
 //Algo steps:

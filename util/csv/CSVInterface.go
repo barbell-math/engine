@@ -43,7 +43,7 @@ func CSVToStruct[R any](
                     callback(&iter);
                 } else {
                     err=MalformedCSVFile(
-                        fmt.Sprintf("File: %s: Line %d: %s",src,cntr,err),
+                        fmt.Sprintf("File '%s': Line %d: %s",src,cntr,err),
                     );
                 }
             } else {

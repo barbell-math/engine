@@ -13,7 +13,7 @@ func CustomReadQuery[S any](
         c *DB,
         sqlStmt string,
         vals []any,
-        callback func(r *S)) error {
+        callback func(r *S) bool) error {
     if SelectStmt.isQueryType(sqlStmt) {
         rows,err:=c.db.Query(sqlStmt,vals...);
         if err==nil {

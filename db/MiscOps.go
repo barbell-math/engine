@@ -37,8 +37,9 @@ func getRowFromUniqueValGenerator[
     return func(c *DB, data V) (R,error){
         var rv *R=nil;
         searchR,col:=valGen(data);
-        if err:=Read(c,searchR,algo.GenFilter(false,col),func(r *R){
+        if err:=Read(c,searchR,algo.GenFilter(false,col),func(r *R) bool {
             rv=r;
+            return true;
         }); rv!=nil {
             return *rv,err;
         } else if rv==nil && err==nil {

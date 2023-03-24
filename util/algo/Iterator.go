@@ -147,6 +147,18 @@ func (i Iter[T])All(op func(val T) bool) bool {
     return true;
 }
 
+//func (i Iter[T])Window(size int, op func(vals []T) bool) bool {
+//    rv:=true;
+//    prevVal,err,cont:=i();
+//    if !cont || err!=nil {
+//        return false;
+//    }
+//    for val,err,cont:=i(); cont && err==nil && rv; val,err,cont=i() {
+//        rv=comp(prevVal,val);
+//    }
+//    return rv;
+//}
+
 func (i Iter[T])Any(op func(val T) bool) bool {
     for val,err,cont:=i(); cont && err==nil; val,err,cont=i() {
         if op(val) {

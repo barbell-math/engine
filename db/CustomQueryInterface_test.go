@@ -11,8 +11,9 @@ func TestCustomReadQueryWrongQueryType(t *testing.T){
     setup();
     cntr:=0;
     err:=CustomReadQuery(&testDB,"UPDATE Exercise SET Name WHERE Id=$1;",[]any{0},
-    func(e *Exercise){
+    func(e *Exercise) bool {
         cntr++;
+        return true;
     });
     test.BasicTest(0, cntr,
         "Custom read query read values it was not supposed to.",t,
@@ -30,11 +31,12 @@ func TestCustomReadQuery(t *testing.T){
     testOrder:=[]string{"Deadlift","Bench","Squat"};
     createExerciseTestData();
     err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise ORDER BY Id DESC;",
-        []any{},func(e *Exercise){
+        []any{},func(e *Exercise) bool {
             test.BasicTest(testOrder[cntr],e.Name,
                 "Custom query was not run correctly.",t,
             );
             cntr++;
+            return true;
     });
     test.BasicTest(nil,err,
         "An error was raised when it shouldn't have been.",t,
@@ -48,8 +50,9 @@ func TestCustomReadQueryEmpty(t *testing.T){
     setup();
     cntr:=0;
     err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise ORDER BY Id DESC;",
-        []any{},func(e *Exercise){
+        []any{},func(e *Exercise) bool {
             cntr++;
+            return true;
     });
     test.BasicTest(sql.ErrNoRows,err,
         "Custom read query returned incorrect error.",t,
@@ -65,9 +68,10 @@ func TestCustomReadQueryTypes(t *testing.T){
     currentId:=1;
     createExerciseTestData();
     err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise WHERE Id=$1;",
-        []any{"1"},func(e *Exercise){
+        []any{"1"},func(e *Exercise) bool {
             test.BasicTest(currentId,e.Id,"Select on Id was not found properly.",t);
             cntr++;
+            return true;
     });
     test.BasicTest(nil,err,
         "An error was raised when it shouldn't have been.",t,
@@ -82,8 +86,9 @@ func TestCustomReadQueryNonStructVal(t *testing.T){
     createExerciseTestData();
     cntr:=0;
     err:=CustomReadQuery(&testDB,"SELECT Id FROM Exercise ORDER BY Id;",
-        []any{},func(v *int){
+        []any{},func(v *int) bool {
             cntr++;
+            return true;
     });
     test.BasicTest(0, cntr,
         "Custom read query read values it was not supposed to.",t,

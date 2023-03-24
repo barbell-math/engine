@@ -139,8 +139,10 @@ func TestRead(t *testing.T){
     cntr:=0;
     err:=Read(&testDB,vals[0],func(col string) bool {
             return col=="NonExistantCol";
-        }, func(exercise *ExerciseType){ cntr++; },
-    );
+        }, func(exercise *ExerciseType) bool {
+            cntr++; 
+            return true; 
+    });
     if !IsFilterRemovedAllColumns(err) {
         test.FormatError(
             FilterRemovedAllColumns(""),err,
@@ -149,7 +151,7 @@ func TestRead(t *testing.T){
     }
     test.BasicTest(0, cntr,"Read selected values it was not supposed to.",t);
     cntr=0;
-    err=Read(&testDB,vals[0],readFilter,func(e *ExerciseType){
+    err=Read(&testDB,vals[0],readFilter,func(e *ExerciseType) bool {
         cntr++;
         test.BasicTest(
             "TestType",e.T,"Exercise type selected was not correct.",t,
@@ -157,15 +159,17 @@ func TestRead(t *testing.T){
         test.BasicTest(
             "TestTypeDescription",e.Description,"Exercise type selected was not correct.",t,
         );
+        return true;
     });
     test.BasicTest(nil,err,"Read returned an error it was not supposed to.",t);
     test.BasicTest(1,cntr,"Read selected values it was not supposed to.",t);
     cntr=0;
-    err=Read(&testDB,vals[1],readFilter,func(e *ExerciseType){
+    err=Read(&testDB,vals[1],readFilter,func(e *ExerciseType) bool {
         cntr++;
         test.BasicTest(
             "TestTypeDescription1",e.Description,"Exercise type selected was not correct.",t,
         );
+        return true;
     });
     test.BasicTest(nil,err,"Read returned an error it was not supposed to.",t);
     test.BasicTest(2,cntr,"Read selected values it was not supposed to.",t);
@@ -277,7 +281,10 @@ func TestDelete(t *testing.T){
 func TestReadAll(t *testing.T){
     setup();
     var cntr int=0;
-    err:=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
+    err:=ReadAll(&testDB,func(e *ExerciseType) bool {
+        cntr++;
+        return true;
+    });
     test.BasicTest(sql.ErrNoRows,err,"ReadAll operation was unsuccessful.",t);
     test.BasicTest(0 ,cntr,"ReadAll did not select all rows.",t);
     for i:=0; i<10; i++ {
@@ -286,7 +293,10 @@ func TestReadAll(t *testing.T){
         );
     }
     cntr=0;
-    err=ReadAll(&testDB,func(e *ExerciseType){ cntr++ });
+    err=ReadAll(&testDB,func(e *ExerciseType) bool {
+        cntr++;
+        return true;
+    });
     test.BasicTest(nil,err,"ReadAll operation was unsuccessful.",t);
     test.BasicTest(10,cntr,"ReadAll did not select all rows.",t);
 }
@@ -316,10 +326,11 @@ func TestUpdateAll(t *testing.T){
     );
     test.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
     test.BasicTest(int64(11),res,"UpdateAll did not update all rows.",t);
-    ReadAll(&testDB,func(e *ExerciseType){
+    ReadAll(&testDB,func(e *ExerciseType) bool {
         test.BasicTest("newDesc",e.Description,
             "Description value was not updated properly",t,
         );
+        return true;
     });
 }
 

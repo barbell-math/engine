@@ -58,6 +58,15 @@ func ArrayDimsArgree[N any, P any](one []N, given []P, message string) error {
     return nil;
 }
 
+func AppendError(first error, second error) error {
+    if second!=nil && first==nil {
+        first=second;
+    } else if second!=nil {
+        first=fmt.Errorf("%s | %s",first,second);
+    }
+    return first;
+}
+
 //func safeMapAcc[K comparable, V any](m map[K]V, _var K, err error) (V,error) {
 //    var i interface{};
 //    if v,ok:=m[_var]; ok {

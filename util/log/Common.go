@@ -2,27 +2,46 @@ package log
 
 import (
 	"os"
+	"fmt"
 	"log"
+    "time"
+	"bufio"
+    "strings"
 	"encoding/json"
+	"github.com/barbell-math/block/util/algo"
+	customerr "github.com/barbell-math/block/util/err"
 )
+
+const LogPartSeparator string="|";
 
 type LogStatus int;
 const (
-    Error LogStatus =iota
+    Error LogStatus=iota
     Warning
     Deprecation
     Info
     Debug
+    Invalid
 );
 
 func (l LogStatus)String() string {
     switch l {
-        case Error: return "Error";
-        case Warning: return "Warning";
-        case Deprecation: return "Deprecation";
-        case Info: return "Info";
-        case Debug: return "Debug";
-        default: return "";
+        case Error: return fmt.Sprintf("Error %s ",LogPartSeparator);
+        case Warning: return fmt.Sprintf("Warning %s ",LogPartSeparator);
+        case Deprecation: return fmt.Sprintf("Deprecation %s ",LogPartSeparator);
+        case Info: return fmt.Sprintf("Info %s ",LogPartSeparator);
+        case Debug: return fmt.Sprintf("Debug %s ",LogPartSeparator);
+        default: return fmt.Sprintf("Invalid %s ",LogPartSeparator);
+    }
+}
+func LogStatusFromString(s string) (LogStatus,error) {
+    switch s {
+        case "Error": return Error,nil;
+        case "Warning": return Warning,nil;
+        case "Deprecation": return Deprecation,nil;
+        case "Info": return Info,nil;
+        case "Debug": return Debug,nil;
+        default: return Invalid,fmt.Errorf("Invalid log status.");
     }
 }
 
@@ -45,7 +64,9 @@ func NewLog(status LogStatus, file string) Logger {
     }
     rv.Log=func(message string, val any){
         if b,err:=json.Marshal(val); err==nil {
-            rv.logger.Printf("%s: %s",message,b);
+            rv.logger.Printf(
+                "%s %s %s %s",LogPartSeparator,message,LogPartSeparator,b,
+            );
         }
     }
     return rv;
@@ -55,6 +76,10 @@ func NewBlankLog() Logger {
     return Logger{
         Log: func(message string, val any){},
     };
+}
+
+func (l *Logger)SetStatus(s LogStatus){
+    l.logger.SetPrefix(s.String());
 }
 
 func (l *Logger)Close(){
@@ -68,4 +93,81 @@ func (l *Logger)Clear() error {
         return os.Truncate(l.file,0);
     }
     return LogFileNotSpecified("Nothing to clear.");
+}
+
+type LogEntry[T any] struct {
+    S LogStatus;
+    T time.Time;
+    M string;
+    V T;
+};
+func LogElems[T any](l Logger) algo.Iter[LogEntry[T]] {
+    cntr:=0;
+    var iterElem T;
+    var scanner *bufio.Scanner;
+    f,err:=os.Open(l.file);
+    if err==nil {
+        scanner=bufio.NewScanner(f);
+        scanner.Split(bufio.ScanLines);
+    }
+    return func() (LogEntry[T],error,bool) {
+        if err!=nil || !scanner.Scan() {
+            return LogEntry[T]{},err,false;
+        }
+        cntr++;
+        parts:=strings.SplitN(scanner.Text(),LogPartSeparator,4);
+        s,serr:=getStatus(parts);
+        t,terr:=getTime(parts);
+        verr:=getObject(parts,&iterElem);
+        finalErr:=func() error {
+            if rv:=customerr.AppendError(
+                serr,customerr.AppendError(terr,verr),
+            ); rv!=nil {
+                return LogLineMalformed(
+                    fmt.Sprintf("File '%s': Line %d | %s",l.file,cntr,rv),
+                );
+            }
+            return nil;
+        }();
+        return LogEntry[T]{
+            S: s, T: t, M: getMessage(parts), V: iterElem,
+        }, finalErr, true;
+    }
+}
+
+func getStatus(parts []string) (LogStatus,error) {
+    if len(parts)>0 {
+        return LogStatusFromString(strings.TrimSpace(parts[0]));
+    }
+    return -1,fmt.Errorf("No log status present.");
+}
+
+func getTime(parts []string) (time.Time,error) {
+    if len(parts)>=1 {
+        if rv,err:=time.Parse(
+            "2006/01/02 15:04:05",strings.TrimSpace(parts[1]),
+        ); err==nil {
+            return rv,err;
+        } else {
+            return time.Time{},err;
+        }
+    }
+    return time.Time{},fmt.Errorf("No log time present");
+}
+
+func getMessage(parts []string) string {
+    if len(parts)>=2 {
+        return parts[2];
+    }
+    return "";
+}
+
+func getObject[T any](parts []string, elem *T) error {
+    if len(parts)>=3 {
+        if err:=json.Unmarshal([]byte(parts[3]),elem); err==nil {
+            return err;
+        } 
+        return nil;
+    }
+    return fmt.Errorf("No object present");
 }

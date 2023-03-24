@@ -125,7 +125,7 @@ func TestInitClient(t *testing.T){
     sId,_:=GetExerciseByName(&testDB,"Squat");
     bId,_:=GetExerciseByName(&testDB,"Bench");
     dId,_:=GetExerciseByName(&testDB,"Deadlift");
-    err=Read(&testDB,TrainingLog{Id: 1},OnlyIDFilter, func(v *TrainingLog){
+    err=Read(&testDB,TrainingLog{Id: 1},OnlyIDFilter, func(v *TrainingLog) bool {
         y,m,d:=time.Now().Date();
         y1,m1,d1:=v.DatePerformed.Date();
         test.BasicTest(y,y1,"Year is not set correctly in training log.",t);
@@ -151,9 +151,10 @@ func TestInitClient(t *testing.T){
                 "Non SBD exercise max was made from user init | ID: %d.",v.Id,
             );
         }
+        return true;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
-    err=Read(&testDB,Rotation{Id: 1},OnlyIDFilter,func(v *Rotation){
+    err=Read(&testDB,Rotation{Id: 1},OnlyIDFilter,func(v *Rotation) bool {
         y,m,d:=time.Now().Date();
         y1,m1,d1:=v.StartDate.Date();
         test.BasicTest(y,y1,"Year is not set correctly in rotation.",t);
@@ -163,14 +164,16 @@ func TestInitClient(t *testing.T){
         test.BasicTest(y,y1,"Year is not set correctly in rotation.",t);
         test.BasicTest(m,m1,"Month is not set correctly in rotation.",t);
         test.BasicTest(d,d1,"Day is not set correctly in rotation.",t);
+        return true;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
-    err=Read(&testDB,Client{Id: 1},OnlyIDFilter,func(v *Client){
+    err=Read(&testDB,Client{Id: 1},OnlyIDFilter,func(v *Client) bool {
         test.BasicTest("test",v.FirstName,"Client f-name not set correctly.",t);
         test.BasicTest("testl",v.LastName,"Client l-name not set correctly.",t);
         test.BasicTest("test@test.com",v.Email,
             "Client email not set correctly.",t,
         );
+        return true;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
 }

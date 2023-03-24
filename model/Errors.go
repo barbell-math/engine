@@ -11,3 +11,7 @@ var ManyPredictions,IsManyPredictions=customerr.ErrorFactory(
 var InvalidPredictionState,IsInvalidPredictionState=customerr.ErrorFactory(
     "Predictions cannot be made with the supplied parameters.",
 );
+
+var NoDataInSelectedWindow,IsNoDataInSelectedWindow=customerr.ErrorFactory(
+    "No data was available within the selected window.",
+);

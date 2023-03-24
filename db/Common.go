@@ -10,18 +10,18 @@ import (
 func OnlyIDFilter(col string) bool { return col=="Id"; }
 func AllButIDFilter(col string) bool { return col!="Id"; }
 
-func readRows[S any](rows *sql.Rows, callback func(r *S)) error {
+func readRows[S any](rows *sql.Rows, callback func(r *S) bool) error {
     cntr:=0;
     var err error=nil;
     var rowPntrs []reflect.Value=nil;
-    for ; err==nil && rows.Next(); cntr++ {
+    for cont:=true; err==nil && rows.Next() && cont; cntr++ {
         var s S;
         rowPntrs,err=customReflect.GetStructFieldPntrs(&s,algo.NoFilter[string]);
         if err==nil {
             potErr:=reflect.ValueOf(rows).MethodByName("Scan").Call(rowPntrs);
             err=customReflect.GetErrorFromReflectValue(&potErr[0]);
             if err==nil {
-                callback(&s);
+                cont=callback(&s);
             }
         }
     }

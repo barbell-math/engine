@@ -71,7 +71,7 @@ func TestGeneratePredictionNoStateGenerator(t *testing.T){
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
         DatePerformed: time.Now(),
     };
-    sg:=db.StateGenerator{ T: "Non-existant state generator" };
+    sg:=db.StateGenerator{ T: "Non-existent state generator" };
     _,err:=GeneratePrediction(&testDB,&tl,&sg);
     test.BasicTest(sql.ErrNoRows,err,
         "The wrong error was raised when no predictions where found.",t,

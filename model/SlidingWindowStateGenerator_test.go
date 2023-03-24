@@ -1,9 +1,11 @@
 package model;
 
 import (
+    "fmt"
     "time"
     "testing"
     //"github.com/barbell-math/block/db"
+    "github.com/barbell-math/block/util/log"
     "github.com/barbell-math/block/util/test"
     "github.com/barbell-math/block/util/dataStruct/base"
 )
@@ -66,15 +68,23 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
 //}
 
 func TestGenerateModelState(t *testing.T){
-    defer setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log")();
+    tmp:=setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log");
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(
+        //base.Pair[int,int]{4, 500},base.Pair[int,int]{5, 10},0,
+        //base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 1},0,
         base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 10},0,
     );
-    sw.GenerateModelState(&testDB,missingModelStateData{
+    err:=sw.GenerateModelState(&testDB,missingModelStateData{
         ClientID: 1,
         ExerciseID: 15,
         Date: baseTime,
     },ch);
+    fmt.Println("ERR: ",err);
+    tmp();
+    log.LogElems[dataPoint](DEBUG).ForEach(func(index int, val log.LogEntry[dataPoint]) error {
+        fmt.Printf("%+v\t %s\t %s\n",val,val.T,val.V.DatePerformed);
+        return nil;
+    });
 }

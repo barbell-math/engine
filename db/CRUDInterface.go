@@ -42,7 +42,7 @@ func Read[R DBTable](
         c *DB,
         rowVals R,
         filter algo.Filter[string],
-        callback func(val *R)) error {
+        callback func(val *R) bool) error {
     columns:=getTableColumns(&rowVals,filter);
     if len(columns)==0 {
         return FilterRemovedAllColumns("No value rows were selected.");
@@ -61,7 +61,7 @@ func Read[R DBTable](
     );
 }
 
-func ReadAll[R DBTable](c *DB, callback func(val *R)) error {
+func ReadAll[R DBTable](c *DB, callback func(val *R) bool) error {
     var tmp R;
     sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&tmp));
     return getQueryReflectResults(c,
@@ -153,7 +153,7 @@ func DeleteAll[R DBTable](c *DB) (int64,error) {
 func getQueryReflectResults[R DBTable](
         c *DB,
         vals []reflect.Value,
-        callback func(val *R)) error {
+        callback func(val *R) bool) error {
     reflectVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(vals);
     err:=customReflect.GetErrorFromReflectValue(&reflectVals[1]);
     if err==nil {

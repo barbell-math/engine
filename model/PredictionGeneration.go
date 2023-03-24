@@ -20,10 +20,11 @@ func GeneratePrediction(
         tl.DatePerformed,
         sg.Id,
         tl.ClientID,
-    }, func(m *db.ModelState){
+    }, func(m *db.ModelState) bool {
         rv.IntensityPred=IntensityPrediction(m,tl);
         rv.StateGeneratorID=m.StateGeneratorID;
         cntr++;
+        return true;
     }); err==nil && cntr>1 {
         return rv,ManyPredictions(
             "Multiple predictions exist for the given training log and state generator.",
