@@ -61,8 +61,11 @@ func ArrayDimsArgree[N any, P any](one []N, given []P, message string) error {
 func AppendError(first error, second error) error {
     if second!=nil && first==nil {
         first=second;
-    } else if second!=nil {
-        first=fmt.Errorf("%s | %s",first,second);
+    } else if second!=nil && first!=nil {
+        first=fmt.Errorf(
+            "%s \nThe following error was also generated: %s",
+            first,second,
+        );
     }
     return first;
 }

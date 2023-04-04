@@ -85,6 +85,7 @@ func (l *Logger)SetStatus(s LogStatus){
 func (l *Logger)Close(){
     if l.logFile!=nil {
         l.logFile.Close();
+        l.logFile=nil;
     }
 }
 
@@ -96,22 +97,25 @@ func (l *Logger)Clear() error {
 }
 
 type LogEntry[T any] struct {
-    S LogStatus;
-    T time.Time;
-    M string;
-    V T;
+    Status LogStatus;
+    Time time.Time;
+    Message string;
+    Val T;
 };
 func LogElems[T any](l Logger) algo.Iter[LogEntry[T]] {
     cntr:=0;
     var iterElem T;
     var scanner *bufio.Scanner;
-    f,err:=os.Open(l.file);
+    //f,err:=os.Open(l.file);
+    var err error=nil;
+    l.logFile,err=os.Open(l.file);
     if err==nil {
-        scanner=bufio.NewScanner(f);
+        scanner=bufio.NewScanner(l.logFile);
         scanner.Split(bufio.ScanLines);
     }
     return func() (LogEntry[T],error,bool) {
         if err!=nil || !scanner.Scan() {
+            l.Close();
             return LogEntry[T]{},err,false;
         }
         cntr++;
@@ -119,18 +123,16 @@ func LogElems[T any](l Logger) algo.Iter[LogEntry[T]] {
         s,serr:=getStatus(parts);
         t,terr:=getTime(parts);
         verr:=getObject(parts,&iterElem);
-        finalErr:=func() error {
-            if rv:=customerr.AppendError(
-                serr,customerr.AppendError(terr,verr),
-            ); rv!=nil {
-                return LogLineMalformed(
-                    fmt.Sprintf("File '%s': Line %d | %s",l.file,cntr,rv),
-                );
-            }
-            return nil;
-        }();
+        var finalErr error=nil;
+        if rv:=customerr.AppendError(
+            serr,customerr.AppendError(terr,verr),
+        ); rv!=nil {
+            finalErr=LogLineMalformed(
+                fmt.Sprintf("File '%s': Line %d | %s",l.file,cntr,rv),
+            );
+        }
         return LogEntry[T]{
-            S: s, T: t, M: getMessage(parts), V: iterElem,
+            Status: s, Time: t, Message: getMessage(parts), Val: iterElem,
         }, finalErr, true;
     }
 }
