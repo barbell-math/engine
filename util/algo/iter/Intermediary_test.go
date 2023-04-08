@@ -1,4 +1,4 @@
-package iter;
+package iter
 
 import (
 	"errors"
@@ -6,8 +6,7 @@ import (
 	"testing"
 
 	"github.com/barbell-math/block/util/test"
-	//
-	//	"github.com/barbell-math/block/util/test"
+	customerr "github.com/barbell-math/block/util/err"
 )
 
 func TestNext(t *testing.T){
@@ -83,9 +82,6 @@ func TestNextReachesBreak(t *testing.T){
         if status==Break {
             breakReached=true;
         }
-        //if val==5 {
-        //    return Continue,val,errors.New("NEW ERROR");
-        //}
         return Continue,val,nil;
     }).Next(func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
         if status==Break {
@@ -105,21 +101,97 @@ func TestNextReachesBreak(t *testing.T){
     );
 }
 
-//func TestTake(t *testing.T){
-//    test.BasicTest(2,SliceElems([]int{1,2,3,4}).Take(2).Count(),
-//        "Take took more items than it should have.",t,
-//    );
-//    test.BasicTest(4,SliceElems([]int{1,2,3,4}).Take(4).Count(),
-//        "Take took more items than it should have.",t,
-//    );
-//    test.BasicTest(4,SliceElems([]int{1,2,3,4}).Take(5).Count(),
-//        "Take took more items than it should have.",t,
-//    );
-//    test.BasicTest(0,SliceElems([]int{1,2,3,4}).Take(0).Count(),
-//        "Take took more items than it should have.",t,
-//    );
-//    test.BasicTest(1,SliceElems([]int{1,2,3,4}).Take(1).Count(),
-//        "Take took more items than it should have.",t,
-//    );
-//}
-//
+func TestNextReachesBreakParentErr(t *testing.T){
+    expectedErr:=errors.New("NEW ERROR");
+    breakReached:=false;
+    breakReached2:=false;
+    n:=SliceElems([]int{1,2,3,4,5,6,7}).Next(
+    func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached=true;
+        }
+        if val==5 {
+            return Break,val,expectedErr;
+        }
+        return Continue,val,nil;
+    }).Next(func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached2=true;
+        }
+        return Continue,val,nil;
+    });
+    err:=n.Consume();
+    test.BasicTest(true,breakReached,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    test.BasicTest(true,breakReached2,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    test.BasicTest(expectedErr,err,
+        "Next returned an error when it shouldn't have.",t,
+    );
+}
+
+func TestNextReachesBreakParentCleanUpErr(t *testing.T){
+    expectedErr:=errors.New("NEW ERROR");
+    breakReached:=false;
+    breakReached2:=false;
+    n:=SliceElems([]int{1,2,3,4,5,6,7}).Next(
+    func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached=true;
+            return Continue,val,expectedErr;
+        }
+        return Continue,val,nil;
+    }).Next(func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached2=true;
+        }
+        return Continue,val,nil;
+    });
+    err:=n.Consume();
+    test.BasicTest(true,breakReached,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    test.BasicTest(true,breakReached2,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    test.BasicTest(expectedErr,err,
+        "Next returned an error when it shouldn't have.",t,
+    );
+}
+
+func TestNextReachesBreakParentErrAndCleanUpErr(t *testing.T){
+    expectedErr:=errors.New("NEW ERROR");
+    breakReached:=false;
+    breakReached2:=false;
+    n:=SliceElems([]int{1,2,3,4,5,6,7}).Next(
+    func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached=true;
+            return Continue,val,expectedErr;
+        }
+        return Continue,val,nil;
+    }).Next(func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        if status==Break {
+            breakReached2=true;
+        }
+        if val==5 {
+            return Break,val,expectedErr;
+        }
+        return Continue,val,nil;
+    });
+    err:=n.Consume();
+    test.BasicTest(true,breakReached,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    test.BasicTest(true,breakReached2,
+        "Next did not properly call parrent iterators with break flag.",t,
+    );
+    tmp:=fmt.Sprintf("%s",customerr.AppendError(expectedErr,expectedErr));
+    if fmt.Sprintf("%s",expectedErr)==tmp {
+        test.FormatError(tmp,err,
+            "Next returned an error when it shouldn't have.",t,
+        );
+    }
+}

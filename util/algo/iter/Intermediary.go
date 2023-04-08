@@ -9,12 +9,12 @@ import (
 //source of the message to the producer. This allows for resources to be managed
 //properly.
 //Rules:
-//  1. Errors are propogated down to the consumer. The consumer will then call 
+//  1. Errors are propagated down to the consumer. The consumer will then call 
 //     it's parent iterator with the Break flag.
 //  2. All Break flags will be passed up to the producer. This allows resources 
-//     to be destroyed in a top down fassion.
+//     to be destroyed in a top down fashion.
 //  3. If a Break flag is generated in a intermediary, it should not clean up
-//     its parrents, but should return the command to not continue. The consumer 
+//     its parents, but should return the command to not continue. The consumer 
 //     will start the destruction process once it sees the command to not continue.
 
 //Next is the only true intermediary, all other intermediaries can be expressed
@@ -51,17 +51,3 @@ func (i Iter[T])Next(
         op func(index int, val T, status IteratorFeedback) (IteratorFeedback,T,error)) Iter[T] {
     return Next(i,op);
 }
-
-//func (i Iter[T])Filter(op Filter[T]) Iter[T] {
-//    return func(f IteratorFeedback) (T,error,bool) {
-//        var val T;
-//        if f==Break {
-//            i(Break);
-//            return val,nil,false;
-//        }
-//        var err error;
-//        var cont bool;
-//        for val,err,cont=i(f); err==nil && cont && !op(val); val,err,cont=i(f) {}
-//        return val,err,cont;
-//    }
-//}

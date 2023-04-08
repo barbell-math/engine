@@ -24,12 +24,9 @@ func (i Iter[T])ForEach(
         }
     }
     _,cleanUpErr,_:=i(Break);
-    if opErr!=nil && err!=nil {
-        return customerr.AppendError(cleanUpErr,customerr.AppendError(opErr,err));
-    } else if opErr==nil && err!=nil {
-        return err;
-    }
-    return opErr;
+    return customerr.AppendError(opErr,
+        customerr.AppendError(err,cleanUpErr),
+    );
 }
 
 //func (i Iter[T])Window(size int,
