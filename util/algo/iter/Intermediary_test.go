@@ -18,46 +18,36 @@ func TestNext(t *testing.T){
     n:=SliceElems([]int{1,2,3,4,5,6,7}).Next(
     func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
         if status==Break {
-            fmt.Println("Cleaning up");
             return Break,0,nil;
         }
-        fmt.Println(val);
         if val%2==0 {
-            fmt.Println("Continue");
             return Continue,val+1,nil;
         } else if val==3 {
-            fmt.Println("ReIterate");
             return Iterate,val,nil;
         } else if val==5 {
-            fmt.Println("Err");
             return Continue,val,errors.New("NEW ERROR");
         }
-        fmt.Println("ETF");
         return Continue,val,nil;
     });
     next,err,cont:=n(Iterate);
-    fmt.Println("N: ",next);
     test.BasicTest(1,next,"Next did not return the correct value.",t);
     test.BasicTest(nil,err,
         "Next returned an error when it was not supposed to.",t,
     );
     test.BasicTest(true,cont,"Next did not reutrn correct cont status.",t);
     next,err,cont=n(Iterate);
-    fmt.Println("N: ",next);
     test.BasicTest(3,next,"Next did not return the correct value.",t);
     test.BasicTest(nil,err,
         "Next returned an error when it was not supposed to.",t,
     );
     test.BasicTest(true,cont,"Next did not reutrn correct cont status.",t);
     next,err,cont=n(Iterate);
-    fmt.Println("N: ",next);
     test.BasicTest(5,next,"Next did not return the correct value.",t);
     test.BasicTest(nil,err,
         "Next returned an error when it was not supposed to.",t,
     );
     test.BasicTest(true,cont,"Next did not reutrn correct cont status.",t);
     next,err,cont=n(Iterate);
-    fmt.Println("N: ",next);
     test.BasicTest(5,next,"Next did not return the correct value.",t);
     if err==nil {
         test.FormatError("!nil",err,
@@ -66,7 +56,6 @@ func TestNext(t *testing.T){
     }
     test.BasicTest(false,cont,"Next did not reutrn correct cont status.",t);
     next,err,cont=n(Break);
-    fmt.Println("N: ",next);
     test.BasicTest(0,next,"Next did not return the correct value.",t);
     test.BasicTest(nil,err,
         "Next returned an error when it was not supposed to.",t,
