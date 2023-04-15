@@ -64,6 +64,39 @@ func TestSliceElems(t *testing.T){
     sliceElemsIterHelper([]int{},t);
 }
 
+func stringElemsIterHelper(vals string, t *testing.T){
+    sIter:=StrElems(vals);
+    for i:=0; i<len(vals); i++ {
+        sV,sErr,sBool:=sIter(Continue);
+        test.BasicTest(vals[i],sV,
+            "SliceElems iteration does not match actual values.",t,
+        );
+        test.BasicTest(nil,sErr,
+            "SliceElems iteration produced an error when it shouldn't have.",t,
+        );
+        test.BasicTest(true,sBool,
+            "SliceElems iteration did not stop when it should have.",t,
+        );
+    }
+    var tmp string;
+    sV,sErr,sBool:=sIter(Continue);
+    test.BasicTest(tmp,sV,
+        "SliceElems iteration does not match actual values.",t,
+    );
+    test.BasicTest(nil,sErr,
+        "SliceElems iteration produced an error when it shouldn't have.",t,
+    );
+    test.BasicTest(false,sBool,
+        "SliceElems iteration did not stop when it should have.",t,
+    );
+}
+func TestStringElems(t *testing.T){
+    sliceElemsIterHelper([]string{"one","two","three"},t);
+    sliceElemsIterHelper([]int{1,2,3},t);
+    sliceElemsIterHelper([]int{1},t);
+    sliceElemsIterHelper([]int{},t);
+}
+
 //func TestMapElems(t *testing.T){
 //
 //}
@@ -89,4 +122,35 @@ func TestChanElems(t *testing.T){
     testChanIterHelper(1,t);
     testChanIterHelper(5,t);
     testChanIterHelper(20,t);
+}
+
+func testFileLinesHelper(numLines int, path string, t *testing.T){
+    fIter:=FileLines(fmt.Sprintf("./testData/%s",path));
+    for i:=0; i<numLines; i++ {
+        fV,fErr,fBool:=fIter(Continue);
+        test.BasicTest(fmt.Sprintf("%d",i+1),fV,
+            "SliceElems iteration does not match actual values.",t,
+        );
+        test.BasicTest(nil,fErr,
+            "SliceElems iteration produced an error when it shouldn't have.",t,
+        );
+        test.BasicTest(true,fBool,
+            "SliceElems iteration did not stop when it should have.",t,
+        );
+    }
+    fV,fErr,fBool:=fIter(Continue);
+    test.BasicTest("",fV,
+        "SliceElems iteration does not match actual values.",t,
+    );
+    test.BasicTest(nil,fErr,
+        "SliceElems iteration produced an error when it shouldn't have.",t,
+    );
+    test.BasicTest(false,fBool,
+        "SliceElems iteration did not stop when it should have.",t,
+    );
+}
+func TestFileLines(t *testing.T){
+    testFileLinesHelper(0,"emptyFile.txt",t);
+    testFileLinesHelper(1,"oneLine.txt",t);
+    testFileLinesHelper(3,"threeLines.txt",t);
 }

@@ -48,3 +48,13 @@ func (i Iter[T])Filter(op func(val T) bool) Iter[T] {
         return Iterate,val,nil;
     });
 }
+
+func (i Iter[T])Window(size int,
+        op func(index int, vals []T) (IteratorFeedback,error)) error {
+    if size<1 {
+        return customerr.ValOutsideRange(fmt.Sprintf(
+            "Window size must be >=1 | Have: %d",size,
+        ));
+    }
+
+}

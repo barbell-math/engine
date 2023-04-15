@@ -1,4 +1,4 @@
-package algo;
+package iter;
 
 import (
     "fmt"
@@ -14,7 +14,7 @@ func (f forEachParallelResult[T,U])Unpack() (T,U,error){
     return f.val,f.res,f.err;
 }
 
-func forEachThreadRunner[T any, U any](
+func forEachWorker[T any, U any](
         jobs chan T,
         results chan forEachParallelResult[T,U],
         op func(val T) (U,error)){
@@ -30,8 +30,7 @@ func forEachThreadRunner[T any, U any](
 
 func NoOp[T any, U any](val T, res U, err error) { return; };
 
-func ForEachParallel[T any, U any](
-        i Iter[T],
+func Parallel[T any, U any](i Iter[T],
         workerOp func(val T) (U,error),
         resOp func(val T, res U, err error),
         numThreads int) error {
@@ -40,41 +39,30 @@ func ForEachParallel[T any, U any](
     }
     taken,j:=0,0;
     jobs, results:=make(chan T), make(chan forEachParallelResult[T,U]);
-    for next,err,cont:=i(); cont && err==nil; next,err,cont=i() {
+    i.ForEach(func(index int, val T) (IteratorFeedback, error) {
         if j<numThreads {
             //If another worker can be created, make one
-            go forEachThreadRunner(jobs,results,workerOp);
+            go forEachWorker(jobs,results,workerOp);
         } else {
             //If all the worker threads are used wait for one to finish
             resOp((<-results).Unpack());
             taken++;
         }
-        jobs <- next;
+        jobs <- val;
         j++;
-    }
+        return Continue,nil;
+    });
     close(jobs);
     //Need to wait for all the results!!
     for i:=0; i<j-taken; i++ { resOp((<-results).Unpack()); }
     close(results);
     return nil;
 }
-func (i Iter[T])ForEachParallel(
+func (i Iter[T])Parallel(
         workerOp func(val T) (T,error),
         resOp func(val T, res T, err error),
         numThreads int) error {
-    return ForEachParallel(i,workerOp,resOp,numThreads);
-}
-
-func (i Iter[T])FilterParallel(op Filter[T], numThreads int) ([]T,error) {
-    rv:=make([]T,0);
-    err:=ForEachParallel(i,func(val T) (bool,error) {
-        return op(val),nil;
-    },func(val T, res bool, err error){
-        if res {
-            rv=append(rv,val);
-        }
-    },numThreads);
-    return rv,err;
+    return Parallel(i,workerOp,resOp,numThreads);
 }
 
 func numThreadsCheck(numThreads int) error {
