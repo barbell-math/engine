@@ -1,6 +1,6 @@
 # iter
 
-This is a library that brings a lazy iterator framework to go-lang while still respecting errors as values.
+A generic lazy iterator framework library that respects errors as values with reverse message passing for resource management.
 
 ```golang
 func sequenceGenerator(start float64, end float64, step float64) Iter[float64] {

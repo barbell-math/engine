@@ -1,5 +1,5 @@
 *.vim
 dbEnv.sh
 model/debugLogs
-util/algo/iter/.git
-util/algo/iter/.gitignore
+util/.git
+util/.gitignore
