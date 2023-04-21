@@ -1,4 +1,4 @@
-package dataStruct
+package dataStruct;
 
 import (
 	"fmt"
@@ -22,6 +22,10 @@ func NewCircularQueue[T any](size int) (CircularQueue[T],error) {
         vals: make([]T,size),
         startEnd: Pair[int, int]{First: 0, Second: -1},
     },nil;
+}
+
+func (c *CircularQueue[T])Length() int {
+    return c.NumElems;
 }
 
 func (c *CircularQueue[T])Capacity() int {

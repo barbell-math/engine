@@ -1,16 +1,21 @@
-package algo
+package algo;
 
 import (
 	"fmt"
+	"github.com/barbell-math/block/util/algo/iter"
 	customerr "github.com/barbell-math/block/util/err"
 )
 
 func SlicesEqual[T comparable](one []T, two []T) bool {
+    if len(one)!=len(two) {
+        return false;
+    }
     i:=-1;
-    return len(one)==len(two) && SliceElems(one).All(func(other T) bool {
+    res,_:=iter.SliceElems(one).All(func(other T) (bool,error) {
         i++;
-        return other==two[i];
+        return other==two[i],nil;
     });
+    return res;
 }
 
 func ZipSlices[K comparable, V any](keys []K, vals []V) (map[K]V,error) {

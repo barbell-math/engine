@@ -1,8 +1,8 @@
 package iter;
 
 import (
-    "os"
-    "bufio"
+	"bufio"
+	"os"
 )
 
 func ValElem[T any](val T, err error) Iter[T] {

@@ -3,9 +3,10 @@ package dataStruct
 import (
 	"testing"
 
-	"github.com/barbell-math/block/util/test"
 	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/block/util/dataStruct/types"
 	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/block/util/test"
 )
 
 func TestNewCircularQueue(t *testing.T) {
@@ -289,4 +290,13 @@ func TestCircularQueuePntrElems(t *testing.T){
     tmp.startEnd.First=2;
     tmp.startEnd.Second=1;
     testCircularQueueElemsHelper(tmp,t);
+}
+
+func queueInterfaceTypeCheck[T any](q types.Queue[T]){}
+func TestCircularQueueQueueTypeInterface(t *testing.T) {
+    tmp,err:=NewCircularQueue[int](5);
+    test.BasicTest(nil,err,
+        "NewCircularQueue returned an error when it should not have.",t,
+    );
+    queueInterfaceTypeCheck[int](&tmp);
 }

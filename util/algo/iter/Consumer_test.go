@@ -1,4 +1,4 @@
-package iter
+package iter;
 
 import (
     "fmt"
