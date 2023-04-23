@@ -1,5 +1,3 @@
 *.vim
 dbEnv.sh
 model/debugLogs
-util/.git
-util/.gitignore

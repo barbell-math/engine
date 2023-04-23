@@ -5,6 +5,13 @@ import (
 	"os"
 )
 
+func NoElem[T any]() Iter[T] {
+    return func(f IteratorFeedback) (T,error,bool) {
+        var tmp T;
+        return tmp,nil,false;
+    }
+}
+
 func ValElem[T any](val T, err error) Iter[T] {
     cntr:=0;
     return func(f IteratorFeedback) (T,error,bool) {
