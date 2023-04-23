@@ -68,6 +68,10 @@ func (i Iter[T])Filter(op func(val T) bool) Iter[T] {
     });
 }
 
+//Window cannot be tested here because it would cause a circular import with the 
+//dataStruct module. Testing would require importing a specific implementation
+//of a queue. Using the types interface definition is the only thing preventing
+//a circular import now.
 func Window[T any](i Iter[T],
         q types.Queue[T],
         allowPartials bool,

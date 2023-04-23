@@ -55,7 +55,7 @@ func CSVToStruct[R any](src iter.Iter[[]string], timeDateFormat string) iter.Ite
         return iter.ValElem(tmp,NonStructValue(fmt.Sprintf(
             "CSVToStruct requires a struct as target. | Got: %s",
             reflect.ValueOf(tmp).Kind().String(),
-        )));
+        )),1);
     }
     headers:=make([]string,0);
     return iter.Next(src,

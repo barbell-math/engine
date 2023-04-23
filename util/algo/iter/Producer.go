@@ -12,11 +12,11 @@ func NoElem[T any]() Iter[T] {
     }
 }
 
-func ValElem[T any](val T, err error) Iter[T] {
+func ValElem[T any](val T, err error, repeat int) Iter[T] {
     cntr:=0;
     return func(f IteratorFeedback) (T,error,bool) {
         var rv T;
-        if cntr==0 && f!=Break {
+        if cntr<repeat && f!=Break {
             cntr++;
             return val,err,true;
         }

@@ -8,7 +8,7 @@ import (
 
 func valElemIterHelper[T any](val T, err error, t *testing.T){
     var tmp T;
-    iter:=ValElem(val,err);
+    iter:=ValElem(val,err,1);
     for i:=0; i<3; i++ {
         vIter,eIter,contIter:=iter(Continue);
         if i==0 {
