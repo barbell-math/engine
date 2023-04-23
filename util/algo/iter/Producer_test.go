@@ -6,12 +6,12 @@ import (
     "github.com/barbell-math/block/util/test"
 )
 
-func valElemIterHelper[T any](val T, err error, t *testing.T){
+func valElemIterHelper[T any](val T, err error, r int, t *testing.T){
     var tmp T;
-    iter:=ValElem(val,err,1);
+    iter:=ValElem(val,err,r);
     for i:=0; i<3; i++ {
         vIter,eIter,contIter:=iter(Continue);
-        if i==0 {
+        if i<r {
             test.BasicTest(val,vIter,"ValElem did not return correct value.",t);
             test.BasicTest(err,eIter,"ValElem did not return correct error.",t);
             test.BasicTest(true,contIter,
@@ -27,8 +27,12 @@ func valElemIterHelper[T any](val T, err error, t *testing.T){
     }
 }
 func TestValElem(t *testing.T){
-    valElemIterHelper(1,nil,t);
-    valElemIterHelper(2,fmt.Errorf("NEW ERROR"),t);
+    valElemIterHelper(1,nil,1,t);
+    valElemIterHelper(2,fmt.Errorf("NEW ERROR"),1,t);
+    valElemIterHelper(1,nil,2,t);
+    valElemIterHelper(2,fmt.Errorf("NEW ERROR"),2,t);
+    valElemIterHelper(1,nil,5,t);
+    valElemIterHelper(2,fmt.Errorf("NEW ERROR"),5,t);
 }
 
 func sliceElemsIterHelper[T any](vals []T, t *testing.T){
