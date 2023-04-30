@@ -9,7 +9,7 @@ import (
 func valElemIterHelper[T any](val T, err error, r int, t *testing.T){
     var tmp T;
     iter:=ValElem(val,err,r);
-    for i:=0; i<3; i++ {
+    for i:=0; i<r; i++ {
         vIter,eIter,contIter:=iter(Continue);
         if i<r {
             test.BasicTest(val,vIter,"ValElem did not return correct value.",t);

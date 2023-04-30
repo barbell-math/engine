@@ -1,3 +1,4 @@
 *.vim
 dbEnv.sh
 model/debugLogs
+util/io/log/testData

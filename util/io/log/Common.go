@@ -1,14 +1,13 @@
-package log
+package log;
 
 import (
 	"os"
 	"fmt"
 	"log"
     "time"
-	"bufio"
     "strings"
 	"encoding/json"
-	"github.com/barbell-math/block/util/algo"
+	"github.com/barbell-math/block/util/algo/iter"
 	customerr "github.com/barbell-math/block/util/err"
 )
 
@@ -45,15 +44,15 @@ func LogStatusFromString(s string) (LogStatus,error) {
     }
 }
 
-type Logger struct {
+type Logger[T any] struct {
     file string;
     logFile *os.File;
     logger *log.Logger;
-    Log func(message string, val any);
+    Log func(message string, val T);
 };
 
-func NewLog(status LogStatus, file string) Logger {
-    rv:=Logger{ file: file };
+func NewLog[T any](status LogStatus, file string) Logger[T] {
+    rv:=Logger[T]{ file: file };
     var err error=nil;
     if rv.logFile,err=os.OpenFile(
         file,
@@ -62,8 +61,8 @@ func NewLog(status LogStatus, file string) Logger {
     ); err==nil {
         rv.logger=log.New(rv.logFile,status.String(),log.LstdFlags);
     }
-    rv.Log=func(message string, val any){
-        if b,err:=json.Marshal(val); err==nil {
+    rv.Log=func(message string, val T){
+        if b,err:=json.Marshal(val); err==nil && rv.logger!=nil {
             rv.logger.Printf(
                 "%s %s %s %s",LogPartSeparator,message,LogPartSeparator,b,
             );
@@ -72,24 +71,24 @@ func NewLog(status LogStatus, file string) Logger {
     return rv;
 }
 
-func NewBlankLog() Logger {
-    return Logger{
-        Log: func(message string, val any){},
+func NewBlankLog[T any]() Logger[T] {
+    return Logger[T]{
+        Log: func(message string, val T){},
     };
 }
 
-func (l *Logger)SetStatus(s LogStatus){
+func (l *Logger[T])SetStatus(s LogStatus){
     l.logger.SetPrefix(s.String());
 }
 
-func (l *Logger)Close(){
+func (l *Logger[T])Close(){
     if l.logFile!=nil {
         l.logFile.Close();
         l.logFile=nil;
     }
 }
 
-func (l *Logger)Clear() error {
+func (l *Logger[T])Clear() error {
     if len(l.file)>0 {
         return os.Truncate(l.file,0);
     }
@@ -102,24 +101,10 @@ type LogEntry[T any] struct {
     Message string;
     Val T;
 };
-func LogElems[T any](l Logger) algo.Iter[LogEntry[T]] {
-    cntr:=0;
+func LogElems[T any](l Logger[T]) iter.Iter[LogEntry[T]] {
     var iterElem T;
-    var scanner *bufio.Scanner;
-    //f,err:=os.Open(l.file);
-    var err error=nil;
-    l.logFile,err=os.Open(l.file);
-    if err==nil {
-        scanner=bufio.NewScanner(l.logFile);
-        scanner.Split(bufio.ScanLines);
-    }
-    return func() (LogEntry[T],error,bool) {
-        if err!=nil || !scanner.Scan() {
-            l.Close();
-            return LogEntry[T]{},err,false;
-        }
-        cntr++;
-        parts:=strings.SplitN(scanner.Text(),LogPartSeparator,4);
+    return iter.Map(iter.FileLines(l.file), func(index int, val string) (LogEntry[T], error) {
+        parts:=strings.SplitN(val,LogPartSeparator,4);
         s,serr:=getStatus(parts);
         t,terr:=getTime(parts);
         verr:=getObject(parts,&iterElem);
@@ -128,13 +113,13 @@ func LogElems[T any](l Logger) algo.Iter[LogEntry[T]] {
             serr,customerr.AppendError(terr,verr),
         ); rv!=nil {
             finalErr=LogLineMalformed(
-                fmt.Sprintf("File '%s': Line %d | %s",l.file,cntr,rv),
+                fmt.Sprintf("File '%s': Line %d | %s",l.file,index+1,rv),
             );
         }
         return LogEntry[T]{
             Status: s, Time: t, Message: getMessage(parts), Val: iterElem,
-        }, finalErr, true;
-    }
+        }, finalErr;
+    });
 }
 
 func getStatus(parts []string) (LogStatus,error) {
@@ -159,7 +144,7 @@ func getTime(parts []string) (time.Time,error) {
 
 func getMessage(parts []string) string {
     if len(parts)>=2 {
-        return parts[2];
+        return strings.TrimSpace(parts[2]);
     }
     return "";
 }

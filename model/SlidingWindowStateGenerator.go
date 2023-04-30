@@ -10,11 +10,6 @@ import (
     "github.com/barbell-math/block/util/dataStruct/base"
 )
 
-//type SavedIntensityValue struct {
-//    intensity float64;
-//    date time.Time;
-//};
-
 type SlidingWindowStateGen struct {
     allotedThreads int;
     windowLimits base.Pair[int,int];
