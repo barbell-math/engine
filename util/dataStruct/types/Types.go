@@ -20,3 +20,14 @@ type Queue[T any] interface {
     Capacity() int;
     Length() int;
 };
+
+type Variant[T any, U any] interface {
+    SetValA(newVal T) Variant[T,U];
+    SetValB(newVal U) Variant[T,U];
+    HasA() bool;
+    HasB() bool;
+    ValA() T;
+    ValB() U;
+    ValAOr(_default T) T;
+    ValBOr(_default U) U;
+};

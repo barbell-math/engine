@@ -51,15 +51,20 @@ type Logger[T any] struct {
     Log func(message string, val T);
 };
 
-func NewLog[T any](status LogStatus, file string) Logger[T] {
+func NewLog[T any](status LogStatus, file string, app bool) Logger[T] {
     rv:=Logger[T]{ file: file };
     var err error=nil;
+    mode:=os.O_TRUNC;
+    if app {
+        mode=os.O_APPEND;
+    }
     if rv.logFile,err=os.OpenFile(
         file,
-        os.O_TRUNC | os.O_CREATE | os.O_WRONLY,
+        mode | os.O_CREATE | os.O_WRONLY,
         0644,
     ); err==nil {
         rv.logger=log.New(rv.logFile,status.String(),log.LstdFlags);
+        rv.logger.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds);
     }
     rv.Log=func(message string, val T){
         if b,err:=json.Marshal(val); err==nil && rv.logger!=nil {
@@ -103,7 +108,8 @@ type LogEntry[T any] struct {
 };
 func LogElems[T any](l Logger[T]) iter.Iter[LogEntry[T]] {
     var iterElem T;
-    return iter.Map(iter.FileLines(l.file), func(index int, val string) (LogEntry[T], error) {
+    return iter.Map(iter.FileLines(l.file),
+    func(index int, val string) (LogEntry[T], error) {
         parts:=strings.SplitN(val,LogPartSeparator,4);
         s,serr:=getStatus(parts);
         t,terr:=getTime(parts);
@@ -132,7 +138,7 @@ func getStatus(parts []string) (LogStatus,error) {
 func getTime(parts []string) (time.Time,error) {
     if len(parts)>=1 {
         if rv,err:=time.Parse(
-            "2006/01/02 15:04:05",strings.TrimSpace(parts[1]),
+            "2006/01/02 15:04:05.000000",strings.TrimSpace(parts[1]),
         ); err==nil {
             return rv,err;
         } else {
@@ -151,10 +157,11 @@ func getMessage(parts []string) string {
 
 func getObject[T any](parts []string, elem *T) error {
     if len(parts)>=3 {
-        if err:=json.Unmarshal([]byte(parts[3]),elem); err==nil {
-            return err;
-        } 
-        return nil;
+        return json.Unmarshal([]byte(parts[3]),elem);
     }
     return fmt.Errorf("No object present");
+}
+
+func JoinLogByTime[T any](left LogEntry[T], right LogEntry[T]) bool {
+    return left.Time.Before(right.Time);
 }

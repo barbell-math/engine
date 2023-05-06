@@ -8,7 +8,6 @@ import (
 	"github.com/barbell-math/block/util/test"
 )
 
-
 func collectIterHelper[T any](vals []T, t *testing.T){
     collected,err:=SliceElems(vals).Collect();
     test.SlicesMatch(vals,collected,t);

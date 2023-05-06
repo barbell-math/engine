@@ -1,13 +1,15 @@
-package model;
+package model
 
 import (
-    "fmt"
-    "time"
-    "testing"
-    //"github.com/barbell-math/block/db"
-    "github.com/barbell-math/block/util/log"
-    "github.com/barbell-math/block/util/test"
-    "github.com/barbell-math/block/util/dataStruct/base"
+	"fmt"
+	"testing"
+	"time"
+
+	//"github.com/barbell-math/block/db"
+	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/block/util/dataStruct"
+	"github.com/barbell-math/block/util/io/log"
+	"github.com/barbell-math/block/util/test"
 )
 
 func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *testing.T)){
@@ -21,25 +23,25 @@ func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *tes
 }
 func TestNewSlidingWindowStateGenInvalidTimeFrameLimits(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        base.Pair[int,int]{1,0},base.Pair[int,int]{0, 1},1,
+        dataStruct.Pair[int,int]{1,0},dataStruct.Pair[int,int]{0, 1},1,
     ))(t);
 }
 func TestNewSlidingWindowStateGenInvalidWindowLimits(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        base.Pair[int,int]{0, 1},base.Pair[int,int]{1, 0},1,
+        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{1, 0},1,
     ))(t);
 }
 func TestNewSlidingWindowStateGenInvalidWindowSize(t *testing.T){
     invalidCheck(NewSlidingWindowStateGen(
-        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 2},1,
+        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 2},1,
     ))(t);
     invalidCheck(NewSlidingWindowStateGen(
-        base.Pair[int,int]{1, 2},base.Pair[int,int]{0, 2},1,
+        dataStruct.Pair[int,int]{1, 2},dataStruct.Pair[int,int]{0, 2},1,
     ))(t);
 }
 func TestNewSlidingWindowValid(t *testing.T){
     _,err:=NewSlidingWindowStateGen(
-        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 1},1,
+        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 1},1,
     );
     test.BasicTest(nil,err,
         "Creating a sliding window resulted in an error when it shouldn't have.",t,
@@ -48,7 +50,7 @@ func TestNewSlidingWindowValid(t *testing.T){
 
 func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
     sw,err:=NewSlidingWindowStateGen(
-        base.Pair[int,int]{0, 1},base.Pair[int,int]{0, 1},0,
+        dataStruct.Pair[int,int]{0, 1},dataStruct.Pair[int,int]{0, 1},0,
     );
     test.BasicTest(nil,err,
         "Creating a sliding window resulted in an error when it shouldn't have.",t,
@@ -74,7 +76,7 @@ func TestGenerateModelState(t *testing.T){
     sw,_:=NewSlidingWindowStateGen(
         //base.Pair[int,int]{4, 500},base.Pair[int,int]{5, 10},0,
         //base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 1},0,
-        base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 10},0,
+        dataStruct.Pair[int,int]{0, 500},dataStruct.Pair[int,int]{0, 10},0,
     );
     err:=sw.GenerateModelState(&testDB,missingModelStateData{
         ClientID: 1,
@@ -83,8 +85,9 @@ func TestGenerateModelState(t *testing.T){
     },ch);
     fmt.Println("ERR: ",err);
     tmp();
-    log.LogElems[dataPoint](DEBUG).ForEach(func(index int, val log.LogEntry[dataPoint]) error {
-        fmt.Printf("%+v\t %s\t %s\n",val,val.T,val.V.DatePerformed);
-        return nil;
+    log.LogElems[*dataPoint](SLIDING_WINDOW_DP_DEBUG).ForEach(
+    func(index int, val log.LogEntry[*dataPoint]) (iter.IteratorFeedback,error) {
+        fmt.Printf("%+v\t %s\t %s\n",val,val.Time,val.Val.DatePerformed);
+        return iter.Continue,nil;
     });
 }

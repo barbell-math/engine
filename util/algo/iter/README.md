@@ -43,7 +43,7 @@ There are three parts to any iterator chain, with the middle part being optional
 
 The intermediaries and consumers can be further sub-categorized:
 
-1. Non-Pseudo: All iterators in the parent category (i.e. Intermediary or consumer) can be expressed using a non-pseudo iterator. For intermediaries the only non-pseudo iterator is ```Next```, and for consumers the only non-pseudo iterator is ```ForEach```.
+1. Non-Pseudo: All iterators in the parent category (i.e. Intermediary or consumer) can be expressed using a non-pseudo iterator. For intermediaries the non-pseudo iterator is ```Next``` and for consumers the non-pseudo iterators are ```ForEach``` and ```Stop```.
 1. Pseudo: Any iterator in the parent category that can be expressed using the appropriate categories non-pseudo iterator.
 
 If you are looking to extend this library and add more iterators, it is highly recommended that any new intermediary or consumer iterators are created _using the non-pseudo iterators_. This will reduce errors and time spent needlessly banging your head against a wall.

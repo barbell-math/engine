@@ -74,8 +74,7 @@ func (i Iter[T])Filter(op func(val T) bool) Iter[T] {
 //a circular import now.
 func Window[T any](i Iter[T],
         q types.Queue[T],
-        allowPartials bool,
-        op func(index int, q types.Queue[T]) (IteratorFeedback,error)) Iter[types.Queue[T]] {
+        allowPartials bool) Iter[types.Queue[T]] {
     return Next(i,
     func(index int, val T, status IteratorFeedback) (IteratorFeedback, types.Queue[T], error) {
         if status==Break {

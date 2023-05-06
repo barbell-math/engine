@@ -20,7 +20,7 @@ func NewCircularQueue[T any](size int) (CircularQueue[T],error) {
     }
     return CircularQueue[T]{
         vals: make([]T,size),
-        startEnd: Pair[int, int]{First: 0, Second: -1},
+        startEnd: Pair[int, int]{A: 0, B: -1},
     },nil;
 }
 
@@ -35,8 +35,8 @@ func (c *CircularQueue[T])Capacity() int {
 func (c *CircularQueue[T])Push(v T) error {
     if c.NumElems<len(c.vals) {
         c.NumElems++;
-        c.startEnd.Second=c.wrapAroundIndex(c.startEnd.Second);
-        c.vals[c.startEnd.Second]=v;
+        c.startEnd.B=c.wrapAroundIndex(c.startEnd.B);
+        c.vals[c.startEnd.B]=v;
         return nil;
     }
     return QueueFull(fmt.Sprintf("Queue size: %d",len(c.vals)));
@@ -53,7 +53,7 @@ func (c *CircularQueue[T])Peek(idx int) (T,error) {
 
 func (c *CircularQueue[T])PeekPntr(idx int) (*T,error) {
     if idx>=0 && idx<c.NumElems {
-        properIndex:=idx+c.startEnd.First;
+        properIndex:=idx+c.startEnd.A;
         if properIndex>=len(c.vals) {
             properIndex-=len(c.vals);
         }
@@ -68,8 +68,8 @@ func (c *CircularQueue[T])PeekPntr(idx int) (*T,error) {
 
 func (c *CircularQueue[T])Pop() (T,error) {
     if c.NumElems>0 {
-        rv:=c.vals[c.startEnd.First];
-        c.startEnd.First=c.wrapAroundIndex(c.startEnd.First);
+        rv:=c.vals[c.startEnd.A];
+        c.startEnd.A=c.wrapAroundIndex(c.startEnd.A);
         c.NumElems--;
         return rv,nil;
     }

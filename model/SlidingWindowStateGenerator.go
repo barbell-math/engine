@@ -6,14 +6,14 @@ import (
     stdMath "math"
     "github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/block/util/dataStruct"
     mathUtil "github.com/barbell-math/block/util/math"
-    "github.com/barbell-math/block/util/dataStruct/base"
 )
 
 type SlidingWindowStateGen struct {
     allotedThreads int;
-    windowLimits base.Pair[int,int];
-    timeFrameLimits base.Pair[int,int];
+    windowLimits dataStruct.Pair[int,int];
+    timeFrameLimits dataStruct.Pair[int,int];
     windowValues [][]dataPoint;
     optimalMs db.ModelState;
     lr mathUtil.LinearReg[float64];
@@ -25,28 +25,28 @@ type SlidingWindowStateGen struct {
 //threads don't access the same slices because they are not deep copied even
 //though the method does not have a pointer receiver.)
 func NewSlidingWindowStateGen(
-        timeFrameLimits base.Pair[int,int],
-        windowLimits base.Pair[int,int],
+        timeFrameLimits dataStruct.Pair[int,int],
+        windowLimits dataStruct.Pair[int,int],
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
         allotedThreads: mathUtil.Constrain(allotedThreads,1,stdMath.MaxInt),
-        timeFrameLimits: base.Pair[int,int]{
-            First: -mathUtil.Abs(timeFrameLimits.First),
-            Second: -mathUtil.Abs(timeFrameLimits.Second),
-        }, windowLimits: base.Pair[int,int]{
-            First: -mathUtil.Abs(windowLimits.First),
-            Second: -mathUtil.Abs(windowLimits.Second),
+        timeFrameLimits: dataStruct.Pair[int,int]{
+            A: -mathUtil.Abs(timeFrameLimits.A),
+            B: -mathUtil.Abs(timeFrameLimits.B),
+        }, windowLimits: dataStruct.Pair[int,int]{
+            A: -mathUtil.Abs(windowLimits.A),
+            B: -mathUtil.Abs(windowLimits.B),
         }, optimalMs: db.ModelState{
             Mse: stdMath.Inf(1),
         },
     };
-    if rv.timeFrameLimits.First<rv.timeFrameLimits.Second {
+    if rv.timeFrameLimits.A<rv.timeFrameLimits.B {
         return rv,InvalidPredictionState("min time frame > max time frame");
-    } else if rv.windowLimits.First<rv.windowLimits.Second {
+    } else if rv.windowLimits.A<rv.windowLimits.B {
         return rv,InvalidPredictionState("min window >= max window, should be <");
-    } else if rv.windowLimits.Second<rv.timeFrameLimits.Second {
+    } else if rv.windowLimits.B<rv.timeFrameLimits.B {
         return rv,InvalidPredictionState("max window >= max time frame, should be <");
-    } else if rv.windowLimits.First>rv.timeFrameLimits.First {
+    } else if rv.windowLimits.A>rv.timeFrameLimits.A {
         return rv,InvalidPredictionState("min window <= min time frame, should be >");
     }
     return rv,nil;
@@ -61,7 +61,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
         c.Id,stateGenType.Id,
     }, func (m *missingModelStateData) bool {
         fmt.Printf("Need ms for %+v\n",m);
-        DEBUG.Log("Need ms: %+v\n",m);
+        SLIDING_WINDOW_DEBUG.Log("Need ms: %+v\n",m);
         return true;
     });
     fmt.Println(err);
@@ -75,8 +75,8 @@ func (s SlidingWindowStateGen)GenerateModelState(
     s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
     err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
-        missingData.Date.AddDate(0, 0, s.timeFrameLimits.First),
-        missingData.Date.AddDate(0, 0, s.timeFrameLimits.Second),
+        missingData.Date.AddDate(0, 0, s.timeFrameLimits.A),
+        missingData.Date.AddDate(0, 0, s.timeFrameLimits.B),
         missingData.ExerciseID,
         missingData.ClientID,
     }, func (d *dataPoint) bool {
@@ -91,15 +91,13 @@ func (s SlidingWindowStateGen)GenerateModelState(
         }
         s.updateLrSummations(d);    //Time frame limits guaranteed by query
         return !(curDate.Before(
-            missingData.Date.AddDate(0, 0, s.windowLimits.Second),
+            missingData.Date.AddDate(0, 0, s.windowLimits.B),
         ) && len(s.windowValues)==0);
     });
     if err==nil && len(s.windowValues)==0 {
         return NoDataInSelectedWindow(fmt.Sprintf(
             "Date: %s Min window: %d Max window: %d",
-            missingData.Date,
-            s.windowLimits.First,
-            s.windowLimits.Second,
+            missingData.Date, s.windowLimits.A, s.windowLimits.B,
         ));
     }
     fmt.Println(err);
@@ -166,7 +164,7 @@ func (s *SlidingWindowStateGen)saveModelState(
     s.optimalMs.Win=winLen;
     s.optimalMs.Rcond=rcond;
     s.optimalMs.Mse=mse;
-    DEBUG.Log("ModelState",s.optimalMs);
+    SLIDING_WINDOW_MS_DEBUG.Log("ModelState",s.optimalMs);
 }
 
 func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
@@ -176,7 +174,7 @@ func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
     } else {
         s.windowValues[l-1]=append(s.windowValues[l-1],*d);
     }
-    DEBUG.Log("WindowDataPoint",d);
+    SLIDING_WINDOW_DP_DEBUG.Log("WindowDataPoint",d);
 }
 
 func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
@@ -184,16 +182,16 @@ func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
         "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
         "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
     });
-    DEBUG.Log("DataPoint",d);
+    SLIDING_WINDOW_DP_DEBUG.Log("DataPoint",d);
 }
 
 func (s *SlidingWindowStateGen)setWithinWindowLimits(
         missingDataTime time.Time){
-    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.First));
-    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.Second));
+    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.A));
+    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.B));
     s.withinWindowLimits=between(
-        missingDataTime.AddDate(0, 0, s.windowLimits.First),
-        missingDataTime.AddDate(0, 0, s.windowLimits.Second),
+        missingDataTime.AddDate(0, 0, s.windowLimits.A),
+        missingDataTime.AddDate(0, 0, s.windowLimits.B),
     );
 }
 

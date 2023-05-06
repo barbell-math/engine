@@ -1,6 +1,6 @@
 package dataStruct;
 
 type Pair[T any, U any] struct {
-    First T;
-    Second U;
+    A T;
+    B U;
 };

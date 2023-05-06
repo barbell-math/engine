@@ -28,3 +28,12 @@ func (i Iter[T])ForEach(
         customerr.AppendError(err,cleanUpErr),
     );
 }
+
+//Why is stop not a pseudo consumer? It breaks the parent calling convention
+// that ForEach uses. For each will always get a parent iterators value before
+// the op function is consulted. Stop should just stop, and not call the parent
+// iterators one last time meaning it has to be separate.
+func (i Iter[T])Stop() error {
+    _,cleanUpErr,_:=i(Break);
+    return cleanUpErr;
+}

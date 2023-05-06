@@ -3,7 +3,7 @@ package model;
 import (
     "time"
     "github.com/barbell-math/block/db"
-    logUtil "github.com/barbell-math/block/util/log"
+    logUtil "github.com/barbell-math/block/util/io/log"
 )
 
 type stateGenerator interface {
@@ -42,7 +42,8 @@ type dataPoint struct {
     InterWorkoutFatigue float64;
 };
 
-var DEBUG=logUtil.NewBlankLog();
+var SLIDING_WINDOW_DP_DEBUG=logUtil.NewBlankLog[*dataPoint]();
+var SLIDING_WINDOW_MS_DEBUG=logUtil.NewBlankLog[db.ModelState]();
 
 //func msMissingQuery(sg db.StateGenerator) string {
 //    return `SELECT TrainingLog.DatePerformed,

@@ -20,10 +20,10 @@ func TestNewCircularQueue(t *testing.T) {
     test.BasicTest(5,cap(tmp.vals),
         "NewCircularQueue did not set capacity correctly.",t,
     );
-    test.BasicTest(0,tmp.startEnd.First,
+    test.BasicTest(0,tmp.startEnd.A,
         "NewCircularQueue added values to empty queue during initialization.",t,
     );
-    test.BasicTest(-1,tmp.startEnd.Second,
+    test.BasicTest(-1,tmp.startEnd.B,
         "NewCircularQueue added values to empty queue during initialization.",t,
     );
 }
@@ -41,10 +41,10 @@ func TestNewCircularQueueBadSize(t *testing.T) {
     test.BasicTest(0,cap(tmp.vals),
         "NewCircularQueue did not set capacity correctly.",t,
     );
-    test.BasicTest(0,tmp.startEnd.First,
+    test.BasicTest(0,tmp.startEnd.A,
         "NewCircularQueue added values to empty queue during initialization.",t,
     );
-    test.BasicTest(0,tmp.startEnd.Second,
+    test.BasicTest(0,tmp.startEnd.B,
         "NewCircularQueue added values to empty queue during initialization.",t,
     );
 }
@@ -63,8 +63,8 @@ func TestCircularQueuePush(t *testing.T){
             "Push did not increment NumElems after adding value.",t,
         );
         test.BasicTest(i,tmp.vals[i],"Push did not save value.",t);
-        test.BasicTest(0,tmp.startEnd.First,"Push modified the start index.",t);
-        test.BasicTest(i,tmp.startEnd.Second,
+        test.BasicTest(0,tmp.startEnd.A,"Push modified the start index.",t);
+        test.BasicTest(i,tmp.startEnd.B,
             "Push did not modify the end index.",t,
         );
     }
@@ -77,8 +77,8 @@ func TestCircularQueuePush(t *testing.T){
     test.BasicTest(5,tmp.NumElems,
         "Push incremented NumElems when queue was full.",t,
     );
-    test.BasicTest(0,tmp.startEnd.First,"Push modified the start index.",t);
-    test.BasicTest(len(tmp.vals)-1,tmp.startEnd.Second,
+    test.BasicTest(0,tmp.startEnd.A,"Push modified the start index.",t);
+    test.BasicTest(len(tmp.vals)-1,tmp.startEnd.B,
         "Push modified the end index when the queue was full.",t,
     );
 }
@@ -88,8 +88,8 @@ func TestCircularQueuePushStartFromMiddle(t *testing.T) {
     test.BasicTest(nil,err,
         "NewCircularQueue returned an error when it should not have.",t,
     );
-    tmp.startEnd.First=2;
-    tmp.startEnd.Second=1;
+    tmp.startEnd.A=2;
+    tmp.startEnd.B=1;
     for i:=0; i<5; i++ {
         res:=tmp.Push(i);
         test.BasicTest(nil,res,
@@ -98,15 +98,15 @@ func TestCircularQueuePushStartFromMiddle(t *testing.T) {
         test.BasicTest(i+1,tmp.NumElems,
             "Push did not increment NumElems after adding value.",t,
         );
-        test.BasicTest(2,tmp.startEnd.First,"Push modified the start index.",t);
+        test.BasicTest(2,tmp.startEnd.A,"Push modified the start index.",t);
         if i<3 {
             test.BasicTest(i,tmp.vals[i+2],"Push did not save value.",t);
-            test.BasicTest(i+2,tmp.startEnd.Second,
+            test.BasicTest(i+2,tmp.startEnd.B,
                 "Push did not modify the end index.",t,
             );
         } else {
             test.BasicTest(i,tmp.vals[i-3],"Push did not save value.",t);
-            test.BasicTest(i-3,tmp.startEnd.Second,
+            test.BasicTest(i-3,tmp.startEnd.B,
                 "Push did not modify the end index.",t,
             );
         }
@@ -120,8 +120,8 @@ func TestCircularQueuePushStartFromMiddle(t *testing.T) {
     test.BasicTest(5,tmp.NumElems,
         "Push incremented NumElems when queue was full.",t,
     );
-    test.BasicTest(2,tmp.startEnd.First,"Push modified the start index.",t);
-    test.BasicTest(1,tmp.startEnd.Second,
+    test.BasicTest(2,tmp.startEnd.A,"Push modified the start index.",t);
+    test.BasicTest(1,tmp.startEnd.B,
         "Push modified the end index when the queue was full.",t,
     );
 }
@@ -160,8 +160,8 @@ func TestCircularQueuePeek(t *testing.T){
     test.BasicTest(nil,err,
         "NewCircularQueue returned an error when it should not have.",t,
     );
-    tmp.startEnd.First=2;
-    tmp.startEnd.Second=1;
+    tmp.startEnd.A=2;
+    tmp.startEnd.B=1;
     testCircularQueuePeekHelper(tmp,t);
 }
 
@@ -207,8 +207,8 @@ func TestCircularQueuePeekPntr(t *testing.T){
     test.BasicTest(nil,err,
         "NewCircularQueue returned an error when it should not have.",t,
     );
-    tmp.startEnd.First=2;
-    tmp.startEnd.Second=1;
+    tmp.startEnd.A=2;
+    tmp.startEnd.B=1;
     testCircularQueuePeekPntrHelper(tmp,t);
 }
 
@@ -258,8 +258,8 @@ func TestCircularQueueElems(t *testing.T){
     test.BasicTest(nil,err,
         "NewCircularQueue returned an error when it should not have.",t,
     );
-    tmp.startEnd.First=2;
-    tmp.startEnd.Second=1;
+    tmp.startEnd.A=2;
+    tmp.startEnd.B=1;
     testCircularQueueElemsHelper(tmp,t);
 }
 
@@ -287,8 +287,8 @@ func TestCircularQueuePntrElems(t *testing.T){
     test.BasicTest(nil,err,
         "NewCircularQueue returned an error when it should not have.",t,
     );
-    tmp.startEnd.First=2;
-    tmp.startEnd.Second=1;
+    tmp.startEnd.A=2;
+    tmp.startEnd.B=1;
     testCircularQueueElemsHelper(tmp,t);
 }
 

@@ -15,10 +15,20 @@ func generateLog(l *Logger[int], numLines int) {
     }
 }
 
+func generateIntertwinedLogs(l1 *Logger[int], l2 *Logger[int], numLines int) {
+    cntr:=0;
+    for i:=0; i<numLines; i++ {
+        cntr++;
+        l1.Log(fmt.Sprintf("L1 Line %d",cntr),cntr);
+        cntr++;
+        l2.Log(fmt.Sprintf("L2 Line %d",cntr),cntr);
+    }
+}
+
 func TestLogIteration(t *testing.T){
-    l:=NewLog[int](Error,"./testData/generateLog.log");
+    l:=NewLog[int](Error,"./testData/generateLog.log",false);
     generateLog(&l,1000);
-    LogElems[int](l).ForEach(func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
+    LogElems(l).ForEach(func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
         test.BasicTest(Error,val.Status,"Log line status was not set properly.",t);
         test.BasicTest(fmt.Sprintf("Line %d",index),val.Message,
             "Log line message was not set properly.",t,
@@ -26,15 +36,17 @@ func TestLogIteration(t *testing.T){
         test.BasicTest(index,val.Val,"Log line value was not set properly.",t);
         return iter.Continue,nil;
     });
+    l.Close();
 }
 
 func TestLogIterationTime(t *testing.T){
-    l:=NewLog[int](Error,"./testData/generateLog.log");
+    l:=NewLog[int](Error,"./testData/generateLog.log",false);
     generateLog(&l,1000);
+    cntr:=0;
     c,_:=dataStruct.NewCircularQueue[LogEntry[int]](2);
-    cnt,err:=iter.Window[LogEntry[int]](LogElems(l),&c,false,
+    err:=iter.Window[LogEntry[int]](LogElems(l),&c,false).ForEach(
     func(index int, q types.Queue[LogEntry[int]]) (iter.IteratorFeedback, error) {
-        fmt.Printf("%v",q);
+        cntr++;
         f,_:=q.Peek(0);
         s,_:=q.Peek(1);
         if !f.Time.Before(s.Time) {
@@ -45,20 +57,97 @@ func TestLogIterationTime(t *testing.T){
             );
         }
         return iter.Continue,nil;
-    }).Count();
-    test.BasicTest(999,cnt,
+    });
+    test.BasicTest(999,cntr,
         "Window did not produce correct number of elements.",t,
     );
     test.BasicTest(nil,err,
         "Window returned an error when it should not have.",t,
     );
+    l.Close();
+}
+
+func TestLogAppend(t *testing.T){
+    l:=NewLog[int](Error,"./testData/generateLog.log",false);
+    generateLog(&l,1000);
+    l.Close();
+    l=NewLog[int](Error,"./testData/generateLog.log",true);
+    generateLog(&l,1000);
+    cntr:=0;
+    err:=LogElems(l).ForEach(
+    func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
+        test.BasicTest(Error,val.Status,"Log line status was not set properly.",t);
+        test.BasicTest(fmt.Sprintf("Line %d",index%1000),val.Message,
+            "Log line message was not set properly.",t,
+        );
+        test.BasicTest(index%1000,val.Val,
+            "Log line value was not set properly.",t,
+        );
+        cntr++;
+        return iter.Continue,nil;
+    });
+    test.BasicTest(2000,cntr,"Log was not appended to correctly.",t);
+    test.BasicTest(nil,err,
+        "Log elems returned an error when it was not supposed to.",t,
+    );
+    l.Close();
+}
+
+func TestLogJoin(t *testing.T){
+    cntr:=0;
+    l1:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
+    l2:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
+    generateIntertwinedLogs(&l1,&l2,1000);
+    l1S:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
+    l2S:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
+    err:=iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
+        dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
+        JoinLogByTime[int],
+    ).ForEach(
+    func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
+        test.BasicTest(Error,val.Status,"Log line status was not set properly.",t);
+        test.BasicTest(fmt.Sprintf("L%d Line %d",index%2+1,index+1),val.Message,
+            "Log line message was not set properly.",t,
+        );
+        test.BasicTest(index+1,val.Val,
+            "Log line value was not set properly.",t,
+        );
+        cntr++;
+        return iter.Continue,nil;
+    });
+    test.BasicTest(2000,cntr,"Log was not appended to correctly.",t);
+    test.BasicTest(nil,err,
+        "Log elems returned an error when it was not supposed to.",t,
+    );
+    l1.Close();
+    l2.Close();
+}
+
+
+func BenchmarkJoinLog(b *testing.B) {
+    l1:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
+    l2:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
+    generateIntertwinedLogs(&l1,&l2,1000);
+    l1S:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
+    l2S:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
+    for i:=0; i<b.N; i++ {
+        iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
+            dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
+            JoinLogByTime[int],
+        ).ForEach(
+        func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
+            return iter.Continue,nil;
+        });
+    }
+    l1.Close();
+    l2.Close();
 }
 
 func BenchmarkBigLog(b *testing.B) {
     cntr:=0;
-    l:=NewLog[int](Error,"./testData/big.log");
-    fmt.Println("Generating log file with 1M lines...");
-    //generateLog(&l,1000000);
+    l:=NewLog[int](Error,"./testData/big.log",false);
+    fmt.Println("Generating log file with 500K lines (this may take a while)...");
+    generateLog(&l,500000);
     fmt.Println("Running tests...");
     for i:=0; i<b.N; i++ {
         LogElems(l).ForEach(
@@ -66,6 +155,7 @@ func BenchmarkBigLog(b *testing.B) {
             cntr++;
             return iter.Continue,nil;
         });
-        fmt.Println(cntr);
+        fmt.Printf("Processed %d lines.\n",cntr);
     }
+    l.Close();
 }

@@ -7,8 +7,8 @@ import (
     "github.com/barbell-math/block/settings"
     "github.com/barbell-math/block/util/csv"
     "github.com/barbell-math/block/util/test"
-    logUtil "github.com/barbell-math/block/util/log"
     customerr "github.com/barbell-math/block/util/err"
+    logUtil "github.com/barbell-math/block/util/io/log"
 )
 
 var testDB db.DB;
@@ -38,9 +38,15 @@ func setup(){
 }
 
 func setupLogs(debugFile string) (func()) {
-    DEBUG=logUtil.NewLog(logUtil.Debug,debugFile);
+    SLIDING_WINDOW_DP_DEBUG=logUtil.NewLog[*dataPoint](logUtil.Debug,
+        fmt.Sprintf("%s.dataPoint",debugFile),false,
+    );
+    SLIDING_WINDOW_MS_DEBUG=logUtil.NewLog[db.ModelState](logUtil.Debug,
+        fmt.Sprintf("%s.modelState",debugFile),false,
+    );
     return func(){
-        DEBUG.Close();
+        SLIDING_WINDOW_DP_DEBUG.Close();
+        SLIDING_WINDOW_MS_DEBUG.Close();
     }
 }
 

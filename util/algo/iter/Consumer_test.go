@@ -7,6 +7,23 @@ import (
 	"github.com/barbell-math/block/util/test"
 )
 
+func TestStop(t *testing.T) {
+    cntr:=0;
+    newErr:=fmt.Errorf("Reached break");
+    err:=SliceElems([]int{1,2,3,4}).Next(
+    func(index, val int, status IteratorFeedback) (IteratorFeedback, int, error) {
+        cntr++;
+        if status==Break {
+            return Break,0,newErr;
+        }
+        return Continue,val,nil;
+    }).Stop();
+    test.BasicTest(1,cntr,"Stop did not stop iteration correctly.",t);
+    test.BasicTest(newErr,err,
+        "Stop did not call parent iterators with break command.",t,
+    );
+}
+
 func forEachIterHelper[T any](
         vals []T,
         op func(index int, val T) T,
