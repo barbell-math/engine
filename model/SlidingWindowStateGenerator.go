@@ -6,6 +6,7 @@ import (
     stdMath "math"
     "github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/block/util/algo/iter"
     "github.com/barbell-math/block/util/dataStruct"
     mathUtil "github.com/barbell-math/block/util/math"
 )
@@ -61,7 +62,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
         c.Id,stateGenType.Id,
     }, func (m *missingModelStateData) bool {
         fmt.Printf("Need ms for %+v\n",m);
-        SLIDING_WINDOW_DEBUG.Log("Need ms: %+v\n",m);
+        //SLIDING_WINDOW_DEBUG.Log("Need ms: %+v\n",m);
         return true;
     });
     fmt.Println(err);
@@ -122,14 +123,16 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
     var cumulativeSe float64=0.0;
     res,rcond,_:=s.lr.Run();
     for _,w:=range(s.windowValues) {
-        if se,err:=mathUtil.SqErr(algo.Map(algo.SliceElems(w),
-            func(w dataPoint) (float64,error) {
+        actual,_:=iter.Map(iter.SliceElems(w),
+        func(index int, w dataPoint) (float64,error) {
                 return w.Intensity,nil;
-        }).Collect(), algo.Map(algo.SliceElems(w),
-            func(w dataPoint) (float64,error) {
+        }).Collect();
+        pred,_:=iter.Map(iter.SliceElems(w),
+            func(index int, w dataPoint) (float64,error) {
                 return intensityPredFromLinReg(res,&w);
-        }).Collect()); err==nil {
-            seTot,_:=algo.SliceElems(se).Reduce(mathUtil.Add[float64],0);
+        }).Collect()
+        if se,err:=mathUtil.SqErr(actual,pred); err==nil {
+            seTot,_:=iter.SliceElems(se).Reduce(0,mathUtil.Add[float64]);
             cumulativeSe+=seTot;
             numPoints+=float64(len(w));
             if cumulativeSe/numPoints<s.optimalMs.Mse {
