@@ -1,11 +1,13 @@
-package math;
+package math
 
 import (
-    "fmt"
-    "strconv"
-    "testing"
-    "github.com/barbell-math/block/util/csv"
-    "github.com/barbell-math/block/util/test"
+	"fmt"
+	"strconv"
+	"testing"
+
+	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/block/util/io/csv"
+	"github.com/barbell-math/block/util/test"
 )
 
 func TestCreateLinReg(t *testing.T){
@@ -237,22 +239,23 @@ func TestNonStdLinearReg(t *testing.T){
     test.BasicTest(nil,err,
         "Linear reg returned error when it shouldn't have.",t,
     );
-    csv.CSVFileSplitter("testData/NonStdLinRegActual.csv",',',false,
-        func(col []string) bool {
-            cntr,_:=strconv.Atoi(col[0]);
-            v,err:=res.Predict(map[string]float64{
-                "x1": float64(cntr),"x2": float64(cntr/2.0),
-            });
-            actual,_:=strconv.ParseFloat(col[1],64);
-            test.BasicTest(nil,err,
-                "Appropriate linear relationship was not found.",t,
+    csv.CSVFileSplitter("testData/NonStdLinRegActual.csv",',','#').ForEach(
+    func(index int, val []string) (iter.IteratorFeedback, error) {
+        cntr,_:=strconv.Atoi(val[0]);
+        v,err:=res.Predict(map[string]float64{
+            "x1": float64(cntr),"x2": float64(cntr/2.0),
+        });
+        actual,_:=strconv.ParseFloat(val[1],64);
+        test.BasicTest(nil,err,
+            "Appropriate linear relationship was not found.",t,
+        );
+        if Abs(v-actual)>WORKING_PRECISION*10 {
+            test.FormatError(actual,v,
+                "Value is not within working precision of expected value.",t,
             );
-            if Abs(v-actual)>WORKING_PRECISION*10 {
-                test.FormatError(actual,v,
-                    "Value is not within working precision of expected value.",t,
-                );
-            }
-            return true;
+        }
+        return iter.Continue,nil;
+
     });
 }
 
