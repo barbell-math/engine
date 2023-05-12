@@ -4,8 +4,8 @@ import (
     "fmt"
     "reflect"
     "database/sql"
-    "github.com/barbell-math/block/util/csv"
     "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/block/util/io/csv"
     customReflect "github.com/barbell-math/block/util/reflect"
 )
 

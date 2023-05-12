@@ -4,12 +4,27 @@ import (
 	"io"
 	"os"
 	"fmt"
+    "strings"
 	"strconv"
 	"reflect"
 	"time"
 	"encoding/csv"
 	"github.com/barbell-math/block/util/algo/iter"
 )
+
+func CSVGenerator(sep string, callback func(iter int) (string,bool)) string {
+    var sb strings.Builder;
+    var temp string;
+    cont:=true;
+    for i:=0; cont; i++ {
+        temp,cont=callback(i);
+        sb.WriteString(temp);
+        if cont {
+            sb.WriteString(sep);
+        }
+    }
+    return sb.String();
+}
 
 func CSVFileSplitter(src string, delim rune, comment rune) iter.Iter[[]string] {
     var reader *csv.Reader=nil;
