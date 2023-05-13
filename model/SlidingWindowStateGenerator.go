@@ -5,8 +5,6 @@ import (
     "time"
     stdMath "math"
     "github.com/barbell-math/block/db"
-    "github.com/barbell-math/block/util/algo"
-    "github.com/barbell-math/block/util/algo/iter"
     "github.com/barbell-math/block/util/dataStruct"
     mathUtil "github.com/barbell-math/block/util/math"
 )
@@ -123,16 +121,18 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
     var cumulativeSe float64=0.0;
     res,rcond,_:=s.lr.Run();
     for _,w:=range(s.windowValues) {
-        actual,_:=iter.Map(iter.SliceElems(w),
-        func(index int, w dataPoint) (float64,error) {
-                return w.Intensity,nil;
-        }).Collect();
-        pred,_:=iter.Map(iter.SliceElems(w),
-            func(index int, w dataPoint) (float64,error) {
-                return intensityPredFromLinReg(res,&w);
-        }).Collect()
+        actual,pred:=make([]float64,len(w)),make([]float64,len(w));
+        for i,v:=range(w) {
+            actual[i]=v.Intensity;
+            if iterPred,err:=intensityPredFromLinReg(res,&v); err==nil {
+                pred[i]=iterPred;
+            }
+        }
         if se,err:=mathUtil.SqErr(actual,pred); err==nil {
-            seTot,_:=iter.SliceElems(se).Reduce(0,mathUtil.Add[float64]);
+            seTot:=0.0;
+            for _,v:=range(se) {
+                seTot+=v;
+            }
             cumulativeSe+=seTot;
             numPoints+=float64(len(w));
             if cumulativeSe/numPoints<s.optimalMs.Mse {

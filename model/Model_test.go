@@ -41,10 +41,10 @@ func setup(){
 
 func setupLogs(debugFile string) (func()) {
     SLIDING_WINDOW_DP_DEBUG=logUtil.NewLog[*dataPoint](logUtil.Debug,
-        fmt.Sprintf("%s.dataPoint",debugFile),false,
+        fmt.Sprintf("%s.dataPoint.log",debugFile),false,
     );
     SLIDING_WINDOW_MS_DEBUG=logUtil.NewLog[db.ModelState](logUtil.Debug,
-        fmt.Sprintf("%s.modelState",debugFile),false,
+        fmt.Sprintf("%s.modelState.log",debugFile),false,
     );
     return func(){
         SLIDING_WINDOW_DP_DEBUG.Close();

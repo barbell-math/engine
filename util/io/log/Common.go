@@ -162,6 +162,6 @@ func getObject[T any](parts []string, elem *T) error {
     return fmt.Errorf("No object present");
 }
 
-func JoinLogByTime[T any](left LogEntry[T], right LogEntry[T]) bool {
+func JoinLogByTime[T any, U any](left LogEntry[T], right LogEntry[U]) bool {
     return left.Time.Before(right.Time);
 }

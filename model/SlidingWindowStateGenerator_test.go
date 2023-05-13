@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
-	//"github.com/barbell-math/block/db"
+	"github.com/barbell-math/block/db"
 	"github.com/barbell-math/block/util/algo/iter"
 	"github.com/barbell-math/block/util/dataStruct"
+	"github.com/barbell-math/block/util/dataStruct/types"
 	"github.com/barbell-math/block/util/io/log"
 	"github.com/barbell-math/block/util/test"
 )
@@ -70,12 +71,12 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
 //}
 
 func TestGenerateModelState(t *testing.T){
-    tmp:=setupLogs("./debugLogs/SlidingWindowStateGeneratorGood.log");
+    tmp:=setupLogs("./debugLogs/SlidingWindowStateGeneratorGood");
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(
-        //base.Pair[int,int]{4, 500},base.Pair[int,int]{5, 10},0,
-        //base.Pair[int,int]{0, 500},base.Pair[int,int]{0, 1},0,
+        //dataStruct.Pair[int,int]{4, 500},dataStruct.Pair[int,int]{5, 10},0,
+        //dataStruct.Pair[int,int]{0, 500},dataStruct.Pair[int,int]{0, 1},0,
         dataStruct.Pair[int,int]{0, 500},dataStruct.Pair[int,int]{0, 10},0,
     );
     err:=sw.GenerateModelState(&testDB,missingModelStateData{
@@ -85,9 +86,18 @@ func TestGenerateModelState(t *testing.T){
     },ch);
     fmt.Println("ERR: ",err);
     tmp();
-    log.LogElems[*dataPoint](SLIDING_WINDOW_DP_DEBUG).ForEach(
-    func(index int, val log.LogEntry[*dataPoint]) (iter.IteratorFeedback,error) {
-        fmt.Printf("%+v\t %s\t %s\n",val,val.Time,val.Val.DatePerformed);
+    iter.Join[log.LogEntry[*dataPoint],log.LogEntry[db.ModelState]](
+        log.LogElems(SLIDING_WINDOW_DP_DEBUG),log.LogElems(SLIDING_WINDOW_MS_DEBUG),
+        dataStruct.Variant[log.LogEntry[*dataPoint],log.LogEntry[db.ModelState]]{},
+        log.JoinLogByTime[*dataPoint,db.ModelState],
+    ).ForEach(func(index int,
+        val types.Variant[log.LogEntry[*dataPoint],log.LogEntry[db.ModelState]],
+    ) (iter.IteratorFeedback, error) {
+        if val.HasA() {
+            fmt.Printf("%+v\n",val.ValA());
+        } else {
+            fmt.Printf("%+v\n",val.ValB());
+        }
         return iter.Continue,nil;
-    });
+    })
 }

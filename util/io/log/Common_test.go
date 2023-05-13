@@ -102,7 +102,7 @@ func TestLogJoin(t *testing.T){
     l2S:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
     err:=iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
         dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
-        JoinLogByTime[int],
+        JoinLogByTime[int,int],
     ).ForEach(
     func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
         test.BasicTest(Error,val.Status,"Log line status was not set properly.",t);
@@ -133,7 +133,7 @@ func BenchmarkJoinLog(b *testing.B) {
     for i:=0; i<b.N; i++ {
         iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
             dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
-            JoinLogByTime[int],
+            JoinLogByTime[int,int],
         ).ForEach(
         func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
             return iter.Continue,nil;
