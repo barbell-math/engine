@@ -27,19 +27,7 @@ func (i Iter[T])TakeWhile(op func(val T) bool) Iter[T] {
 }
 
 func (i Iter[T])Skip(num int) Iter[T] {
-    cntr:=-1;
-    return i.Next(
-    func(index int, val T, status IteratorFeedback) (IteratorFeedback, T, error) {
-        if status==Break {
-            return Break,val,nil;
-        }
-        cntr++;
-        if cntr<num {
-            return Iterate,val,nil;
-        } else {
-            return Continue,val,nil;
-        }
-    });
+    return i.Filter(FilterToIndex[T](num));
 }
 
 func Map[T any, U any](i Iter[T],
@@ -58,10 +46,15 @@ func (i Iter[T])Map(op func(index int, val T) (T,error)) Iter[T] {
     return Map(i,op);
 }
 
-func (i Iter[T])Filter(op func(val T) bool) Iter[T] {
+func FilterToIndex[T any](num int) func(index int, val T) bool {
+    return func(index int, val T) bool {
+        return !(index<num);
+    }
+}
+func (i Iter[T])Filter(op func(index int, val T) bool) Iter[T] {
     return i.Next(
     func(index int, val T, status IteratorFeedback) (IteratorFeedback, T, error) {
-        if status!=Break && op(val) {
+        if status!=Break && op(index,val) {
             return Continue,val,nil;
         }
         return Iterate,val,nil;

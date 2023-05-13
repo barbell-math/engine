@@ -2,11 +2,12 @@ package model;
 
 import (
     "fmt"
-    "time"
+    stdTime "time"
     stdMath "math"
     "github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/dataStruct"
     mathUtil "github.com/barbell-math/block/util/math"
+    timeUtil "github.com/barbell-math/block/util/time"
 )
 
 type SlidingWindowStateGen struct {
@@ -16,7 +17,7 @@ type SlidingWindowStateGen struct {
     windowValues [][]dataPoint;
     optimalMs db.ModelState;
     lr mathUtil.LinearReg[float64];
-    withinWindowLimits (func(t time.Time) bool);
+    withinWindowLimits (func(t stdTime.Time) bool);
 };
 
 //The lr and window values are not created until the generate prediction method
@@ -51,6 +52,10 @@ func NewSlidingWindowStateGen(
     return rv,nil;
 }
 
+func (s SlidingWindowStateGen)Id() StateGeneratorId {
+    return SlidingWindowStateGenId;
+}
+
 func (s SlidingWindowStateGen)GenerateClientModelStates(
         d *db.DB,
         c db.Client,
@@ -70,7 +75,8 @@ func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData missingModelStateData,
         ch chan<- StateGeneratorRes) error {
-    var curDate time.Time;
+    var curDate stdTime.Time;
+    s.setInitialOptimalMsValues(&missingData);
     s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
     err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
@@ -101,6 +107,14 @@ func (s SlidingWindowStateGen)GenerateModelState(
     }
     fmt.Println(err);
     return err;
+}
+
+func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
+        missingData *missingModelStateData){
+    s.optimalMs.ClientID=missingData.ClientID;
+    s.optimalMs.ExerciseID=missingData.ExerciseID;
+    s.optimalMs.StateGeneratorID=int(SlidingWindowStateGenId);
+    s.optimalMs.Date=missingData.Date;
 }
 
 //Algo steps:
@@ -137,9 +151,9 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
             numPoints+=float64(len(w));
             if cumulativeSe/numPoints<s.optimalMs.Mse {
                 s.saveModelState(res,rcond,cumulativeSe/numPoints,
-                    daysBetween(s.windowValues[0][0].DatePerformed,
+                    timeUtil.DaysBetween(s.windowValues[0][0].DatePerformed,
                         w[0].DatePerformed,
-                    ), daysBetween(missingData.Date,d.DatePerformed),
+                    ), timeUtil.DaysBetween(missingData.Date,d.DatePerformed),
                 );
             }
         } else {
@@ -189,36 +203,11 @@ func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
 }
 
 func (s *SlidingWindowStateGen)setWithinWindowLimits(
-        missingDataTime time.Time){
+        missingDataTime stdTime.Time){
     fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.A));
     fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.B));
-    s.withinWindowLimits=between(
+    s.withinWindowLimits=timeUtil.Between(
         missingDataTime.AddDate(0, 0, s.windowLimits.A),
         missingDataTime.AddDate(0, 0, s.windowLimits.B),
     );
-}
-
-//this will eventually need to be moved to some common utility file
-//Due to the confusing nature of time, both after and before are **inclusive**
-//After is the 'future' time, before is the 'past' time
-func between(after time.Time, before time.Time) (func(t time.Time) bool) {
-    //if the 'past' time is after the 'future' time then switch them
-    if before.After(after) {
-        tmp:=before;
-        before=after;
-        after=tmp;
-    }
-    return func(t time.Time) bool {
-        return (before.AddDate(0, 0, -1).Before(t) &&
-            after.AddDate(0, 0, 1).After(t));
-    }
-}
-
-func daysBetween(after time.Time, before time.Time) int {
-    if before.After(after) {
-        tmp:=before;
-        before=after;
-        after=tmp;
-    }
-    return int(after.Sub(before).Hours()/24);
 }

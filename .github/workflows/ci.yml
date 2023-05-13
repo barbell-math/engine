@@ -30,7 +30,8 @@ jobs:
 
     - name: Unit tests
       run: |
-            sudo go test ./... -coverprofile coverage.out -covermode count
+            # Cannot test all functionality because that would require postgres to be installed along with the data repo
+            sudo go test ./util/... -coverprofile coverage.out -covermode count
             sudo go tool cover -func coverage.out
 
     - name: Quality Gate - Test coverage shall be above threshold

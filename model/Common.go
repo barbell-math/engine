@@ -6,6 +6,11 @@ import (
     logUtil "github.com/barbell-math/block/util/io/log"
 )
 
+type StateGeneratorId int;
+const (
+    SlidingWindowStateGenId StateGeneratorId=iota
+);
+
 type stateGenerator interface {
     GenerateClientModelStates(d *db.DB, c db.Client, ch chan<- []error);
     GenerateModelState(
@@ -13,6 +18,7 @@ type stateGenerator interface {
         missingData missingModelStateData,
         ch chan<- StateGeneratorRes,
     );
+    Id() StateGeneratorId;
 };
 
 type StateGeneratorRes struct {

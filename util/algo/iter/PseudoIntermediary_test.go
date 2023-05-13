@@ -94,22 +94,22 @@ func TestMap(t *testing.T){
 }
 
 func TestFilter(t *testing.T){
-    cntr,err:=SliceElems([]int{1,2,3,4}).Filter(func(val int) bool {
+    cntr,err:=SliceElems([]int{1,2,3,4}).Filter(func(index int, val int) bool {
         return val<3;
     }).Count();
     test.BasicTest(2,cntr,"Filter did not work appropriately.",t);
     test.BasicTest(nil,err,"Filter returned an error when it should not have",t);
-    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(val int) bool {
+    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(index int, val int) bool {
         return val<5;
     }).Count();
     test.BasicTest(4,cntr,"Filter did not work appropriately.",t);
     test.BasicTest(nil,err,"Filter returned an error when it should not have",t);
-    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(val int) bool {
+    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(index int, val int) bool {
         return val<2;
     }).Count();
     test.BasicTest(1,cntr,"Filter did not work appropriately.",t);
     test.BasicTest(nil,err,"Filter returned an error when it should not have",t);
-    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(val int) bool {
+    cntr,err=SliceElems([]int{1,2,3,4}).Filter(func(index int, val int) bool {
         return val<1;
     }).Count();
     test.BasicTest(0,cntr,"Filter did not work appropriately.",t);
