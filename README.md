@@ -1,6 +1,6 @@
 # powerlifting-engine
 
-![Code Covergae](https://github.com/barbell-math/block/actions/workflows/ci.yml/badge.svg?event=push)
+![Code Coverage](https://github.com/barbell-math/block/actions/workflows/codeCoverage.yml/badge.svg?event=push)
 
 ## Application Setup
 This application requires PostgreSQL to be installed. Once installed, database(s) will need to be created based on what you are doing.
