@@ -73,9 +73,9 @@ func TestNoDataForModelState(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 1};
-    err:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
-    if !IsNoDataInSelectedWindow(err) {
-        test.FormatError(NoDataInSelectedWindow(""),err,
+    res:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
+    if !IsNoDataInSelectedWindow(res.Err) {
+        test.FormatError(NoDataInSelectedWindow(""),res.Err,
             "The incorrect error was returned.",t,
         );
     }
@@ -89,8 +89,8 @@ func TestGenerateModelStateScenario1(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 10};
-    err:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
-    test.BasicTest(nil,err,
+    res:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
+    test.BasicTest(nil,res.Err,
         "Running the sliding window model state generator returned an error when it shouldn't have.",t,
     );
 }
@@ -102,8 +102,8 @@ func TestGenerateModelStateScenario2(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 4, B: 500};
     window:=dataStruct.Pair[int,int]{A: 5, B: 10};
-    err:=generateModelStateHelper("scenario2",baseTime,timeFrame,window,2,t);
-    test.BasicTest(nil,err,
+    res:=generateModelStateHelper("scenario2",baseTime,timeFrame,window,2,t);
+    test.BasicTest(nil,res.Err,
         "Running the sliding window model state generator returned an error when it shouldn't have.",t,
     );
 }
@@ -113,27 +113,28 @@ func generateModelStateHelper(scenarioName string,
         timeFrame dataStruct.Pair[int,int],
         window dataStruct.Pair[int,int],
         numWindowVals int,
-        t *testing.T) error {
+        t *testing.T) StateGeneratorRes {
     closeLogs:=setupLogs(fmt.Sprintf(
         "./debugLogs/SlidingWindowStateGeneratorGood.%s",scenarioName,
     ));
-    ch:=make(chan<- StateGeneratorRes);
+    ch:=make(chan StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,1);
     missingData:=missingModelStateData{
         ClientID: 1,
         ExerciseID: 15,
         Date: baseTime,
     };
-    err:=sw.GenerateModelState(&testDB,missingData,ch);
-    fmt.Println("ERR: ",err);
+    go sw.GenerateModelState(&testDB,missingData,ch);
+    res:=<-ch;
     closeLogs();
+    close(ch);
     runModelStateDebugLogTests(baseTime,
         missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-        timeFrame,window,t,
+        timeFrame,window,res.Ms.Mse,t,
     );
     runDataPointDebugLogTests(baseTime,t);
     runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
-    return err;
+    return res;
 }
 
 func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
@@ -228,7 +229,9 @@ func runWindowDataPointDebugLogTests(baseTime time.Time,
 
 func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         timeFrame dataStruct.Pair[int,int],
-        window dataStruct.Pair[int,int], t *testing.T){
+        window dataStruct.Pair[int,int],
+        optimalMse float64,
+        t *testing.T){
     initialMse:=0.0;
     err:=log.LogElems(SLIDING_WINDOW_MS_DEBUG).Next(
     func(index int,
@@ -262,6 +265,9 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
             test.BasicTest(y2,y1,"A model state had an incorrect year.",t);
             test.BasicTest(m2,m1,"A model state had an incorrect month.",t);
             test.BasicTest(d2,d1,"A model state had an incorrect day.",t);
+            test.BasicTest(true,optimalMse<=val.Val.Mse,
+                "The optimal model state was not correctly found.",t,
+            );
         }
         return iter.Continue,val,nil;
     }).Filter(func(index int, val log.LogEntry[db.ModelState]) bool {

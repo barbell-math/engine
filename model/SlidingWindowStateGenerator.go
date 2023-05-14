@@ -74,7 +74,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData missingModelStateData,
-        ch chan<- StateGeneratorRes) error {
+        ch chan<- StateGeneratorRes) {
     var curDate stdTime.Time;
     s.setInitialOptimalMsValues(&missingData);
     s.setWithinWindowLimits(missingData.Date);
@@ -100,13 +100,12 @@ func (s SlidingWindowStateGen)GenerateModelState(
         ) && len(s.windowValues)==0);
     });
     if err==nil && len(s.windowValues)==0 {
-        return NoDataInSelectedWindow(fmt.Sprintf(
+        err=NoDataInSelectedWindow(fmt.Sprintf(
             "Date: %s Min window: %d Max window: %d",
             missingData.Date, s.windowLimits.A, s.windowLimits.B,
         ));
     }
-    fmt.Println(err);
-    return err;
+    ch <- StateGeneratorRes{ Ms: s.optimalMs, Err: err, };
 }
 
 func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
