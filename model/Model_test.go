@@ -55,6 +55,7 @@ func setupLogs(debugFile string) (func()) {
 func uploadTestData() error {
     return customerr.ChainedErrorOps(
         func(r ...any) (any,error) {
+            //TODO - update to use data file
             return db.Create(&testDB,db.Client{
                 Id: 1,
                 FirstName: "testF",
@@ -69,11 +70,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/StateGeneratorTestData.csv",',',"",
-            //    func(s *db.StateGenerator){
-            //        db.Create(&testDB,*s);
-            //});
         }, func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.ExerciseType](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseTypeTestData.csv",',','#',
@@ -82,11 +78,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/ExerciseTypeTestData.csv",',',"",
-            //    func(e *db.ExerciseType){
-            //        db.Create(&testDB,*e);
-            //});
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.ExerciseFocus](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseFocusTestData.csv",',','#',
@@ -95,11 +86,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/ExerciseFocusTestData.csv",',',"",
-            //    func(e *db.ExerciseFocus){
-            //        db.Create(&testDB,*e);
-            //});
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.Exercise](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseTestData.csv",',','#',
@@ -108,11 +94,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/ExerciseTestData.csv",',',"",
-            //    func(e *db.Exercise){
-            //        db.Create(&testDB,*e);
-            //});
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.Rotation](csv.CSVFileSplitter(
                 "../../data/testData/RotationTestData.csv",',','#',
@@ -121,11 +102,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/RotationTestData.csv",',',"1/2/2006",
-            //    func(r *db.Rotation){
-            //        db.Create(&testDB,*r);
-            //});
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.TrainingLog](csv.CSVFileSplitter(
                 "../../data/testData/AugmentedTrainingLogTestData.csv",',','#',
@@ -134,11 +110,6 @@ func uploadTestData() error {
                 db.Create(&testDB,val);
                 return iter.Continue,nil;
             });
-            //return nil,csv.CSVToStruct(
-            //    "../../data/testData/AugmentedTrainingLogTestData.csv",',',"1/2/2006",
-            //    func(t *db.TrainingLog){
-            //        db.Create(&testDB,*t);
-            //});
     });
 }
 

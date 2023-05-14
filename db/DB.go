@@ -4,7 +4,6 @@ import (
     "os"
     "fmt"
     "bufio"
-    "errors"
     "strings"
     "database/sql"
     "github.com/barbell-math/block/settings"
@@ -43,12 +42,15 @@ func (c *DB)RunDataConversion() error {
 }
 
 func (c *DB)implicitDataConversion(check bool) error {
-    cont:=true;
-    return customerr.ChainedErrorOpsWithCustomErrors([]error{
-            DataVersionNotAvailable,
+    return customerr.ChainedErrorOps(
+        func(r ...any) (any,error) {
+            if v,err:=c.getDataVersion(); err!=nil {
+                return v,DataVersionNotAvailable;
+            } else {
+                return v,err;
+            }
         }, func(r ...any) (any,error) {
-            return c.getDataVersion();
-        }, func(r ...any) (any,error) {
+            cont:=true;
             var err error=nil;
             for i:=r[0].(int)+1;
                 r[0].(int)>=0 && i<=settings.DataVersion() && err==nil && cont;
@@ -68,21 +70,22 @@ func (c *DB)implicitDataConversion(check bool) error {
 }
 
 func (c *DB)execDataConversion(toVersion int, fromVersion int) error {
-    return customerr.ChainedErrorOpsWithCustomErrors(
-        []error{
-            NoKnownDataConversion(
-                fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
-            ), DataConversion(
-                fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
-            ),
-        }, func(r ...any) (any,error) {
+    return customerr.ChainedErrorOps(
+        func(r ...any) (any,error) {
             if f,e:=DataVersionOps[toVersion]; e {
                 return f,nil;
             } else {
-                return f,errors.New("");
+                return f,NoKnownDataConversion(
+                    fmt.Sprintf("From: v%d To: v%d",fromVersion,toVersion),
+                );
             }
         }, func(r ...any) (any,error) {
-            return nil,r[0].(DataVersionConversion)(c);
+            if err:=r[0].(DataVersionConversion)(c); err!=nil {
+                return nil,DataConversion(fmt.Sprintf(
+                    "From: v%d To: v%d | %v",fromVersion,toVersion,err,
+                ));
+            }
+            return nil,nil;
         }, func(r ...any) (any,error) {
             return nil,c.setDataVersion(toVersion);
     });
