@@ -69,15 +69,56 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
 //    sw.GenerateClientModelStates(&testDB,db.Client{ Id: 1 },ch);
 //}
 
-func TestGenerateModelState(t *testing.T){
-    tmp:=setupLogs("./debugLogs/SlidingWindowStateGeneratorGood");
+func TestNoDataForModelState(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
-    ch:=make(chan<- StateGeneratorRes);
+    timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
+    window:=dataStruct.Pair[int,int]{A: 0, B: 1};
+    err:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
+    if !IsNoDataInSelectedWindow(err) {
+        test.FormatError(NoDataInSelectedWindow(""),err,
+            "The incorrect error was returned.",t,
+        );
+    }
+}
+
+func TestGenerateModelStateScenario1(t *testing.T){
+    //Window limits: 8/31/2022-9/10/2022
+    //Looking at the data there are three deadlift entries in that time span:
+    //  - Two on 9/1/2022
+    //  - One on 9/7/2022
+    baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 10};
+    err:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
+    test.BasicTest(nil,err,
+        "Running the sliding window model state generator returned an error when it shouldn't have.",t,
+    );
+}
+
+func TestGenerateModelStateScenario2(t *testing.T){
+    //Window limits: 8/31/2022-9/5/2022
+    //Looking at the data there are two deadlift entries in that time span:
+    //  - Two on 9/1/2022
+    baseTime,_:=time.Parse("01/02/2006","09/10/2022");
+    timeFrame:=dataStruct.Pair[int,int]{A: 4, B: 500};
+    window:=dataStruct.Pair[int,int]{A: 5, B: 10};
+    err:=generateModelStateHelper("scenario2",baseTime,timeFrame,window,2,t);
+    test.BasicTest(nil,err,
+        "Running the sliding window model state generator returned an error when it shouldn't have.",t,
+    );
+}
+
+func generateModelStateHelper(scenarioName string,
+        baseTime time.Time,
+        timeFrame dataStruct.Pair[int,int],
+        window dataStruct.Pair[int,int],
+        numWindowVals int,
+        t *testing.T) error {
+    closeLogs:=setupLogs(fmt.Sprintf(
+        "./debugLogs/SlidingWindowStateGeneratorGood.%s",scenarioName,
+    ));
+    ch:=make(chan<- StateGeneratorRes);
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,1);
-        //dataStruct.Pair[int,int]{4, 500},dataStruct.Pair[int,int]{5, 10},0,
-        //dataStruct.Pair[int,int]{0, 500},dataStruct.Pair[int,int]{0, 1},0,
     missingData:=missingModelStateData{
         ClientID: 1,
         ExerciseID: 15,
@@ -85,17 +126,32 @@ func TestGenerateModelState(t *testing.T){
     };
     err:=sw.GenerateModelState(&testDB,missingData,ch);
     fmt.Println("ERR: ",err);
-    tmp();
+    closeLogs();
     runModelStateDebugLogTests(baseTime,
         missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
         timeFrame,window,t,
     );
-    runDataPointDebugLogTests(t);
+    runDataPointDebugLogTests(baseTime,t);
+    runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
+    return err;
 }
 
-func runDataPointDebugLogTests(t *testing.T){
+func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
     initialDate:=time.Time{};
-    log.LogElems(SLIDING_WINDOW_DP_DEBUG).Filter(
+    err:=log.LogElems(SLIDING_WINDOW_DP_DEBUG).Filter(
+    func(index int, val log.LogEntry[*dataPoint]) bool {
+        return val.Message=="DataPoint";
+    }).Next(func(index int, 
+        val log.LogEntry[*dataPoint],
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, log.LogEntry[*dataPoint], error) {
+        if status!=iter.Break {
+            test.BasicTest(true,val.Val.DatePerformed.Before(baseTime),
+                "Window values occurred at or after the current time! (Implies generated data is no longer a prediction!!)",t,
+            );
+        }
+        return iter.Continue,val,nil;
+    }).Filter(
     func(index int, val log.LogEntry[*dataPoint]) bool {
         if index==0 {
             initialDate=val.Val.DatePerformed;
@@ -110,13 +166,71 @@ func runDataPointDebugLogTests(t *testing.T){
         initialDate=val.Val.DatePerformed;
         return iter.Continue,nil;
     });
+    test.BasicTest(nil,err,
+        "Iterating over a log generated an error when it should not have.",t,
+    );
+}
+
+func runWindowDataPointDebugLogTests(baseTime time.Time,
+        window dataStruct.Pair[int,int],
+        numWindowVals int,
+        t *testing.T){
+    initialDate:=time.Time{};
+    cnt,err:=log.LogElems(SLIDING_WINDOW_DP_DEBUG).Filter(
+    func(index int, val log.LogEntry[*dataPoint]) bool {
+        return val.Message=="WindowDataPoint";
+    }).Next(func(index int, 
+        val log.LogEntry[*dataPoint],
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, log.LogEntry[*dataPoint], error) {
+        if status!=iter.Break {
+            test.BasicTest(true,
+                val.Val.DatePerformed.After(baseTime.AddDate(0, 0, -window.B)),
+                "Window value is not after oldest allowed window value.",t,
+            );
+            test.BasicTest(true,
+                val.Val.DatePerformed.Before(baseTime.AddDate(0, 0, -window.A)),
+                "Window value is not after oldest allowed window value.",t,
+            );
+            test.BasicTest(true,val.Val.DatePerformed.Before(baseTime),
+                "Window values occurred at or before the current time! (Implies generated data is no longer a prediction!!)",t,
+            );
+        }
+        return iter.Continue,val,nil;
+    }).Filter(func(index int, val log.LogEntry[*dataPoint]) bool {
+        if index==0 {
+            initialDate=val.Val.DatePerformed;
+            return false;
+        }
+        return true;
+    }).Next(func(index int,
+        val log.LogEntry[*dataPoint],
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, log.LogEntry[*dataPoint], error) {
+        if status!=iter.Break {
+            test.BasicTest(true,initialDate.Sub(val.Val.DatePerformed)>=0,
+                "Training log dates did not continually decrease from query.",t,
+            );
+            initialDate=val.Val.DatePerformed;
+        }
+        return iter.Continue,val,nil;
+    }).Count();
+    if numWindowVals>0 {
+        //The first filter removes the first value, making for an off by one error here
+        test.BasicTest(numWindowVals-1,cnt,
+            "The correct number of window values were not generated.",t,
+        );
+    }
+    test.BasicTest(nil,err,
+        "Iterating over a log generated an error when it should not have.",t,
+    );
 }
 
 func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         timeFrame dataStruct.Pair[int,int],
         window dataStruct.Pair[int,int], t *testing.T){
     initialMse:=0.0;
-    log.LogElems(SLIDING_WINDOW_MS_DEBUG).Next(
+    err:=log.LogElems(SLIDING_WINDOW_MS_DEBUG).Next(
     func(index int,
         val log.LogEntry[db.ModelState],
         status iter.IteratorFeedback,
@@ -164,4 +278,7 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         initialMse=val.Val.Mse;
         return iter.Continue,nil;
     });
+    test.BasicTest(nil,err,
+        "Iterating over a log generated an error when it should not have.",t,
+    );
 }
