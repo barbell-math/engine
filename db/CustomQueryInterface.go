@@ -1,4 +1,6 @@
-package db;
+package db
+
+import "github.com/barbell-math/block/util/algo/iter"
 
 //func CustomSelectQuery[R DBTable](whereStmt string, whereVals []any) R
 //func CustomUpdateQuery[R DBTable](
@@ -12,19 +14,17 @@ package db;
 func CustomReadQuery[S any](
         c *DB,
         sqlStmt string,
-        vals []any,
-        callback func(r *S) bool) error {
+        vals []any) iter.Iter[*S] {
     if SelectStmt.isQueryType(sqlStmt) {
         rows,err:=c.db.Query(sqlStmt,vals...);
         if err==nil {
-            err=readRows(rows,callback);
-            rows.Close();
+            return readRows[S](rows);
         }
-        return err;
+        return iter.ValElem[*S](nil,err,1);
     }
-    return UnsupportedQueryType(
+    return iter.ValElem[*S](nil,UnsupportedQueryType(
         "CustomReadQuery only accepts 'SELECT' query's.",
-    );
+    ),1);
 }
 
 func CustomDeleteQuery(c *DB, sqlStmt string, vals []any) (int64,error) {

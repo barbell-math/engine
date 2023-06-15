@@ -51,7 +51,7 @@ type Logger[T any] struct {
     Log func(message string, val T);
 };
 
-func NewLog[T any](status LogStatus, file string, app bool) Logger[T] {
+func NewLog[T any](status LogStatus, file string, app bool) (Logger[T],error) {
     rv:=Logger[T]{ file: file };
     var err error=nil;
     mode:=os.O_TRUNC;
@@ -65,6 +65,8 @@ func NewLog[T any](status LogStatus, file string, app bool) Logger[T] {
     ); err==nil {
         rv.logger=log.New(rv.logFile,status.String(),log.LstdFlags);
         rv.logger.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds);
+    } else {
+        return rv,err;
     }
     rv.Log=func(message string, val T){
         if b,err:=json.Marshal(val); err==nil && rv.logger!=nil {
@@ -73,7 +75,7 @@ func NewLog[T any](status LogStatus, file string, app bool) Logger[T] {
             );
         }
     }
-    return rv;
+    return rv,nil;
 }
 
 func NewBlankLog[T any]() Logger[T] {

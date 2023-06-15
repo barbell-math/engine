@@ -1,20 +1,19 @@
-package db;
+package db
 
 import (
-    "testing"
-    "database/sql"
-    "github.com/barbell-math/block/util/test"
-    customReflect "github.com/barbell-math/block/util/reflect"
+	"database/sql"
+	"testing"
+
+	"github.com/barbell-math/block/util/algo/iter"
+	customReflect "github.com/barbell-math/block/util/reflect"
+	"github.com/barbell-math/block/util/test"
 )
 
 func TestCustomReadQueryWrongQueryType(t *testing.T){
     setup();
-    cntr:=0;
-    err:=CustomReadQuery(&testDB,"UPDATE Exercise SET Name WHERE Id=$1;",[]any{0},
-    func(e *Exercise) bool {
-        cntr++;
-        return true;
-    });
+    cntr,err:=CustomReadQuery[Exercise](&testDB,
+        "UPDATE Exercise SET Name WHERE Id=$1;", []any{0},
+    ).Count();
     test.BasicTest(0, cntr,
         "Custom read query read values it was not supposed to.",t,
     );
@@ -27,17 +26,20 @@ func TestCustomReadQueryWrongQueryType(t *testing.T){
 
 func TestCustomReadQuery(t *testing.T){
     setup();
-    cntr:=0;
     testOrder:=[]string{"Deadlift","Bench","Squat"};
     createExerciseTestData();
-    err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise ORDER BY Id DESC;",
-        []any{},func(e *Exercise) bool {
-            test.BasicTest(testOrder[cntr],e.Name,
+    cntr,err:=CustomReadQuery[Exercise](&testDB,
+        "SELECT * FROM Exercise ORDER BY Id DESC;", []any{},
+    ).Next(func(index int, val *Exercise,
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, *Exercise, error) {
+        if status!=iter.Break {
+            test.BasicTest(testOrder[index],val.Name,
                 "Custom query was not run correctly.",t,
             );
-            cntr++;
-            return true;
-    });
+        }
+        return iter.Continue,val,nil;
+    }).Count();
     test.BasicTest(nil,err,
         "An error was raised when it shouldn't have been.",t,
     );
@@ -48,12 +50,9 @@ func TestCustomReadQuery(t *testing.T){
 
 func TestCustomReadQueryEmpty(t *testing.T){
     setup();
-    cntr:=0;
-    err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise ORDER BY Id DESC;",
-        []any{},func(e *Exercise) bool {
-            cntr++;
-            return true;
-    });
+    cntr,err:=CustomReadQuery[Exercise](&testDB,
+        "SELECT * FROM Exercise ORDER BY Id DESC;", []any{},
+    ).Count();
     test.BasicTest(sql.ErrNoRows,err,
         "Custom read query returned incorrect error.",t,
     );
@@ -64,15 +63,18 @@ func TestCustomReadQueryEmpty(t *testing.T){
 
 func TestCustomReadQueryTypes(t *testing.T){
     setup();
-    cntr:=0;
     currentId:=1;
     createExerciseTestData();
-    err:=CustomReadQuery(&testDB,"SELECT * FROM Exercise WHERE Id=$1;",
-        []any{"1"},func(e *Exercise) bool {
-            test.BasicTest(currentId,e.Id,"Select on Id was not found properly.",t);
-            cntr++;
-            return true;
-    });
+    cntr,err:=CustomReadQuery[Exercise](&testDB,
+        "SELECT * FROM Exercise WHERE Id=$1;", []any{"1"},
+    ).Next(func(index int, val *Exercise,
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, *Exercise, error) {
+        if status!=iter.Break {
+            test.BasicTest(currentId,val.Id,"Select on Id was not found properly.",t);
+        }
+        return iter.Continue,val,nil;
+    }).Count();
     test.BasicTest(nil,err,
         "An error was raised when it shouldn't have been.",t,
     );
@@ -84,12 +86,9 @@ func TestCustomReadQueryTypes(t *testing.T){
 func TestCustomReadQueryNonStructVal(t *testing.T){
     setup();
     createExerciseTestData();
-    cntr:=0;
-    err:=CustomReadQuery(&testDB,"SELECT Id FROM Exercise ORDER BY Id;",
-        []any{},func(v *int) bool {
-            cntr++;
-            return true;
-    });
+    cntr,err:=CustomReadQuery[int](&testDB,
+        "SELECT Id FROM Exercise ORDER BY Id;", []any{},
+    ).Count();
     test.BasicTest(0, cntr,
         "Custom read query read values it was not supposed to.",t,
     );

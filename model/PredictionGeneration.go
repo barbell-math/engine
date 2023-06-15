@@ -2,6 +2,7 @@ package model;
 
 import (
     "github.com/barbell-math/block/db"
+    "github.com/barbell-math/block/util/algo/iter"
 )
 
 //Given a set of values to use when making the prediction, the closest model
@@ -14,18 +15,22 @@ func GeneratePrediction(
         tl *db.TrainingLog,
         sg *db.StateGenerator) (db.Prediction,error) {
     rv:=db.Prediction{ TrainingLogID: tl.Id };
-    cntr:=0;
-    if err:=db.CustomReadQuery(c,nearestModelStateToExerciseQuery(tl),[]any{
-        tl.ExerciseID,
-        tl.DatePerformed,
-        sg.Id,
-        tl.ClientID,
-    }, func(m *db.ModelState) bool {
-        rv.IntensityPred=IntensityPrediction(m,tl);
-        rv.StateGeneratorID=m.StateGeneratorID;
-        cntr++;
-        return true;
-    }); err==nil && cntr>1 {
+    if cntr,err:=db.CustomReadQuery[db.ModelState](c,
+        nearestModelStateToExerciseQuery(tl),[]any{
+            tl.ExerciseID,
+            tl.DatePerformed,
+            sg.Id,
+            tl.ClientID,
+    }).Next(func(index int,
+        val *db.ModelState,
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, *db.ModelState, error) {
+        if status!=iter.Break {
+            rv.IntensityPred=IntensityPrediction(val,tl);
+            rv.StateGeneratorID=val.StateGeneratorID;
+        }
+        return iter.Continue,val,nil;
+    }).Count(); err==nil && cntr>1 {
         return rv,ManyPredictions(
             "Multiple predictions exist for the given training log and state generator.",
         );

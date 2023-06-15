@@ -35,6 +35,13 @@ func ErrorOnBool(in bool, e error) error {
     return e;
 }
 
+func PanicOnError(op func() error){
+    err:=op();
+    if err!=nil {
+        panic(err);
+    }
+}
+
 func ArrayDimsArgree[N any, P any](one []N, given []P, message string) error {
     if lOne,lTwo:=len(one),len(given); lOne!=lTwo {
         return DimensionsDoNotAgree(fmt.Sprintf(

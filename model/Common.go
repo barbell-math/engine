@@ -7,8 +7,9 @@ import (
 )
 
 type StateGeneratorId int;
+// SQL serial values default to starting at 1
 const (
-    SlidingWindowStateGenId StateGeneratorId=iota
+    SlidingWindowStateGenId StateGeneratorId=iota+1
 );
 
 type stateGenerator interface {
@@ -16,8 +17,7 @@ type stateGenerator interface {
     GenerateModelState(
         d *db.DB,
         missingData missingModelStateData,
-        ch chan<- StateGeneratorRes,
-    );
+    ) (db.ModelState,error);
     Id() StateGeneratorId;
 };
 
@@ -50,6 +50,7 @@ type dataPoint struct {
 
 var SLIDING_WINDOW_DP_DEBUG=logUtil.NewBlankLog[*dataPoint]();
 var SLIDING_WINDOW_MS_DEBUG=logUtil.NewBlankLog[db.ModelState]();
+var SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG=logUtil.NewBlankLog[db.ModelState]();
 
 //func msMissingQuery(sg db.StateGenerator) string {
 //    return `SELECT TrainingLog.DatePerformed,

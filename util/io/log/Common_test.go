@@ -3,10 +3,11 @@ package log
 import (
 	"fmt"
 	"testing"
-	"github.com/barbell-math/block/util/test"
+
 	"github.com/barbell-math/block/util/algo/iter"
 	"github.com/barbell-math/block/util/dataStruct"
 	"github.com/barbell-math/block/util/dataStruct/types"
+	"github.com/barbell-math/block/util/test"
 )
 
 func generateLog(l *Logger[int], numLines int) {
@@ -25,8 +26,15 @@ func generateIntertwinedLogs(l1 *Logger[int], l2 *Logger[int], numLines int) {
     }
 }
 
+func TestNewLogBadPath(t *testing.T) {
+    _,err:=NewLog[int](Error,"./non/existant/path/to/file.txt",false);
+    if err==nil {
+        test.FormatError("!<nil>",err,"An error was expected to be returned.",t);
+    }
+}
+
 func TestLogIteration(t *testing.T){
-    l:=NewLog[int](Error,"./testData/generateLog.log",false);
+    l,_:=NewLog[int](Error,"./testData/generateLog.log",false);
     generateLog(&l,1000);
     LogElems(l).ForEach(func(index int, val LogEntry[int]) (iter.IteratorFeedback, error) {
         test.BasicTest(Error,val.Status,"Log line status was not set properly.",t);
@@ -40,7 +48,7 @@ func TestLogIteration(t *testing.T){
 }
 
 func TestLogIterationTime(t *testing.T){
-    l:=NewLog[int](Error,"./testData/generateLog.log",false);
+    l,_:=NewLog[int](Error,"./testData/generateLog.log",false);
     generateLog(&l,1000);
     cntr:=0;
     c,_:=dataStruct.NewCircularQueue[LogEntry[int]](2);
@@ -68,10 +76,10 @@ func TestLogIterationTime(t *testing.T){
 }
 
 func TestLogAppend(t *testing.T){
-    l:=NewLog[int](Error,"./testData/generateLog.log",false);
+    l,_:=NewLog[int](Error,"./testData/generateLog.log",false);
     generateLog(&l,1000);
     l.Close();
-    l=NewLog[int](Error,"./testData/generateLog.log",true);
+    l,_=NewLog[int](Error,"./testData/generateLog.log",true);
     generateLog(&l,1000);
     cntr:=0;
     err:=LogElems(l).ForEach(
@@ -95,11 +103,11 @@ func TestLogAppend(t *testing.T){
 
 func TestLogJoin(t *testing.T){
     cntr:=0;
-    l1:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
-    l2:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
+    l1,_:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
+    l2,_:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
     generateIntertwinedLogs(&l1,&l2,1000);
-    l1S:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
-    l2S:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
+    l1S,_:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
+    l2S,_:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
     err:=iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
         dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
         JoinLogByTime[int,int],
@@ -125,11 +133,11 @@ func TestLogJoin(t *testing.T){
 
 
 func BenchmarkJoinLog(b *testing.B) {
-    l1:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
-    l2:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
+    l1,_:=NewLog[int](Error,"./testData/generateLog.part1.log",false);
+    l2,_:=NewLog[int](Error,"./testData/generateLog.part2.log",false);
     generateIntertwinedLogs(&l1,&l2,1000);
-    l1S:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
-    l2S:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
+    l1S,_:=NewLog[int](Error,"./testData/generateLog.part1.log",true);
+    l2S,_:=NewLog[int](Error,"./testData/generateLog.part2.log",true);
     for i:=0; i<b.N; i++ {
         iter.JoinSame[LogEntry[int]](LogElems(l1S),LogElems(l2S),
             dataStruct.Variant[LogEntry[int],LogEntry[int]]{},
@@ -145,7 +153,7 @@ func BenchmarkJoinLog(b *testing.B) {
 
 func BenchmarkBigLog(b *testing.B) {
     cntr:=0;
-    l:=NewLog[int](Error,"./testData/big.log",false);
+    l,_:=NewLog[int](Error,"./testData/big.log",false);
     fmt.Println("Generating log file with 500K lines (this may take a while)...");
     generateLog(&l,500000);
     fmt.Println("Running tests...");

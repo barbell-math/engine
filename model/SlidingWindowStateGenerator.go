@@ -1,13 +1,15 @@
-package model;
+package model
 
 import (
-    "fmt"
-    stdTime "time"
-    stdMath "math"
-    "github.com/barbell-math/block/db"
-    "github.com/barbell-math/block/util/dataStruct"
-    mathUtil "github.com/barbell-math/block/util/math"
-    timeUtil "github.com/barbell-math/block/util/time"
+	"fmt"
+	stdMath "math"
+	stdTime "time"
+
+	"github.com/barbell-math/block/db"
+	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/block/util/dataStruct"
+	mathUtil "github.com/barbell-math/block/util/math"
+	timeUtil "github.com/barbell-math/block/util/time"
 )
 
 type SlidingWindowStateGen struct {
@@ -58,54 +60,67 @@ func (s SlidingWindowStateGen)Id() StateGeneratorId {
 
 func (s SlidingWindowStateGen)GenerateClientModelStates(
         d *db.DB,
-        c db.Client,
-        ch chan<- []error){
-    stateGenType,err:=db.GetStateGeneratorByName(d,"Sliding Window");
-    err=db.CustomReadQuery(d,missingModelStatesForGivenStateGenQuery(),[]any{
-        c.Id,stateGenType.Id,
-    }, func (m *missingModelStateData) bool {
-        fmt.Printf("Need ms for %+v\n",m);
-        //SLIDING_WINDOW_DEBUG.Log("Need ms: %+v\n",m);
-        return true;
-    });
-    fmt.Println(err);
+        c db.Client) (dataStruct.Pair[int,int],error) {
+    rv:=dataStruct.Pair[int,int]{A: 0, B: 0};
+    bufCreator,err:=db.NewBufferedCreate[db.ModelState](100);
+    if err!=nil {
+        return rv,err;
+    }
+    err=iter.Parallel[*missingModelStateData,db.ModelState](
+        db.CustomReadQuery[missingModelStateData](d,
+            missingModelStatesForGivenStateGenQuery(),[]any{c.Id,s.Id()},
+        ),func(val *missingModelStateData) (db.ModelState, error) {
+            return s.GenerateModelState(d,val);
+        },func(val *missingModelStateData, res db.ModelState, err error) {
+            SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG.Log("Optimal MS",res);
+            fmt.Println(err);
+            if err==nil {
+                bufCreator.Write(d,res);
+            } else {
+                rv.B++;
+            }
+        },s.allotedThreads,
+    );
+    bufCreator.Flush(d);
+    rv.A=bufCreator.Succeeded();
+    rv.B+=bufCreator.Failed();
+    return rv,err;
 }
 
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
-        missingData missingModelStateData,
-        ch chan<- StateGeneratorRes) {
+        missingData *missingModelStateData) (db.ModelState,error) {
     var curDate stdTime.Time;
-    s.setInitialOptimalMsValues(&missingData);
+    s.setInitialOptimalMsValues(missingData);
     s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
-    err:=db.CustomReadQuery(d,timeFrameQuery(),[]any{
+    err:=db.CustomReadQuery[dataPoint](d,timeFrameQuery(),[]any{
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.A),
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.B),
         missingData.ExerciseID,
         missingData.ClientID,
-    }, func (d *dataPoint) bool {
-        if !curDate.Equal(d.DatePerformed) {
+    }).ForEach(func(index int, val *dataPoint) (iter.IteratorFeedback, error) {
+        if !curDate.Equal(val.DatePerformed) {
             if len(s.windowValues)>0 {
-                s.calcAndSetModelState(d,&missingData);
+                s.calcAndSetModelState(val,missingData);
             }
-            curDate=d.DatePerformed;
+            curDate=val.DatePerformed;
         }
         if s.withinWindowLimits(curDate) {
-            s.updateWindowValues(d);
+            s.updateWindowValues(val);
         }
-        s.updateLrSummations(d);    //Time frame limits guaranteed by query
-        return !(curDate.Before(
+        s.updateLrSummations(val);    //Time frame limits guaranteed by query
+        if curDate.Before(
             missingData.Date.AddDate(0, 0, s.windowLimits.B),
-        ) && len(s.windowValues)==0);
+        ) && len(s.windowValues)==0 {
+            return iter.Break,NoDataInSelectedWindow(fmt.Sprintf(
+                "Date: %s Min window: %d Max window: %d",
+                missingData.Date, s.windowLimits.A, s.windowLimits.B,
+            ));
+        }
+        return iter.Continue,nil;
     });
-    if err==nil && len(s.windowValues)==0 {
-        err=NoDataInSelectedWindow(fmt.Sprintf(
-            "Date: %s Min window: %d Max window: %d",
-            missingData.Date, s.windowLimits.A, s.windowLimits.B,
-        ));
-    }
-    ch <- StateGeneratorRes{ Ms: s.optimalMs, Err: err, };
+    return s.optimalMs,err;
 }
 
 func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
@@ -202,8 +217,8 @@ func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
 
 func (s *SlidingWindowStateGen)setWithinWindowLimits(
         missingDataTime stdTime.Time){
-    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.A));
-    fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.B));
+    //fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.A));
+    //fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.B));
     s.withinWindowLimits=timeUtil.Between(
         missingDataTime.AddDate(0, 0, s.windowLimits.A),
         missingDataTime.AddDate(0, 0, s.windowLimits.B),

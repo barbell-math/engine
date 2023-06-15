@@ -7,6 +7,7 @@ import (
     "testing"
     "github.com/barbell-math/block/util/test"
     "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/block/util/algo/iter"
 )
 
 func createTestHelper[R DBTable](
@@ -128,21 +129,17 @@ func TestCreate(t *testing.T){
 func TestRead(t *testing.T){
     setup();
     vals:=[]ExerciseType{
-        ExerciseType{T: "TestType", Description: "TestTypeDescription"},
-        ExerciseType{T: "TestType1", Description: "TestTypeDescription1"},
-        ExerciseType{T: "TestType2", Description: "TestTypeDescription1"},
+        {T: "TestType", Description: "TestTypeDescription"},
+        {T: "TestType1", Description: "TestTypeDescription1"},
+        {T: "TestType2", Description: "TestTypeDescription1"},
     };
     readFilter:=func (col string) bool { return col=="Description"; };
     for _,val:=range(vals) {
         Create(&testDB,val);
     }
-    cntr:=0;
-    err:=Read(&testDB,vals[0],func(col string) bool {
-            return col=="NonExistantCol";
-        }, func(exercise *ExerciseType) bool {
-            cntr++; 
-            return true; 
-    });
+    cntr,err:=Read(&testDB,vals[0],func(col string) bool {
+        return col=="NonExistantCol";
+    }).Count();
     if !IsFilterRemovedAllColumns(err) {
         test.FormatError(
             FilterRemovedAllColumns(""),err,
@@ -150,27 +147,33 @@ func TestRead(t *testing.T){
         );
     }
     test.BasicTest(0, cntr,"Read selected values it was not supposed to.",t);
-    cntr=0;
-    err=Read(&testDB,vals[0],readFilter,func(e *ExerciseType) bool {
-        cntr++;
-        test.BasicTest(
-            "TestType",e.T,"Exercise type selected was not correct.",t,
-        );
-        test.BasicTest(
-            "TestTypeDescription",e.Description,"Exercise type selected was not correct.",t,
-        );
-        return true;
-    });
+    cntr,err=Read(&testDB,vals[0],readFilter).Next(func(index int,
+        val *ExerciseType,
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, *ExerciseType, error) {
+        if status!=iter.Break {
+            test.BasicTest(
+                "TestType",val.T,"Exercise type selected was not correct.",t,
+            );
+            test.BasicTest("TestTypeDescription",val.Description,
+                "Exercise type selected was not correct.",t,
+            );
+        }
+        return iter.Continue,val,nil;
+    }).Count();
     test.BasicTest(nil,err,"Read returned an error it was not supposed to.",t);
     test.BasicTest(1,cntr,"Read selected values it was not supposed to.",t);
-    cntr=0;
-    err=Read(&testDB,vals[1],readFilter,func(e *ExerciseType) bool {
-        cntr++;
-        test.BasicTest(
-            "TestTypeDescription1",e.Description,"Exercise type selected was not correct.",t,
-        );
-        return true;
-    });
+    cntr,err=Read(&testDB,vals[1],readFilter).Next(func(index int,
+        val *ExerciseType,
+        status iter.IteratorFeedback,
+    ) (iter.IteratorFeedback, *ExerciseType, error) {
+        if status!=iter.Break {
+            test.BasicTest(
+                "TestTypeDescription1",val.Description,"Exercise type selected was not correct.",t,
+            );
+        }
+        return iter.Continue,val,nil;
+    }).Count();
     test.BasicTest(nil,err,"Read returned an error it was not supposed to.",t);
     test.BasicTest(2,cntr,"Read selected values it was not supposed to.",t);
 }
@@ -281,10 +284,7 @@ func TestDelete(t *testing.T){
 func TestReadAll(t *testing.T){
     setup();
     var cntr int=0;
-    err:=ReadAll(&testDB,func(e *ExerciseType) bool {
-        cntr++;
-        return true;
-    });
+    cntr,err:=ReadAll[ExerciseType](&testDB).Count();
     test.BasicTest(sql.ErrNoRows,err,"ReadAll operation was unsuccessful.",t);
     test.BasicTest(0 ,cntr,"ReadAll did not select all rows.",t);
     for i:=0; i<10; i++ {
@@ -292,11 +292,7 @@ func TestReadAll(t *testing.T){
             ExerciseType{T: fmt.Sprintf("test%d",i),Description: "testing"},
         );
     }
-    cntr=0;
-    err=ReadAll(&testDB,func(e *ExerciseType) bool {
-        cntr++;
-        return true;
-    });
+    cntr,err=ReadAll[ExerciseType](&testDB).Count();
     test.BasicTest(nil,err,"ReadAll operation was unsuccessful.",t);
     test.BasicTest(10,cntr,"ReadAll did not select all rows.",t);
 }
@@ -326,11 +322,12 @@ func TestUpdateAll(t *testing.T){
     );
     test.BasicTest(nil,err,"UpdateAll operation was unsuccessful.",t);
     test.BasicTest(int64(11),res,"UpdateAll did not update all rows.",t);
-    ReadAll(&testDB,func(e *ExerciseType) bool {
-        test.BasicTest("newDesc",e.Description,
+    ReadAll[ExerciseType](&testDB).ForEach(
+    func(index int, val *ExerciseType) (iter.IteratorFeedback, error) {
+        test.BasicTest("newDesc",val.Description,
             "Description value was not updated properly",t,
         );
-        return true;
+        return iter.Continue,nil;
     });
 }
 

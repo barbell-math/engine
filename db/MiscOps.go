@@ -7,6 +7,14 @@ import (
     customerr "github.com/barbell-math/block/util/err"
 )
 
+//func GetById[R DBTable](c *DB, id int) (R,error) {
+//    return getRowFromUniqueValGenerator(func(searchId int) (R,string) {
+//        var tmp R;
+//        tmp.Id=searchId;
+//        return R{Id: searchId},"Id";
+//    })(c,id);
+//}
+
 var GetClientByEmail=getRowFromUniqueValGenerator(
     func(email string) (Client,string) {
         return Client{Email: email},"Email";
@@ -35,14 +43,10 @@ func getRowFromUniqueValGenerator[
         V any,
     ](valGen ValGenerator[R,V]) RowFromUniqueVal[R,V] {
     return func(c *DB, data V) (R,error){
-        var rv *R=nil;
         searchR,col:=valGen(data);
-        if err:=Read(c,searchR,algo.GenFilter(false,col),func(r *R) bool {
-            rv=r;
-            return true;
-        }); rv!=nil {
+        if rv,err,found:=Read(c,searchR,algo.GenFilter(false,col)).Nth(0); rv!=nil && found {
             return *rv,err;
-        } else if rv==nil && err==nil {
+        } else if rv==nil && err==nil && !found {
             return *new(R),sql.ErrNoRows;
         } else {
             return *new(R),err;

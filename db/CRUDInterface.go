@@ -1,12 +1,14 @@
-package db;
+package db
 
 import (
-    "fmt"
-    "reflect"
-    "database/sql"
-    "github.com/barbell-math/block/util/algo"
-    "github.com/barbell-math/block/util/io/csv"
-    customReflect "github.com/barbell-math/block/util/reflect"
+	"database/sql"
+	"fmt"
+	"reflect"
+
+	"github.com/barbell-math/block/util/algo"
+	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/block/util/io/csv"
+	customReflect "github.com/barbell-math/block/util/reflect"
 )
 
 func Create[R DBTable](c *DB, rows ...R) ([]int,error) {
@@ -41,11 +43,12 @@ func Create[R DBTable](c *DB, rows ...R) ([]int,error) {
 func Read[R DBTable](
         c *DB,
         rowVals R,
-        filter algo.Filter[string],
-        callback func(val *R) bool) error {
+        filter algo.Filter[string]) iter.Iter[*R] {
     columns:=getTableColumns(&rowVals,filter);
     if len(columns)==0 {
-        return FilterRemovedAllColumns("No value rows were selected.");
+        return iter.ValElem[*R](nil,
+            FilterRemovedAllColumns("No value rows were selected."),1,
+        );
     }
     valuesStr:=csv.CSVGenerator(" AND ",func(iter int) (string,bool) {
         return fmt.Sprintf("%s=$%d",columns[iter],iter+1), iter+1<len(columns);
@@ -53,20 +56,19 @@ func Read[R DBTable](
     sqlStmt:=fmt.Sprintf(
         "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr,
     );
-    return getQueryReflectResults(c,
+    return getQueryReflectResults[R](c,
         algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
             getTableVals(&rowVals,filter),
-        ), callback,
+        ),
     );
 }
 
-func ReadAll[R DBTable](c *DB, callback func(val *R) bool) error {
+func ReadAll[R DBTable](c *DB) iter.Iter[*R] {
     var tmp R;
     sqlStmt:=fmt.Sprintf("SELECT * FROM %s;",getTableName(&tmp));
-    return getQueryReflectResults(c,
+    return getQueryReflectResults[R](c,
         []reflect.Value{reflect.ValueOf(sqlStmt)},
-        callback,
     );
 }
 
@@ -152,16 +154,14 @@ func DeleteAll[R DBTable](c *DB) (int64,error) {
 
 func getQueryReflectResults[R DBTable](
         c *DB,
-        vals []reflect.Value,
-        callback func(val *R) bool) error {
+        vals []reflect.Value) iter.Iter[*R] {
     reflectVals:=reflect.ValueOf(c.db).MethodByName("Query").Call(vals);
     err:=customReflect.GetErrorFromReflectValue(&reflectVals[1]);
     if err==nil {
         rows:=reflectVals[0].Interface().(*sql.Rows);
-        err=readRows(rows,callback);
-        rows.Close();
+        return readRows[R](rows);
     }
-    return err;
+    return iter.ValElem[*R](nil,err,1);
 }
 
 func getExecReflectResults(c *DB, vals []reflect.Value) (int64,error) {

@@ -5,6 +5,7 @@ import (
     "testing"
     "database/sql"
     "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/block/util/algo/iter"
     customerr "github.com/barbell-math/block/util/err"
 )
 
@@ -125,55 +126,58 @@ func TestInitClient(t *testing.T){
     sId,_:=GetExerciseByName(&testDB,"Squat");
     bId,_:=GetExerciseByName(&testDB,"Bench");
     dId,_:=GetExerciseByName(&testDB,"Deadlift");
-    err=Read(&testDB,TrainingLog{Id: 1},OnlyIDFilter, func(v *TrainingLog) bool {
+    err=Read(&testDB,TrainingLog{Id: 1},OnlyIDFilter).ForEach(
+    func(index int, val *TrainingLog) (iter.IteratorFeedback, error) {
         y,m,d:=time.Now().Date();
-        y1,m1,d1:=v.DatePerformed.Date();
+        y1,m1,d1:=val.DatePerformed.Date();
         test.BasicTest(y,y1,"Year is not set correctly in training log.",t);
         test.BasicTest(m,m1,"Month is not set correctly in training log.",t);
         test.BasicTest(d-1,d1,"Day is not set correctly in training log.",t);
-        test.BasicTest(1,v.ClientID,
+        test.BasicTest(1,val.ClientID,
             "Client ID was not set correctly in the zero rotation.",t,
         );
-        switch (v.ExerciseID){
+        switch (val.ExerciseID){
             case sId.Id:
-                test.BasicTest(float32(446),v.Weight,
+                test.BasicTest(float32(446),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             case bId.Id:
-                test.BasicTest(float32(286),v.Weight,
+                test.BasicTest(float32(286),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             case dId.Id:
-                test.BasicTest(float32(545),v.Weight,
+                test.BasicTest(float32(545),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             default: t.Errorf(
-                "Non SBD exercise max was made from user init | ID: %d.",v.Id,
+                "Non SBD exercise max was made from user init | ID: %d.",val.Id,
             );
         }
-        return true;
+        return iter.Continue,nil;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
-    err=Read(&testDB,Rotation{Id: 1},OnlyIDFilter,func(v *Rotation) bool {
+    err=Read(&testDB,Rotation{Id: 1},OnlyIDFilter).ForEach(
+    func(index int, val *Rotation) (iter.IteratorFeedback, error) {
         y,m,d:=time.Now().Date();
-        y1,m1,d1:=v.StartDate.Date();
+        y1,m1,d1:=val.StartDate.Date();
         test.BasicTest(y,y1,"Year is not set correctly in rotation.",t);
         test.BasicTest(m,m1,"Month is not set correctly in rotation.",t);
         test.BasicTest(d-1,d1,"Day is not set correctly in rotation.",t);
-        y1,m1,d1=v.EndDate.Date();
+        y1,m1,d1=val.EndDate.Date();
         test.BasicTest(y,y1,"Year is not set correctly in rotation.",t);
         test.BasicTest(m,m1,"Month is not set correctly in rotation.",t);
         test.BasicTest(d,d1,"Day is not set correctly in rotation.",t);
-        return true;
+        return iter.Continue,nil;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
-    err=Read(&testDB,Client{Id: 1},OnlyIDFilter,func(v *Client) bool {
-        test.BasicTest("test",v.FirstName,"Client f-name not set correctly.",t);
-        test.BasicTest("testl",v.LastName,"Client l-name not set correctly.",t);
-        test.BasicTest("test@test.com",v.Email,
+    err=Read(&testDB,Client{Id: 1},OnlyIDFilter).ForEach(
+    func(index int, val *Client) (iter.IteratorFeedback, error) {
+        test.BasicTest("test",val.FirstName,"Client f-name not set correctly.",t);
+        test.BasicTest("testl",val.LastName,"Client l-name not set correctly.",t);
+        test.BasicTest("test@test.com",val.Email,
             "Client email not set correctly.",t,
         );
-        return true;
+        return iter.Continue,nil;
     });
     test.BasicTest(nil,err,"An error occurred reading the training log.",t);
 }

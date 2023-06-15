@@ -14,6 +14,47 @@ import (
 )
 
 var testDB db.DB;
+const (
+    DP_DEBUG int=1<<iota
+    MS_DEBUG
+    MS_PARALLEL_RESULT_DEBUG
+)
+
+func setupLog[T any](dest *logUtil.Logger[T], path string){
+    customerr.PanicOnError(func() error {
+        var err error;
+        *dest,err=logUtil.NewLog[T](logUtil.Debug,path,false);
+        return err;
+    });
+}
+func setupLogs(debugFile string, logFlags int) (func()) {
+    if DP_DEBUG&logFlags==DP_DEBUG {
+        setupLog(&SLIDING_WINDOW_DP_DEBUG,
+            fmt.Sprintf("%s.dataPoint.log",debugFile),
+        );
+    }
+    if MS_DEBUG&logFlags==MS_DEBUG {
+        setupLog(&SLIDING_WINDOW_MS_DEBUG,
+            fmt.Sprintf("%s.modelState.log",debugFile),
+        );
+    }
+    if MS_PARALLEL_RESULT_DEBUG&logFlags==MS_PARALLEL_RESULT_DEBUG {
+        setupLog(&SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG,
+            fmt.Sprintf("%s.modelState.log",debugFile),
+        );
+    }
+    return func(){
+        if DP_DEBUG&logFlags==DP_DEBUG {
+            SLIDING_WINDOW_DP_DEBUG.Close();
+        }
+        if MS_DEBUG&logFlags==MS_DEBUG {
+            SLIDING_WINDOW_MS_DEBUG.Close();
+        }
+        if MS_PARALLEL_RESULT_DEBUG&logFlags==MS_PARALLEL_RESULT_DEBUG {
+            SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG.Close();
+        }
+    }
+}
 
 func TestMain(m *testing.M){
     settings.ReadSettings("testData/modelTestSettings.json");
@@ -39,28 +80,15 @@ func setup(){
     }
 }
 
-func setupLogs(debugFile string) (func()) {
-    SLIDING_WINDOW_DP_DEBUG=logUtil.NewLog[*dataPoint](logUtil.Debug,
-        fmt.Sprintf("%s.dataPoint.log",debugFile),false,
-    );
-    SLIDING_WINDOW_MS_DEBUG=logUtil.NewLog[db.ModelState](logUtil.Debug,
-        fmt.Sprintf("%s.modelState.log",debugFile),false,
-    );
-    return func(){
-        SLIDING_WINDOW_DP_DEBUG.Close();
-        SLIDING_WINDOW_MS_DEBUG.Close();
-    }
-}
-
 func uploadTestData() error {
     return customerr.ChainedErrorOps(
         func(r ...any) (any,error) {
-            //TODO - update to use data file
-            return db.Create(&testDB,db.Client{
-                Id: 1,
-                FirstName: "testF",
-                LastName: "testL",
-                Email: "test@test.com",
+            return nil,csv.CSVToStruct[db.Client](csv.CSVFileSplitter(
+                "../../data/testData/ClientTestData.csv",',','#',
+            ),"1/2/2006").ForEach(
+            func(index int, val db.Client) (iter.IteratorFeedback, error) {
+                db.Create(&testDB,val);
+                return iter.Continue,nil;
             });
         }, func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.StateGenerator](csv.CSVFileSplitter(

@@ -73,9 +73,9 @@ func TestNoDataForModelState(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 1};
-    res:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
-    if !IsNoDataInSelectedWindow(res.Err) {
-        test.FormatError(NoDataInSelectedWindow(""),res.Err,
+    _,err:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
+    if !IsNoDataInSelectedWindow(err) {
+        test.FormatError(NoDataInSelectedWindow(""),err,
             "The incorrect error was returned.",t,
         );
     }
@@ -89,8 +89,8 @@ func TestGenerateModelStateScenario1(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 10};
-    res:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
-    test.BasicTest(nil,res.Err,
+    _,err:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
+    test.BasicTest(nil,err,
         "Running the sliding window model state generator returned an error when it shouldn't have.",t,
     );
 }
@@ -102,8 +102,8 @@ func TestGenerateModelStateScenario2(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 4, B: 500};
     window:=dataStruct.Pair[int,int]{A: 5, B: 10};
-    res:=generateModelStateHelper("scenario2",baseTime,timeFrame,window,2,t);
-    test.BasicTest(nil,res.Err,
+    _,err:=generateModelStateHelper("scenario2",baseTime,timeFrame,window,2,t);
+    test.BasicTest(nil,err,
         "Running the sliding window model state generator returned an error when it shouldn't have.",t,
     );
 }
@@ -113,28 +113,25 @@ func generateModelStateHelper(scenarioName string,
         timeFrame dataStruct.Pair[int,int],
         window dataStruct.Pair[int,int],
         numWindowVals int,
-        t *testing.T) StateGeneratorRes {
+        t *testing.T) (db.ModelState,error) {
     closeLogs:=setupLogs(fmt.Sprintf(
-        "./debugLogs/SlidingWindowStateGeneratorGood.%s",scenarioName,
-    ));
-    ch:=make(chan StateGeneratorRes);
+        "./debugLogs/SlidingWindowStateGenerator.%s",scenarioName,
+    ),DP_DEBUG|MS_DEBUG);
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,1);
     missingData:=missingModelStateData{
         ClientID: 1,
         ExerciseID: 15,
         Date: baseTime,
     };
-    go sw.GenerateModelState(&testDB,missingData,ch);
-    res:=<-ch;
+    ms,err:=sw.GenerateModelState(&testDB,&missingData);
     closeLogs();
-    close(ch);
     runModelStateDebugLogTests(baseTime,
         missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-        timeFrame,window,res.Ms.Mse,t,
+        timeFrame,window,ms.Mse,t,
     );
     runDataPointDebugLogTests(baseTime,t);
     runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
-    return res;
+    return ms,err;
 }
 
 func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
@@ -288,3 +285,69 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         "Iterating over a log generated an error when it should not have.",t,
     );
 }
+
+func generateAllModelStatesHelper(scenarioName string,
+        timeFrame dataStruct.Pair[int,int],
+        window dataStruct.Pair[int,int],
+        numThreads int,
+        t *testing.T) error {
+    closeLogs:=setupLogs(fmt.Sprintf(
+        "./debugLogs/SlidingWindowStateGenerator.%s",scenarioName,
+    ),MS_PARALLEL_RESULT_DEBUG);
+    sw,_:=NewSlidingWindowStateGen(timeFrame,window,numThreads);
+    c,err:=db.GetClientByEmail(&testDB,"testing@testing.com")
+    fmt.Println(c);
+    fmt.Println(err);
+    cnts,err:=sw.GenerateClientModelStates(&testDB,c);
+    fmt.Println(cnts,err);
+    closeLogs();
+    //runModelStateDebugLogTests(baseTime,
+    //    missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
+    //    timeFrame,window,ms.Mse,t,
+    //);
+    //runDataPointDebugLogTests(baseTime,t);
+    //runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
+    //return ms,err;
+    return nil;
+}
+
+func TestGenerateClientModelStates(t *testing.T){
+    timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
+    window:=dataStruct.Pair[int,int]{A: 1, B: 20};
+    generateAllModelStatesHelper("allValues1Thread",timeFrame,window,1,t);
+    // Needs tests here
+    generateAllModelStatesHelper("allValues5Threads",timeFrame,window,5,t);
+    // Needs tests here
+
+    //Need to verify threaded output matches single thread output
+}
+
+//func runAllModelStateDebugLogTests(t *testing.T){
+//    ids,_:=db.CustomReadQuery[int](&testDB,`SELECT id 
+//        FROM Exercise 
+//        JOIN ExerciseType 
+//        ON Exercise.TypeID=ExerciseType.ID 
+//        WHERE ExerciseType.T="Main Compound" 
+//            OR ExerciseType.T="Main Compound Accessory";`,
+//        []any{},
+//    ).Collect();
+//    idsFound:=make([]bool,len(ids));
+//    err:=log.LogElems(SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG).Next(
+//    func(index int,
+//        val log.LogEntry[db.ModelState],
+//        status iter.IteratorFeedback,
+//    ) (iter.IteratorFeedback, log.LogEntry[db.ModelState], error) {
+//        idx,_,found:=iter.SliceElems[*int](ids).Find(func(idVal *int) (bool, error) {
+//            return val.Val.ExerciseID==*idVal,nil;
+//        });
+//        test.BasicTest(true,found,"ExerciseID was not found in valid ID list.",t);
+//        if found {
+//            idsFound[*idx]=true;
+//        }
+//        return iter.Continue,val,nil;
+//    }).Consume();
+//    _,err,found:=iter.SliceElems[bool](idsFound).Find(func(val bool) (bool, error) {
+//        return !val,nil;
+//    });
+//    test.BasicTest(false,found,"Not all compound lifts were classified.",t);
+//}
