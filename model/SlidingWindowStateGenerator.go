@@ -94,11 +94,40 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData *missingModelStateData) (db.ModelState,error) {
-    cntr:=0;
-    var curDate stdTime.Time;
     s.setInitialOptimalMsValues(missingData);
     s.setWithinWindowLimits(missingData.Date);
     s.lr=fatigueAwareModel();
+    cntr,err:=s.runAlgo(d,missingData);
+    if err==sql.ErrNoRows {
+        err=NoDataInSelectedTimeFrame(fmt.Sprintf(
+            "Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
+            missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
+            missingData.ExerciseID, missingData.ClientID,
+        ));
+    } else if s.optimalMs.Mse==math.Inf(1) && err==nil {
+        err=NotEnoughData(fmt.Sprintf(
+            "Num data pnts: %d Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
+            cntr,missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
+            missingData.ExerciseID, missingData.ClientID,
+        ));
+    }
+    return s.optimalMs,err;
+}
+
+func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
+        missingData *missingModelStateData){
+    s.optimalMs.ClientID=missingData.ClientID;
+    s.optimalMs.ExerciseID=missingData.ExerciseID;
+    s.optimalMs.StateGeneratorID=int(SlidingWindowStateGenId);
+    s.optimalMs.Date=missingData.Date;
+}
+
+func (s *SlidingWindowStateGen)runAlgo(
+    d *db.DB,
+    missingData *missingModelStateData,
+) (int,error) {
+    cntr:=0;
+    var curDate stdTime.Time;
     err:=db.CustomReadQuery[dataPoint](d,timeFrameQuery(),[]any{
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.A),
         missingData.Date.AddDate(0, 0, s.timeFrameLimits.B),
@@ -127,28 +156,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
         }
         return iter.Continue,nil;
     });
-    if err==sql.ErrNoRows {
-        err=NoDataInSelectedTimeFrame(fmt.Sprintf(
-            "Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
-            missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
-            missingData.ExerciseID, missingData.ClientID,
-        ));
-    } else if s.optimalMs.Mse==math.Inf(1) && err==nil {
-        err=NotEnoughData(fmt.Sprintf(
-            "Num data pnts: %d Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
-            cntr,missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
-            missingData.ExerciseID, missingData.ClientID,
-        ));
-    }
-    return s.optimalMs,err;
-}
-
-func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
-        missingData *missingModelStateData){
-    s.optimalMs.ClientID=missingData.ClientID;
-    s.optimalMs.ExerciseID=missingData.ExerciseID;
-    s.optimalMs.StateGeneratorID=int(SlidingWindowStateGenId);
-    s.optimalMs.Date=missingData.Date;
+    return cntr,err;
 }
 
 //Algo steps:
