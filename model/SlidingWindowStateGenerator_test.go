@@ -60,15 +60,6 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
     );
 }
 
-//func TestGenerateModelStates(t *testing.T){
-//    setLogs("./debugLogs/SlidingWindow.log");
-//    ch:=make(chan<- []error);
-//    sw,_:=NewSlidingWindowStateGen(
-//        dataStruct.Pair[int]{0, 1},dataStruct.Pair[int]{0, 1},0,
-//    );
-//    sw.GenerateClientModelStates(&testDB,db.Client{ Id: 1 },ch);
-//}
-
 func TestNoDataForModelState(t *testing.T){
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};

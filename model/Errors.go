@@ -19,3 +19,7 @@ var NoDataInSelectedWindow,IsNoDataInSelectedWindow=customerr.ErrorFactory(
 var NoDataInSelectedTimeFrame,IsNoDataInSelectedTimeFrame=customerr.ErrorFactory(
     "No data was available within the selected time frame.",
 );
+
+var NotEnoughData,IsNotEnoughData=customerr.ErrorFactory(
+    "Not enough data was available.",
+);

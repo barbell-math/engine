@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	stdMath "math"
 	stdTime "time"
 
@@ -93,6 +94,7 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData *missingModelStateData) (db.ModelState,error) {
+    cntr:=0;
     var curDate stdTime.Time;
     s.setInitialOptimalMsValues(missingData);
     s.setWithinWindowLimits(missingData.Date);
@@ -113,6 +115,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
             s.updateWindowValues(val);
         }
         s.updateLrSummations(val);    //Time frame limits guaranteed by query
+        cntr++;
         if curDate.Before(
             missingData.Date.AddDate(0, 0, s.windowLimits.B),
         ) && len(s.windowValues)==0 {
@@ -128,6 +131,12 @@ func (s SlidingWindowStateGen)GenerateModelState(
         err=NoDataInSelectedTimeFrame(fmt.Sprintf(
             "Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
             missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
+            missingData.ExerciseID, missingData.ClientID,
+        ));
+    } else if s.optimalMs.Mse==math.Inf(1) && err==nil {
+        err=NotEnoughData(fmt.Sprintf(
+            "Num data pnts: %d Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
+            cntr,missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
             missingData.ExerciseID, missingData.ClientID,
         ));
     }
@@ -205,6 +214,9 @@ func (s *SlidingWindowStateGen)saveModelState(
     s.optimalMs.Win=winLen;
     s.optimalMs.Rcond=rcond;
     s.optimalMs.Mse=mse;
+    if mse==math.Inf(1) {
+        fmt.Println("Saved model state is inf");
+    }
     SLIDING_WINDOW_MS_DEBUG.Log("ModelState",s.optimalMs);
 }
 
