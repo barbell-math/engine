@@ -15,3 +15,7 @@ var InvalidPredictionState,IsInvalidPredictionState=customerr.ErrorFactory(
 var NoDataInSelectedWindow,IsNoDataInSelectedWindow=customerr.ErrorFactory(
     "No data was available within the selected window.",
 );
+
+var NoDataInSelectedTimeFrame,IsNoDataInSelectedTimeFrame=customerr.ErrorFactory(
+    "No data was available within the selected time frame.",
+);

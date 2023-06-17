@@ -141,6 +141,10 @@ func uploadTestData() error {
     });
 }
 
+func resetPredictionsTable(){
+    db.DeleteAll[db.ModelState](&testDB);
+}
+
 func teardown(){
     //testDB.ResetDB();
     testDB.Close();

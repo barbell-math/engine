@@ -11,7 +11,7 @@ func timeFrameQuery() string {
         FROM TrainingLog
         WHERE TrainingLog.DatePerformed<$1
             AND TrainingLog.DatePerformed>$2
-            AND ExerciseID=$3
+            AND TrainingLog.ExerciseID=$3
             AND TrainingLog.ClientID=$4
         ORDER BY DatePerformed DESC;`;
 }
@@ -21,11 +21,13 @@ func missingModelStatesForGivenStateGenQuery() string {
         FROM (SELECT *
             FROM TrainingLog
             WHERE TrainingLog.ClientID=$1
+                AND TrainingLog.DatePerformed>$3
         ) newTl
         LEFT JOIN (SELECT *
             FROM ModelState
             WHERE ModelState.ClientID=$1
-            AND ModelState.StateGeneratorID=$2
+                AND ModelState.StateGeneratorID=$2
+                AND ModelState.Date>$3
         ) newMs
         ON newMs.Date=newTl.DatePerformed
             AND newMs.ExerciseID=newTl.ExerciseID

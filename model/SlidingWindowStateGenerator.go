@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	stdMath "math"
 	stdTime "time"
@@ -60,7 +61,8 @@ func (s SlidingWindowStateGen)Id() StateGeneratorId {
 
 func (s SlidingWindowStateGen)GenerateClientModelStates(
         d *db.DB,
-        c db.Client) (dataStruct.Pair[int,int],error) {
+        c db.Client,
+        minTime stdTime.Time) (dataStruct.Pair[int,int],error) {
     rv:=dataStruct.Pair[int,int]{A: 0, B: 0};
     bufCreator,err:=db.NewBufferedCreate[db.ModelState](100);
     if err!=nil {
@@ -68,12 +70,13 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     }
     err=iter.Parallel[*missingModelStateData,db.ModelState](
         db.CustomReadQuery[missingModelStateData](d,
-            missingModelStatesForGivenStateGenQuery(),[]any{c.Id,s.Id()},
-        ),func(val *missingModelStateData) (db.ModelState, error) {
+            missingModelStatesForGivenStateGenQuery(),[]any{
+                c.Id,s.Id(),minTime,
+        }),func(val *missingModelStateData) (db.ModelState, error) {
             return s.GenerateModelState(d,val);
         },func(val *missingModelStateData, res db.ModelState, err error) {
             SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG.Log("Optimal MS",res);
-            fmt.Println(err);
+            //fmt.Println(err);
             if err==nil {
                 bufCreator.Write(d,res);
             } else {
@@ -114,12 +117,20 @@ func (s SlidingWindowStateGen)GenerateModelState(
             missingData.Date.AddDate(0, 0, s.windowLimits.B),
         ) && len(s.windowValues)==0 {
             return iter.Break,NoDataInSelectedWindow(fmt.Sprintf(
-                "Date: %s Min window: %d Max window: %d",
+                "Date: %s Min window: %d Max window: %d Exercise: %d Client: %d",
                 missingData.Date, s.windowLimits.A, s.windowLimits.B,
+                missingData.ExerciseID, missingData.ClientID,
             ));
         }
         return iter.Continue,nil;
     });
+    if err==sql.ErrNoRows {
+        err=NoDataInSelectedTimeFrame(fmt.Sprintf(
+            "Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
+            missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
+            missingData.ExerciseID, missingData.ClientID,
+        ));
+    }
     return s.optimalMs,err;
 }
 

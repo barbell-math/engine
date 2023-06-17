@@ -291,63 +291,82 @@ func generateAllModelStatesHelper(scenarioName string,
         window dataStruct.Pair[int,int],
         numThreads int,
         t *testing.T) error {
+    resetPredictionsTable();
     closeLogs:=setupLogs(fmt.Sprintf(
         "./debugLogs/SlidingWindowStateGenerator.%s",scenarioName,
     ),MS_PARALLEL_RESULT_DEBUG);
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,numThreads);
-    c,err:=db.GetClientByEmail(&testDB,"testing@testing.com")
-    fmt.Println(c);
-    fmt.Println(err);
-    cnts,err:=sw.GenerateClientModelStates(&testDB,c);
-    fmt.Println(cnts,err);
+    c,_:=db.GetClientByEmail(&testDB,"testing@testing.com")
+    // Earilest data point is 8/10/2021, this date is small enough to get all values
+    sw.GenerateClientModelStates(&testDB,c,time.Date(
+        2020,time.Month(1),1,0,0,0,0,time.UTC),
+    );
+    //fmt.Println(cnts,err);
     closeLogs();
-    //runModelStateDebugLogTests(baseTime,
-    //    missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-    //    timeFrame,window,ms.Mse,t,
-    //);
-    //runDataPointDebugLogTests(baseTime,t);
-    //runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
-    //return ms,err;
     return nil;
 }
 
-func TestGenerateClientModelStates(t *testing.T){
+func TestGenerateClientModelStatesSingleThread(t *testing.T){
     timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
-    window:=dataStruct.Pair[int,int]{A: 1, B: 20};
+    window:=dataStruct.Pair[int,int]{A: 1, B: 30};
     generateAllModelStatesHelper("allValues1Thread",timeFrame,window,1,t);
-    // Needs tests here
-    generateAllModelStatesHelper("allValues5Threads",timeFrame,window,5,t);
-    // Needs tests here
-
-    //Need to verify threaded output matches single thread output
+    runAllModelStateDebugLogTests(t);
 }
 
-//func runAllModelStateDebugLogTests(t *testing.T){
-//    ids,_:=db.CustomReadQuery[int](&testDB,`SELECT id 
-//        FROM Exercise 
-//        JOIN ExerciseType 
-//        ON Exercise.TypeID=ExerciseType.ID 
-//        WHERE ExerciseType.T="Main Compound" 
-//            OR ExerciseType.T="Main Compound Accessory";`,
-//        []any{},
-//    ).Collect();
-//    idsFound:=make([]bool,len(ids));
-//    err:=log.LogElems(SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG).Next(
-//    func(index int,
-//        val log.LogEntry[db.ModelState],
-//        status iter.IteratorFeedback,
-//    ) (iter.IteratorFeedback, log.LogEntry[db.ModelState], error) {
-//        idx,_,found:=iter.SliceElems[*int](ids).Find(func(idVal *int) (bool, error) {
-//            return val.Val.ExerciseID==*idVal,nil;
-//        });
-//        test.BasicTest(true,found,"ExerciseID was not found in valid ID list.",t);
-//        if found {
-//            idsFound[*idx]=true;
-//        }
-//        return iter.Continue,val,nil;
-//    }).Consume();
-//    _,err,found:=iter.SliceElems[bool](idsFound).Find(func(val bool) (bool, error) {
-//        return !val,nil;
-//    });
-//    test.BasicTest(false,found,"Not all compound lifts were classified.",t);
-//}
+func TestGenerateClientModelStates10Threads(t *testing.T){
+    timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
+    window:=dataStruct.Pair[int,int]{A: 1, B: 30};
+    generateAllModelStatesHelper("allValues10Threads",timeFrame,window,10,t);
+    threadOutputChecker(t);
+    runAllModelStateDebugLogTests(t);
+}
+
+func TestGenerateClientModelStates100Threads(t *testing.T){
+    timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
+    window:=dataStruct.Pair[int,int]{A: 1, B: 30};
+    generateAllModelStatesHelper("allValues100Threads",timeFrame,window,100,t);
+    threadOutputChecker(t);
+    runAllModelStateDebugLogTests(t);
+}
+
+// Yes, this is an n^2 algorithm. It's just for testing. There is no way to index
+// or sort the values in the log because the order is not guaranteed by either the 
+// sql query or the multi-threaded logs.
+func threadOutputChecker(t *testing.T){
+    log.LogElems(SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG).ForEach(
+    func(index int, val log.LogEntry[db.ModelState]) (iter.IteratorFeedback, error) {
+        l,_:=log.NewLog[db.ModelState](log.Debug,
+            "./debugLogs/SlidingWindowStateGenerator.allValues1Thread.modelState.log",
+            true,
+        );
+        _,_,found:=log.LogElems(l).Find(func(val2 log.LogEntry[db.ModelState]) (bool, error) {
+            return (val.Val.Date==val2.Val.Date &&
+                val.Val.ClientID==val2.Val.ClientID &&
+                val.Val.Mse==val2.Val.Mse),nil;
+        });
+        test.BasicTest(true,found,
+            "The value from the single thread was not found in the multi-thread test.",t,
+        );
+        return iter.Continue,nil;
+    });
+}
+
+func runAllModelStateDebugLogTests(t *testing.T){
+    type tmp struct { V int; };
+    ids,_:=db.CustomReadQuery[tmp](&testDB,`SELECT Exercise.Id 
+        FROM Exercise 
+        JOIN ExerciseType 
+        ON Exercise.TypeID=ExerciseType.Id
+        WHERE ExerciseType.T='Main Compound' 
+            OR ExerciseType.T='Main Compound Accessory';`,
+        []any{},
+    ).Collect();
+    log.LogElems(SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG).ForEach(
+    func(index int, val log.LogEntry[db.ModelState]) (iter.IteratorFeedback, error) {
+        _,_,found:=iter.SliceElems[*tmp](ids).Find(func(idVal *tmp) (bool, error) {
+            return val.Val.ExerciseID==idVal.V,nil;
+        });
+        test.BasicTest(true,found,"ExerciseID was not found in valid ID list.",t);
+        return iter.Continue,nil;
+    });
+}
