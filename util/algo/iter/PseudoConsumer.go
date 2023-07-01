@@ -1,5 +1,10 @@
-package iter;
+package iter
 
+import (
+	"bufio"
+	"os"
+    "fmt"
+)
 
 func (i Iter[T])Consume() error {
     return i.ForEach(func(index int, val T) (IteratorFeedback, error) { 
@@ -13,6 +18,24 @@ func (i Iter[T])ToChan(c chan T) {
         c <- val;
         return Continue,nil;
     });
+}
+
+func (i Iter[T])ToFile(src string, addNewLine bool) error {
+    f,err:=os.Create(src);
+    if err!=nil {
+        return err;
+    }
+    w:=bufio.NewWriter(f);
+    err=i.ForEach(func(index int, val T) (IteratorFeedback, error) {
+        w.WriteString(fmt.Sprintf("%v",val));
+        if addNewLine {
+            w.WriteString("\n");
+        }
+        return Continue,nil;
+    });
+    w.Flush();
+    f.Close();
+    return err;
 }
 
 func (i Iter[T])Count() (int,error) {

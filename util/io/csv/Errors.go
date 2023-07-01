@@ -12,3 +12,6 @@ var NonStructValue,IsNonStructValue=customerr.ErrorFactory(
     "A struct value was expected but was not recieved.",
 );
 
+var UnsupportedType,IsUnsupportedType=customerr.ErrorFactory(
+    "The supplied type is not supported.",
+);

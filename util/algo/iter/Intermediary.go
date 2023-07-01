@@ -46,3 +46,32 @@ func (i Iter[T])Next(
         op func(index int, val T, status IteratorFeedback) (IteratorFeedback,T,error)) Iter[T] {
     return Next(i,op);
 }
+
+func (i Iter[T])Inject(op func(idx int, val T) (T,bool)) Iter[T] {
+    j:=-1;
+    injected:=false;
+    var prevErr error;
+    var prevCont bool;
+    var prevVal T;
+    return func(f IteratorFeedback) (T,error,bool) {
+        if f==Break {
+            var tmp T;
+            return tmp,nil,false;
+        }
+        j++;
+        if injected {
+            injected=false;
+            return prevVal,prevErr,prevCont;
+        }
+        next,err,cont:=i(f);
+        if v,status:=op(j,next); status {
+            injected=true;
+            prevVal=next;
+            prevCont=cont;
+            prevErr=err;
+            return v,nil,true;
+        } else {
+            return next,err,cont;
+        }
+    }
+}

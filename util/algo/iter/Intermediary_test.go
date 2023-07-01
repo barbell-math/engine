@@ -184,3 +184,46 @@ func TestNextReachesBreakParentErrAndCleanUpErr(t *testing.T){
         );
     }
 }
+
+func injectIterHelper[T any](initialVals []T,
+        desiredSeq []T, 
+        op func(idx int, val T) (T,bool), t *testing.T){
+    result,err:=SliceElems(initialVals).Inject(op).Collect();
+    test.BasicTest(nil,err,"Inject created an error when it should not have.",t);
+    test.BasicTest(len(desiredSeq),len(result),
+        "Using inject did not return the correct number of elements.",t,
+    );
+    for i,v:=range(desiredSeq) {
+        if i<len(result) {
+            test.BasicTest(v,result[i],
+                "Inject incorrectly modified values.",t,
+            );
+        }
+    }
+}
+func TestInject(t *testing.T) {
+    injectIterHelper([]int{},[]int{},
+        func(idx, val int) (int, bool) { return 0,idx==1; },t,
+    );
+    injectIterHelper([]int{1,2,3,4},[]int{1,2,3,4},
+        func(idx, val int) (int, bool) { return 0,idx==5; },t,
+    );
+    injectIterHelper([]int{},[]int{0},
+        func(idx, val int) (int, bool) { return 0,idx==0; },t,
+    );
+    injectIterHelper([]int{1},[]int{0,1},
+        func(idx, val int) (int, bool) { return 0,idx==0; },t,
+    );
+    injectIterHelper([]int{1,2,3,4},[]int{0,1,2,3,4},
+        func(idx, val int) (int, bool) { return 0,idx==0; },t,
+    );
+    injectIterHelper([]int{1},[]int{1,0},
+        func(idx, val int) (int, bool) { return 0,idx==1; },t,
+    );
+    injectIterHelper([]int{1,2,3,4},[]int{1,2,3,4,0},
+        func(idx, val int) (int, bool) { return 0,idx==4; },t,
+    );
+    injectIterHelper([]int{1,2,3,4},[]int{1,2,0,3,4},
+        func(idx, val int) (int, bool) { return 0,idx==2; },t,
+    );
+}

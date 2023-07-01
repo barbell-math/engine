@@ -92,6 +92,7 @@ func (l *Logger[T])Close(){
     if l.logFile!=nil {
         l.logFile.Close();
         l.logFile=nil;
+        l.Log=func(message string, val T){};
     }
 }
 

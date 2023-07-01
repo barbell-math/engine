@@ -1,8 +1,10 @@
 package iter
 
 import (
-    "fmt"
+	"bufio"
 	"errors"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/barbell-math/block/util/test"
@@ -287,6 +289,69 @@ func TestToChan(t *testing.T) {
     toChanIterHelper([]int{},t);
     toChanIterHelper([]int{0},t);
     toChanIterHelper(vals,t);
+}
+
+func toFileIterHelperWithNewline(numVals int, src string, t *testing.T){
+    vals:=make([]int,numVals);
+    for i,_:=range(vals) {
+        vals[i]=i;
+    }
+    SliceElems(vals).ToFile(src,true);
+    f,err:=os.Open(src);
+    if err!=nil {
+        test.FormatError(nil,err,"The file was not created properly.",t);
+    }
+    w:=bufio.NewScanner(f);
+    for i:=0; w.Scan(); i++ {
+        test.BasicTest(fmt.Sprintf("%d",i),w.Text(),
+            "The file was not written to properly.",t,
+        );
+    }
+    err=os.Remove(src);
+    if err!=nil {
+        test.FormatError(nil,err,
+            `The file was not deleted properly. (This is not necessarily a
+            problem with the iter framework but will not leave the test in the
+            proper state for next run.)`,t,
+        );
+    }
+}
+func toFileIterHelperNoNewline(numVals int, src string, t *testing.T){
+    correctVal:="";
+    vals:=make([]int,numVals);
+    for i,_:=range(vals) {
+        vals[i]=i;
+        correctVal=fmt.Sprintf("%s%d",correctVal,i);
+    }
+    SliceElems(vals).ToFile(src,false);
+    f,err:=os.Open(src);
+    if err!=nil {
+        test.FormatError(nil,err,"The file was not created properly.",t);
+    }
+    w:=bufio.NewScanner(f);
+    for i:=0; w.Scan(); i++ {
+        test.BasicTest(correctVal,w.Text(),
+            "The file was not written to properly.",t,
+        );
+    }
+    err=os.Remove(src);
+    if err!=nil {
+        test.FormatError(nil,err,
+            `The file was not deleted properly. (This is not necessarily a
+            problem with the iter framework but will not leave the test in the
+            proper state for next run.)`,t,
+        );
+    }
+}
+func TestToFile(t *testing.T){
+    toFileIterHelperWithNewline(0,"emptyFileTest.txt",t);
+    toFileIterHelperWithNewline(1,"oneLineFileTest.txt",t);
+    toFileIterHelperWithNewline(5,"fiveLinesFileTest.txt",t);
+    toFileIterHelperWithNewline(10,"tenLinesFileTest.txt",t);
+    toFileIterHelperNoNewline(0,"emptyFileTest.txt",t);
+    toFileIterHelperNoNewline(1,"oneLineFileTest.txt",t);
+    toFileIterHelperNoNewline(5,"fiveLinesFileTest.txt",t);
+    toFileIterHelperNoNewline(10,"tenLinesFileTest.txt",t);
 }
 
 func TestReduce(t *testing.T){
