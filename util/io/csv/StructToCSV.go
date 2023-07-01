@@ -34,18 +34,23 @@ func StructToCSV[R any](elems iter.Iter[R],
             return iter.Break,[]string{},nil;
         }
         sVals,_:=reflect.GetStructVals(&val,capFilter);
-        valsAsStr:=make([]string,len(sVals));
-        for i,v:=range(sVals) {
-            if iterS,err:=getStringFromStructVal(v.Interface(),timeDateFormat); err==nil {
-                valsAsStr[i]=iterS;
-            } else {
-                return iter.Break,[]string{},err;
-            }
-        }
-        return iter.Continue,valsAsStr,nil;
+        valsAsStr,err:=getValsAsString(sVals,timeDateFormat);
+        return iter.Continue,valsAsStr,err;
     }).Inject(func(idx int, val []string) ([]string,bool) {
         return headers,idx==0 && addHeaders;
     });
+}
+
+func getValsAsString(reflectVals []stdReflect.Value, timeDateFormat string) ([]string,error){
+    valsAsStr:=make([]string,len(reflectVals));
+    for i,v:=range(reflectVals) {
+        if iterS,err:=getStringFromStructVal(v.Interface(),timeDateFormat); err==nil {
+            valsAsStr[i]=iterS;
+        } else {
+            return []string{},err;
+        }
+    }
+    return valsAsStr,nil;
 }
 
 //Only basic types are supported
