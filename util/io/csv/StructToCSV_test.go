@@ -17,7 +17,7 @@ func TestValidStructToCSV(t *testing.T) {
         structs[i].V=i;
         structs[i].priv=i+1;
     }
-    res,err:=StructToCSV(iter.SliceElems(structs),",",true,"01/02/2006").Collect();
+    res,err:=StructToCSV(iter.SliceElems(structs),true,"01/02/2006").Collect();
     test.BasicTest(nil,err,
         "StructToCSV returned an error when it should not have.",t,
     );
@@ -52,7 +52,7 @@ func TestInvalidStructToCSV(t *testing.T) {
         structs[i].V=make([]int, 5);
         structs[i].priv=i+1;
     }
-    _,err:=StructToCSV(iter.SliceElems(structs),",",true,"01/02/2006").Collect();
+    _,err:=StructToCSV(iter.SliceElems(structs),true,"01/02/2006").Collect();
     if !IsUnsupportedType(err) {
         test.FormatError(UnsupportedType(""),err,
             "StructToCSV did not return the correct error.",t,
@@ -61,7 +61,7 @@ func TestInvalidStructToCSV(t *testing.T) {
 }
 
 func TestNonStructToCSV(t *testing.T) {
-    _,err:=StructToCSV(iter.SliceElems([]int{1,2,3,4}),",",true,"01/02/2006").Collect();
+    _,err:=StructToCSV(iter.SliceElems([]int{1,2,3,4}),true,"01/02/2006").Collect();
     if !IsNonStructValue(err) {
         test.FormatError(UnsupportedType(""),err,
             "StructToCSV did not return the correct error.",t,
@@ -77,7 +77,7 @@ func TestValidStructToCSVWithTime(t *testing.T) {
         structs[i].S="test string";
         structs[i].Ui=uint(i);
     }
-    res,err:=StructToCSV(iter.SliceElems(structs),",",true,"01/02/2006").Collect();
+    res,err:=StructToCSV(iter.SliceElems(structs),true,"01/02/2006").Collect();
     test.BasicTest(nil,err,
         "StructToCSV returned an error when it should not have.",t,
     );

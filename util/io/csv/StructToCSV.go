@@ -11,7 +11,6 @@ import (
 )
 
 func StructToCSV[R any](elems iter.Iter[R],
-        sep string,
         addHeaders bool,
         timeDateFormat string) iter.Iter[[]string] {
     var tmp R;
