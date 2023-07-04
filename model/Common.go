@@ -21,6 +21,8 @@ type stateGenerator interface {
     Id() StateGeneratorId;
 };
 
+type Predictor func(ms *db.ModelState, tl *db.TrainingLog) float64;
+
 type StateGeneratorRes struct {
     Ms db.ModelState;
     Err error;
@@ -51,24 +53,3 @@ type dataPoint struct {
 var SLIDING_WINDOW_DP_DEBUG=logUtil.NewBlankLog[*dataPoint]();
 var SLIDING_WINDOW_MS_DEBUG=logUtil.NewBlankLog[db.ModelState]();
 var SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG=logUtil.NewBlankLog[db.ModelState]();
-
-//func msMissingQuery(sg db.StateGenerator) string {
-//    return `SELECT TrainingLog.DatePerformed,
-//        TrainingLog.ExerciseID
-//    FROM TrainingLog
-//    LEFT JOIN ModelState
-//    ON TrainingLog.ExerciseID=ModelState.ExerciseID
-//        AND ModelState.ClientID=TrainingLog.ClientID
-//        AND TrainingLog.DatePerformed=ModelState.Date
-//    JOIN Exercise
-//    ON Exercise.Id=TrainingLog.ExerciseID
-//    JOIN ExerciseType
-//    ON ExerciseType.Id=Exercise.TypeID
-//    JOIN
-//    WHERE TrainingLog.ClientID=$1
-//        AND ModelState.Id IS NULL
-//        AND (ExerciseType.T='Main Compound'
-//        OR ExerciseType.T='Main Compound Accessory')
-//    GROUP BY TrainingLog.DatePerformed,
-//        TrainingLog.ExerciseID;`;
-//}

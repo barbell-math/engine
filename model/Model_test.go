@@ -152,7 +152,7 @@ func teardown(){
 
 func TestModelCreation(t *testing.T){
     cntr:=0;
-    m:=fatigueAwareModel();
+    m:=NewFatigueAwareModel();
     m.IterLHS(func(r int, c int, v float64){
         cntr++;
     });

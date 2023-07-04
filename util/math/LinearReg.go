@@ -1,7 +1,7 @@
-package math;
+package math
 
 import (
-    "fmt"
+	"fmt"
 )
 
 //A summation op is the function that is associated with a variable
@@ -75,12 +75,12 @@ func LinearSumOpGenWithError[N Number](
 }
 
 type LinRegResult[N Number] struct {
-    c Matrix[N];
+    Matrix[N];
     Predict func(iVars map[string]N) (N,error);
 };
 func (l *LinRegResult[N])GetConstant(i int) N {
-    if i<l.c.Rows() {
-        return l.c.V[i][0];
+    if i<l.Matrix.Rows() {
+        return l.Matrix.V[i][0];
     }
     return N(0);
 }
@@ -90,7 +90,7 @@ func (l *LinearReg[N])genLinRegPredict(r *LinRegResult[N]){
         var rv,v N=N(0),N(0);
         for i:=0; err==nil && i<len(l.iVarOps); i++ {
             v,err=l.iVarOps[i](iVars);
-            rv+=r.c.V[i][0]*v;
+            rv+=r.Matrix.V[i][0]*v;
         }
         return rv,err;
     }
@@ -199,12 +199,12 @@ func (l *LinearReg[N])UpdateSummations(vals map[string]N) error {
 
 func (l *LinearReg[N])Run() (LinRegResult[N],float64,error) {
     var rv LinRegResult[N];
-    rv.c=l.a.Copy();
-    rcond,err:=rv.c.Inverse();
+    rv.Matrix=l.a.Copy();
+    rcond,err:=rv.Matrix.Inverse();
     if !IsInverseOfNonSquareMatrix(err) {
         //err in RV can be ignored, matrices are guaranteed to have correct
         //dimensions because they are only managed by the linear reg struct
-        rv.c.Mul(&l.b);
+        rv.Matrix.Mul(&l.b);
     }
     l.genLinRegPredict(&rv);
     return rv,rcond,err;

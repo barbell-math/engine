@@ -1,7 +1,10 @@
-package math;
+package math
 
 import (
-    customerr "github.com/barbell-math/block/util/err"
+	"math"
+
+	"github.com/barbell-math/block/util/dataStruct"
+	customerr "github.com/barbell-math/block/util/err"
 )
 
 const WORKING_PRECISION float64=1e-16;
@@ -75,11 +78,14 @@ func MeanSqErr[N Number](act []N, given []N) (N,error) {
     return sum/N(len(act)),err;
 }
 
-func Constrain[N Number](given N, min N, max N) N {
-    if given<min {
-        return min;
-    } else if given>max {
-        return max;
+func NoOpConstraint[N Number]() dataStruct.Pair[N,N] {
+    return dataStruct.Pair[N, N]{A: N(math.Inf(-1)), B: N(math.Inf(1))};
+}
+func Constrain[N Number](given N, minMax dataStruct.Pair[N,N]) N {
+    if given<minMax.A {
+        return minMax.A;
+    } else if given>minMax.B {
+        return minMax.B;
     }
     return given;
 }

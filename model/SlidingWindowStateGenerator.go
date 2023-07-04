@@ -20,7 +20,7 @@ type SlidingWindowStateGen struct {
     timeFrameLimits dataStruct.Pair[int,int];
     windowValues [][]dataPoint;
     optimalMs db.ModelState;
-    lr mathUtil.LinearReg[float64];
+    model FatigueAwareModel;
     withinWindowLimits (func(t stdTime.Time) bool);
 };
 
@@ -33,8 +33,9 @@ func NewSlidingWindowStateGen(
         windowLimits dataStruct.Pair[int,int],
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
-        allotedThreads: mathUtil.Constrain(allotedThreads,1,stdMath.MaxInt),
-        timeFrameLimits: dataStruct.Pair[int,int]{
+        allotedThreads: mathUtil.Constrain(allotedThreads,dataStruct.Pair[int,int]{
+            1,stdMath.MaxInt,
+        }), timeFrameLimits: dataStruct.Pair[int,int]{
             A: -mathUtil.Abs(timeFrameLimits.A),
             B: -mathUtil.Abs(timeFrameLimits.B),
         }, windowLimits: dataStruct.Pair[int,int]{
@@ -96,7 +97,7 @@ func (s SlidingWindowStateGen)GenerateModelState(
         missingData *missingModelStateData) (db.ModelState,error) {
     s.setInitialOptimalMsValues(missingData);
     s.setWithinWindowLimits(missingData.Date);
-    s.lr=fatigueAwareModel();
+    s.model=NewFatigueAwareModel();
     cntr,err:=s.runAlgo(d,missingData);
     if err==sql.ErrNoRows {
         err=NoDataInSelectedTimeFrame(fmt.Sprintf(
@@ -175,12 +176,12 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
         missingData *missingModelStateData) error {
     var numPoints float64=0;
     var cumulativeSe float64=0.0;
-    res,rcond,_:=s.lr.Run();
+    rcond,_:=s.model.Run();
     for _,w:=range(s.windowValues) {
         actual,pred:=make([]float64,len(w)),make([]float64,len(w));
         for i,v:=range(w) {
             actual[i]=v.Intensity;
-            if iterPred,err:=intensityPredFromLinReg(res,&v); err==nil {
+            if iterPred,err:=s.model.PredictFromDataPoint(v); err==nil {
                 pred[i]=iterPred;
             }
         }
@@ -192,7 +193,7 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
             cumulativeSe+=seTot;
             numPoints+=float64(len(w));
             if cumulativeSe/numPoints<s.optimalMs.Mse {
-                s.saveModelState(res,rcond,cumulativeSe/numPoints,
+                s.saveModelState(rcond,cumulativeSe/numPoints,
                     timeUtil.DaysBetween(missingData.Date,w[0].DatePerformed),
                     timeUtil.DaysBetween(missingData.Date,d.DatePerformed),
                 );
@@ -205,19 +206,18 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
 }
 
 func (s *SlidingWindowStateGen)saveModelState(
-        res mathUtil.LinRegResult[float64],
         rcond float64,
         mse float64,
         winLen int,
         timeFrameLen int){
-    s.optimalMs.Eps=stdMath.Max(res.GetConstant(0),0);
-    //s.optimalMs.Eps1=res.GetConstant(1);
-    s.optimalMs.Eps2=res.GetConstant(1);
-    s.optimalMs.Eps3=res.GetConstant(2);
-    s.optimalMs.Eps4=res.GetConstant(3);
-    s.optimalMs.Eps5=stdMath.Max(res.GetConstant(4),0);
-    s.optimalMs.Eps6=stdMath.Max(res.GetConstant(5),0);
-    s.optimalMs.Eps7=stdMath.Max(res.GetConstant(6),0);
+    s.optimalMs.Eps=stdMath.Max(s.model.GetConstant(0),0);
+    s.optimalMs.Eps1=s.model.GetConstant(1);
+    //s.optimalMs.Eps2=res.GetConstant(2);
+    s.optimalMs.Eps3=s.model.GetConstant(2);
+    s.optimalMs.Eps4=s.model.GetConstant(3);
+    s.optimalMs.Eps5=stdMath.Max(s.model.GetConstant(4),0);
+    s.optimalMs.Eps6=stdMath.Max(s.model.GetConstant(5),0);
+    s.optimalMs.Eps7=stdMath.Max(s.model.GetConstant(6),0);
     s.optimalMs.TimeFrame=timeFrameLen;
     s.optimalMs.Win=winLen;
     s.optimalMs.Rcond=rcond;
@@ -239,7 +239,7 @@ func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
 }
 
 func (s *SlidingWindowStateGen)updateLrSummations(d *dataPoint){
-    s.lr.UpdateSummations(map[string]float64{
+    s.model.UpdateSummations(map[string]float64{
         "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
         "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
     });

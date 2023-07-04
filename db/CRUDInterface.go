@@ -22,13 +22,13 @@ func Create[R DBTable](c *DB, rows ...R) ([]int,error) {
     if len(columns)==0 {
         return []int{},FilterRemovedAllColumns("Row was not added to database.");
     }
-    intoStr,_:=csv.Flatten(iter.SliceElems([][]string{columns}),",").Collect();
+    intoStr,_,_:=csv.Flatten(iter.SliceElems([][]string{columns}),",").Nth(0);
     valuesStr:=csv.CSVGenerator(",",func(iter int) (string,bool) {
         return fmt.Sprintf("$%d",iter+1), iter+1<len(columns);
     });
     sqlStmt:=fmt.Sprintf(
         "INSERT INTO %s(%s) VALUES (%s) RETURNING Id;",
-        getTableName(&rows[0]),intoStr[0],valuesStr,
+        getTableName(&rows[0]),intoStr,valuesStr,
     );
     var err error=nil;
     rv:=make([]int,len(rows));
@@ -45,7 +45,6 @@ func Read[R DBTable](
         c *DB,
         rowVals R,
         filter algo.Filter[string]) iter.Iter[*R] {
-    //columns:=getTableColumns(&rowVals,filter);
     columns,_:=iter.SliceElems(getTableColumns(&rowVals,filter)).Map(
     func(index int, val string) (string, error) {
         return fmt.Sprintf("%s=$%d",val,index+1),nil;
@@ -55,12 +54,9 @@ func Read[R DBTable](
             FilterRemovedAllColumns("No value rows were selected."),1,
         );
     }
-    valuesStr,_:=csv.Flatten(iter.SliceElems([][]string{columns})," AND ").Collect();
-    //valuesStr:=csv.CSVGenerator(" AND ",func(iter int) (string,bool) {
-    //    return fmt.Sprintf("%s=$%d",columns[iter],iter+1), iter+1<len(columns);
-    //});
+    valuesStr,_,_:=csv.Flatten(iter.SliceElems([][]string{columns})," AND ").Nth(0);
     sqlStmt:=fmt.Sprintf(
-        "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr[0],
+        "SELECT * FROM %s WHERE %s;",getTableName(&rowVals),valuesStr,
     );
     return getQueryReflectResults[R](c,
         algo.AppendWithPreallocation(
@@ -95,10 +91,10 @@ func Update[R DBTable](
     if len(updateColumns)==0 || len(searchColumns)==0 {
         return 0, FilterRemovedAllColumns("No rows were updated.");
     }
-    setStr,_:=csv.Flatten(iter.SliceElems([][]string{updateColumns}),", ").Collect();
-    whereStr,_:=csv.Flatten(iter.SliceElems([][]string{searchColumns})," AND ").Collect();
+    setStr,_,_:=csv.Flatten(iter.SliceElems([][]string{updateColumns}),", ").Nth(0);
+    whereStr,_,_:=csv.Flatten(iter.SliceElems([][]string{searchColumns})," AND ").Nth(0);
     sqlStmt:=fmt.Sprintf(
-        "UPDATE %s SET %s WHERE %s;",getTableName(&searchVals),setStr[0],whereStr[0],
+        "UPDATE %s SET %s WHERE %s;",getTableName(&searchVals),setStr,whereStr,
     );
     return getExecReflectResults(c,
         algo.AppendWithPreallocation(
@@ -120,8 +116,8 @@ func UpdateAll[R DBTable](
     if len(updateColumns)==0 {
         return 0, FilterRemovedAllColumns("No rows were updated.");
     }
-    setStr,_:=csv.Flatten(iter.SliceElems([][]string{updateColumns}),", ").Collect();
-    sqlStmt:=fmt.Sprintf("UPDATE %s SET %s;",getTableName(&updateVals),setStr[0]);
+    setStr,_,_:=csv.Flatten(iter.SliceElems([][]string{updateColumns}),", ").Nth(0);
+    sqlStmt:=fmt.Sprintf("UPDATE %s SET %s;",getTableName(&updateVals),setStr);
     return getExecReflectResults(c,
         algo.AppendWithPreallocation(
             []reflect.Value{reflect.ValueOf(sqlStmt)},
@@ -141,9 +137,9 @@ func Delete[R DBTable](
     if len(columns)==0 {
         return 0, FilterRemovedAllColumns("No rows were deleted.");
     }
-    whereStr,_:=csv.Flatten(iter.SliceElems([][]string{columns})," AND ").Collect();
+    whereStr,_,_:=csv.Flatten(iter.SliceElems([][]string{columns})," AND ").Nth(0);
     sqlStmt:=fmt.Sprintf(
-        "DELETE FROM %s WHERE %s;",getTableName(&searchVals),whereStr[0],
+        "DELETE FROM %s WHERE %s;",getTableName(&searchVals),whereStr,
     );
     return getExecReflectResults(c,
         algo.AppendWithPreallocation(
