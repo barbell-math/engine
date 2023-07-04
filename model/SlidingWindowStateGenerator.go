@@ -34,7 +34,7 @@ func NewSlidingWindowStateGen(
         allotedThreads int) (SlidingWindowStateGen,error) {
     rv:=SlidingWindowStateGen{
         allotedThreads: mathUtil.Constrain(allotedThreads,dataStruct.Pair[int,int]{
-            1,stdMath.MaxInt,
+            A: 1, B: stdMath.MaxInt,
         }), timeFrameLimits: dataStruct.Pair[int,int]{
             A: -mathUtil.Abs(timeFrameLimits.A),
             B: -mathUtil.Abs(timeFrameLimits.B),
@@ -61,6 +61,8 @@ func (s SlidingWindowStateGen)Id() StateGeneratorId {
     return SlidingWindowStateGenId;
 }
 
+//The method receiver is not a pointer so that the object will be copied. It is
+//meant to be called in parallel (i.e. multiple clients) so the copy is necessary.
 func (s SlidingWindowStateGen)GenerateClientModelStates(
         d *db.DB,
         c db.Client,
@@ -92,6 +94,9 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
     return rv,err;
 }
 
+//The method receiver is not a pointer so that the object will be copied. It is
+//meant to be called in parallel (i.e. multiple dates/exercises) so the copy
+//is necessary.
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
         missingData *missingModelStateData) (db.ModelState,error) {

@@ -3,6 +3,7 @@ package model;
 import (
     "time"
     "github.com/barbell-math/block/db"
+    mathUtil "github.com/barbell-math/block/util/math"
     logUtil "github.com/barbell-math/block/util/io/log"
 )
 
@@ -22,10 +23,9 @@ type stateGenerator interface {
 };
 
 type Predictor func(ms *db.ModelState, tl *db.TrainingLog) float64;
-
-type StateGeneratorRes struct {
-    Ms db.ModelState;
-    Err error;
+type Model interface {
+    mathUtil.LinearReg[float64];
+    mathUtil.LinRegResult[float64];
 };
 
 //The struct that holds values when searching for missing model states.
