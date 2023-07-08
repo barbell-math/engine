@@ -70,8 +70,8 @@ func (f *FatigueAwareModel)imposeConstraints() error {
         {A: 0, B: stdMath.Inf(1)}, //Eps6: s
         {A: 0, B: stdMath.Inf(1)}, //Eps7: r
     };
-    for i,v:=range(f.V[0]) {
-        f.V[0][i]=mathUtil.Constrain(v,constraints[i]);
+    for i,v:=range(f.V) {
+        f.V[i][0]=mathUtil.Constrain(v[0],constraints[i]);
     }
     return nil;
 }

@@ -191,11 +191,9 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
             }
         }
         if se,err:=mathUtil.SqErr(actual,pred); err==nil {
-            seTot:=0.0;
             for _,v:=range(se) {
-                seTot+=v;
+                cumulativeSe+=v;
             }
-            cumulativeSe+=seTot;
             numPoints+=float64(len(w));
             if cumulativeSe/numPoints<s.optimalMs.Mse {
                 s.saveModelState(rcond,cumulativeSe/numPoints,
@@ -215,14 +213,14 @@ func (s *SlidingWindowStateGen)saveModelState(
         mse float64,
         winLen int,
         timeFrameLen int){
-    s.optimalMs.Eps=stdMath.Max(s.model.GetConstant(0),0);
+    s.optimalMs.Eps=s.model.GetConstant(0);
     s.optimalMs.Eps1=s.model.GetConstant(1);
     //s.optimalMs.Eps2=res.GetConstant(2);
     s.optimalMs.Eps3=s.model.GetConstant(2);
     s.optimalMs.Eps4=s.model.GetConstant(3);
-    s.optimalMs.Eps5=stdMath.Max(s.model.GetConstant(4),0);
-    s.optimalMs.Eps6=stdMath.Max(s.model.GetConstant(5),0);
-    s.optimalMs.Eps7=stdMath.Max(s.model.GetConstant(6),0);
+    s.optimalMs.Eps5=s.model.GetConstant(4);
+    s.optimalMs.Eps6=s.model.GetConstant(5);
+    s.optimalMs.Eps7=s.model.GetConstant(6);
     s.optimalMs.TimeFrame=timeFrameLen;
     s.optimalMs.Win=winLen;
     s.optimalMs.Rcond=rcond;
