@@ -102,8 +102,8 @@ type VolumeBaseSurface struct {
 
 //The ordering of the functions makes for this ordering of constants:
 //  Eps,Eps1,Eps2,Eps3,Eps4,Eps5,Eps6
-func NewVolumeBaseSurface() BasicSurface {
-    return BasicSurface{
+func NewVolumeBaseSurface() VolumeBaseSurface {
+    return VolumeBaseSurface{
         LinearReg: mathUtil.NewLinearReg([]mathUtil.SummationOp[float64]{
             mathUtil.ConstSummationOp[float64](1),
             func(vals map[string]float64) (float64, error) {
@@ -188,13 +188,6 @@ func (v *VolumeBaseSurface)Run() (float64,error) {
     res,rcond,err:=v.LinearReg.Run();
     v.LinRegResult=res;
     v.imposeConstraints();
-    v.LinRegResult.Predict=func(iVars map[string]float64) (float64, error) {
-        tmp,err:=v.LinRegResult.Predict(iVars);
-        if err!=nil {
-            return tmp,err;
-        }
-        return 1/stdMath.Pow(tmp,0.5),err;
-    };
     return rcond,err;
 }
 
@@ -215,13 +208,10 @@ func (v *VolumeBaseSurface)imposeConstraints() {
 
 }
 
-func (v *VolumeBaseSurface)PredictIntensity(tl *db.TrainingLog) (float64,error) {
-    return v.Predict(map[string]float64{
-        "I": tl.Intensity,
-        "E": tl.Effort,
-        "R": float64(tl.Reps),
-        "S": float64(tl.Sets),
-        "F_w": float64(tl.InterWorkoutFatigue),
-        "F_e": float64(tl.InterExerciseFatigue),
-    });
+func (v *VolumeBaseSurface)PredictIntensity(vals map[string]float64) (float64,error) {
+    tmp,err:=v.LinRegResult.Predict(vals);
+    if err!=nil {
+        return tmp,err;
+    }
+    return 1/stdMath.Pow(tmp,0.5),err;
 }

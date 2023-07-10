@@ -160,25 +160,6 @@ func (b *BasicSurface)imposeConstraints() {
     }
 }
 
-// func (f *FatigueAwareModel)PredictIntensityFromDataPoint(dp dataPoint) (float64,error) {
-//     return f.Predict(map[string]float64{
-//         "I": dp.Intensity,
-//         "E": dp.Effort,
-//         "R": float64(dp.Reps),
-//         "S": float64(dp.Sets),
-//         "F_w": float64(dp.InterWorkoutFatigue),
-//         "F_e": float64(dp.InterExerciseFatigue),
-//         //"F_l": float64(dp.LatentFatigue),
-//     });
-// }
-
-func (b *BasicSurface)PredictIntensity(tl *db.TrainingLog) (float64,error) {
-    return b.Predict(map[string]float64{
-        "I": tl.Intensity,
-        "E": tl.Effort,
-        "R": float64(tl.Reps),
-        "S": float64(tl.Sets),
-        "F_w": float64(tl.InterWorkoutFatigue),
-        "F_e": float64(tl.InterExerciseFatigue),
-    });
+func (b *BasicSurface)PredictIntensity(vals map[string]float64) (float64,error) {
+    return b.LinRegResult.Predict(vals);
 }

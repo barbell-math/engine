@@ -9,7 +9,7 @@ import (
 //If they don't, the values returned will be all
 //jumbled up if no errors about parsing values arise.
 
-type DBTable  interface {
+type DBTable interface {
     ExerciseType |
     ExerciseFocus |
     Exercise |
@@ -18,6 +18,7 @@ type DBTable  interface {
     TrainingLog |
     Client |
     ModelState |
+    PotentialSurface |
     StateGenerator |
     Prediction
 };
@@ -84,10 +85,17 @@ type StateGenerator struct {
     Description string;
 };
 
+type PotentialSurface struct {
+    Id int;
+    T string;
+    Description string;
+};
+
 type ModelState struct {
     Id int;
     ClientID int;
     ExerciseID int;
+    PotentialSurfaceID int;
     StateGeneratorID int;
     Date time.Time;
     Eps,Eps1,Eps2,Eps3 float64;
@@ -100,6 +108,7 @@ type ModelState struct {
 
 type Prediction struct {
     Id int;
+    PotentialSurfaceID int;
     StateGeneratorID int;
     TrainingLogID int;
     IntensityPred float64;

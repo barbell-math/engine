@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS ExerciseFocus CASCADE;
 DROP TABLE IF EXISTS ModelState CASCADE;
 DROP TABLE IF EXISTS Prediction CASCADE;
 DROP TABLE IF EXISTS StateGenerator CASCADE;
+DROP TABLE IF EXISTS PotentialSurface CASCADE;
 
 CREATE TABLE IF NOT EXISTS Version (
     Num INT NOT NULL
@@ -76,6 +77,12 @@ CREATE TABLE TrainingLog (
 	FOREIGN KEY (RotationID) REFERENCES Rotation(ID)
 );
 
+CREATE TABLE PotentialSurface (
+    Id SERIAL PRIMARY KEY,
+	T TEXT NOT NULL UNIQUE,
+	Description TEXT NOT NULL
+);
+
 CREATE TABLE StateGenerator (
     Id SERIAL PRIMARY KEY,
 	T TEXT NOT NULL UNIQUE,
@@ -86,6 +93,7 @@ CREATE TABLE ModelState (
     Id SERIAL PRIMARY KEY,
     ClientID INTEGER NOT NULL,
     ExerciseID INTEGER NOT NULL,
+    PotentialSurfaceID INTEGER NOT NULL,
     StateGeneratorID INTEGER NOT NULL,
     Date DATE NOT NULL,
     Eps FLOAT NOT NULL,
@@ -107,6 +115,7 @@ CREATE TABLE ModelState (
 
 CREATE TABLE Prediction (
     Id SERIAL PRIMARY KEY,
+    PotentialSurfaceID INTEGER NOT NULL,
     StateGeneratorID INTEGER NOT NULL,
     TrainingLogID INTEGER NOT NULL,
     IntensityPred FLOAT NOT NULL,
@@ -116,10 +125,10 @@ CREATE TABLE Prediction (
 
 ALTER TABLE ModelState
 ADD CONSTRAINT uniqueDayExerciseClientState
-UNIQUE(ClientID,ExerciseID,StateGeneratorID,Date);
+UNIQUE(ClientID,ExerciseID,StateGeneratorID,PotentialSurfaceID,Date);
 
 ALTER TABLE Prediction
 ADD CONSTRAINT uniqueGeneratorTrainingLogID
-UNIQUE(StateGeneratorID,TrainingLogID);
+UNIQUE(StateGeneratorID,PotentialSurfaceID,TrainingLogID);
 
 INSERT INTO Version(num) VALUES (0);

@@ -21,7 +21,8 @@ type Predictor interface {
 type Surface interface {
     Id() PotentialSurfaceId;
     Predictor() Predictor;
-    PredictIntensity(tl *db.TrainingLog) (float64,error);
+    PredictIntensity(vals map[string]float64) (float64,error);
     Run() (float64,error);
     Update(vals map[string]float64) error;
+    GetConstant(idx int) float64;
 };
