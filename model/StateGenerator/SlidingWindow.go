@@ -3,7 +3,6 @@ package stateGenerator
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	stdMath "math"
 	stdTime "time"
 
@@ -20,8 +19,8 @@ type SlidingWindowStateGen struct {
     windowLimits dataStruct.Pair[int,int];
     timeFrameLimits dataStruct.Pair[int,int];
     windowValues [][]dataPoint;
-    optimalMs db.ModelState;
-    model potSurf.Surface;
+    optimalMs []db.ModelState;
+    models []potSurf.Surface;
     withinWindowLimits (func(t stdTime.Time) bool);
 };
 
@@ -42,9 +41,7 @@ func NewSlidingWindowStateGen(
         }, windowLimits: dataStruct.Pair[int,int]{
             A: -mathUtil.Abs(windowLimits.A),
             B: -mathUtil.Abs(windowLimits.B),
-        }, optimalMs: db.ModelState{
-            Mse: stdMath.Inf(1),
-        },
+        }, 
     };
     if rv.timeFrameLimits.A<rv.timeFrameLimits.B {
         return rv,InvalidPredictionState("min time frame > max time frame");
@@ -68,23 +65,25 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
         d *db.DB,
         c db.Client,
         minTime stdTime.Time,
-        surfaceFactory func() potSurf.Surface) (dataStruct.Pair[int,int],error) {
+        surfaceFactory func() []potSurf.Surface) (dataStruct.Pair[int,int],error) {
     rv:=dataStruct.Pair[int,int]{A: 0, B: 0};
     bufCreator,err:=db.NewBufferedCreate[db.ModelState](100);
     if err!=nil {
         return rv,err;
     }
-    err=iter.Parallel[*missingModelStateData,db.ModelState](
+    err=iter.Parallel[*missingModelStateData,[]db.ModelState](
         db.CustomReadQuery[missingModelStateData](d,
             missingModelStatesForGivenStateGenQuery(),[]any{
                 c.Id,s.Id(),minTime,
-        }),func(val *missingModelStateData) (db.ModelState, error) {
+        }),func(val *missingModelStateData) ([]db.ModelState, error) {
             return s.GenerateModelState(d,surfaceFactory(),val);
-        },func(val *missingModelStateData, res db.ModelState, err error) {
-            SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG.Log("Optimal MS",res);
+        },func(val *missingModelStateData, res []db.ModelState, err error) {
             //fmt.Println(err);
             if err==nil {
-                bufCreator.Write(d,res);
+                for _,r:=range(res) {
+                    bufCreator.Write(d,r);
+                    SLIDING_WINDOW_MS_PARALLEL_RESULT_DEBUG.Log("Optimal MS",r);
+                }
             } else {
                 rv.B++;
             }
@@ -101,34 +100,37 @@ func (s SlidingWindowStateGen)GenerateClientModelStates(
 //is necessary.
 func (s SlidingWindowStateGen)GenerateModelState(
         d *db.DB,
-        surface potSurf.Surface,
-        missingData *missingModelStateData) (db.ModelState,error) {
-    s.setInitialOptimalMsValues(missingData);
+        surface []potSurf.Surface,
+        missingData *missingModelStateData) ([]db.ModelState,error) {
+    s.setInitialOptimalMsValues(missingData,surface);
     s.setWithinWindowLimits(missingData.Date);
-    s.model=surface;
-    cntr,err:=s.runAlgo(d,missingData);
+    _,err:=s.runAlgo(d,missingData);
     if err==sql.ErrNoRows {
         err=NoDataInSelectedTimeFrame(fmt.Sprintf(
             "Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
             missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
             missingData.ExerciseID, missingData.ClientID,
         ));
-    } else if s.optimalMs.Mse==math.Inf(1) && err==nil {
-        err=NotEnoughData(fmt.Sprintf(
-            "Num data pnts: %d Date: %s Min time frame: %d Max time frame: %d Exercise: %d Client: %d",
-            cntr,missingData.Date, s.timeFrameLimits.A, s.timeFrameLimits.B,
-            missingData.ExerciseID, missingData.ClientID,
-        ));
+        return []db.ModelState{},err;
     }
     return s.optimalMs,err;
 }
 
 func (s *SlidingWindowStateGen)setInitialOptimalMsValues(
-        missingData *missingModelStateData){
-    s.optimalMs.ClientID=missingData.ClientID;
-    s.optimalMs.ExerciseID=missingData.ExerciseID;
-    s.optimalMs.StateGeneratorID=int(SlidingWindowStateGenId);
-    s.optimalMs.Date=missingData.Date;
+        missingData *missingModelStateData,
+        surfaces []potSurf.Surface){
+    s.models=surfaces;
+    s.optimalMs=make([]db.ModelState,len(s.models));
+    for i,_:=range(s.models) {
+        s.optimalMs[i]=db.ModelState{
+            Mse: stdMath.Inf(1),
+            Date: missingData.Date,
+            ClientID: missingData.ClientID,
+            ExerciseID: missingData.ExerciseID,
+            StateGeneratorID: int(SlidingWindowStateGenId),
+            PotentialSurfaceID: int(s.models[i].Id()),
+        };
+    }
 }
 
 func (s *SlidingWindowStateGen)runAlgo(
@@ -182,33 +184,36 @@ func (s *SlidingWindowStateGen)runAlgo(
 func (s *SlidingWindowStateGen)calcAndSetModelState(
         d *dataPoint,
         missingData *missingModelStateData) error {
-    var numPoints float64=0;
-    var cumulativeSe float64=0.0;
-    rcond,_:=s.model.Run();
-    for i,w:=range(s.windowValues) {
-        totalSe,err:=s.getActualAndPredSe(i);
-        if err!=nil {
-            return err;
-        }
-        numPoints+=float64(len(w));
-        cumulativeSe+=totalSe;
-        if err==nil && cumulativeSe/numPoints<s.optimalMs.Mse {
-            s.saveModelState(rcond,cumulativeSe/numPoints,
-                timeUtil.DaysBetween(missingData.Date,w[0].DatePerformed),
-                timeUtil.DaysBetween(missingData.Date,d.DatePerformed),
-            );
+    for i,m:=range(s.models) {
+        var numPoints float64=0;
+        var cumulativeSe float64=0.0;
+        rcond,_:=m.Run();
+        for j,w:=range(s.windowValues) {
+            totalSe,err:=s.getActualAndPredSe(m,j);
+            if err!=nil {
+                return err;
+            }
+            numPoints+=float64(len(w));
+            cumulativeSe+=totalSe;
+            if err==nil && cumulativeSe/numPoints<s.optimalMs[i].Mse {
+                s.saveModelState(i,rcond,cumulativeSe/numPoints,
+                    timeUtil.DaysBetween(missingData.Date,w[0].DatePerformed),
+                    timeUtil.DaysBetween(missingData.Date,d.DatePerformed),
+                );
+            }
         }
     }
     return nil;
 }
 
-func (s *SlidingWindowStateGen)getActualAndPredSe(windowIndex int) (float64,error) {
+func (s *SlidingWindowStateGen)getActualAndPredSe(m potSurf.Surface, 
+        windowIndex int) (float64,error) {
     actual,pred:=make(
         []float64,len(s.windowValues[windowIndex]),
     ),make([]float64,len(s.windowValues[windowIndex]));
     for i,v:=range(s.windowValues[windowIndex]) {
         actual[i]=v.Intensity;
-        if iterPred,err:=s.model.PredictIntensity(map[string]float64{
+        if iterPred,err:=m.PredictIntensity(map[string]float64{
             "I": v.Intensity,
             "E": v.Effort,
             "R": float64(v.Reps),
@@ -230,23 +235,24 @@ func (s *SlidingWindowStateGen)getActualAndPredSe(windowIndex int) (float64,erro
 }
 
 func (s *SlidingWindowStateGen)saveModelState(
+        i int,
         rcond float64,
         mse float64,
         winLen int,
         timeFrameLen int){
-    s.optimalMs.Eps=s.model.GetConstant(0);
-    s.optimalMs.Eps1=s.model.GetConstant(1);
-    s.optimalMs.Eps2=s.model.GetConstant(2);
-    s.optimalMs.Eps3=s.model.GetConstant(3);
-    s.optimalMs.Eps4=s.model.GetConstant(4);
-    s.optimalMs.Eps5=s.model.GetConstant(5);
-    s.optimalMs.Eps6=s.model.GetConstant(6);
-    s.optimalMs.Eps7=s.model.GetConstant(7);
-    s.optimalMs.TimeFrame=timeFrameLen;
-    s.optimalMs.Win=winLen;
-    s.optimalMs.Rcond=rcond;
-    s.optimalMs.Mse=mse;
-    SLIDING_WINDOW_MS_DEBUG.Log("ModelState",s.optimalMs);
+    s.optimalMs[i].Eps=s.models[i].GetConstant(0);
+    s.optimalMs[i].Eps1=s.models[i].GetConstant(1);
+    s.optimalMs[i].Eps2=s.models[i].GetConstant(2);
+    s.optimalMs[i].Eps3=s.models[i].GetConstant(3);
+    s.optimalMs[i].Eps4=s.models[i].GetConstant(4);
+    s.optimalMs[i].Eps5=s.models[i].GetConstant(5);
+    s.optimalMs[i].Eps6=s.models[i].GetConstant(6);
+    s.optimalMs[i].Eps7=s.models[i].GetConstant(7);
+    s.optimalMs[i].TimeFrame=timeFrameLen;
+    s.optimalMs[i].Win=winLen;
+    s.optimalMs[i].Rcond=rcond;
+    s.optimalMs[i].Mse=mse;
+    SLIDING_WINDOW_MS_DEBUG.Log("ModelState",s.optimalMs[i]);
 }
 
 func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
@@ -260,10 +266,12 @@ func (s *SlidingWindowStateGen)updateWindowValues(d *dataPoint){
 }
 
 func (s *SlidingWindowStateGen)updateModel(d *dataPoint){
-    s.model.Update(map[string]float64{
-        "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
-        "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
-    });
+    for _,m:=range(s.models) {
+        m.Update(map[string]float64{
+            "I": d.Intensity, "R": d.Reps, "E": d.Effort, "S": d.Sets,
+            "F_w": d.InterWorkoutFatigue, "F_e": d.InterExerciseFatigue,
+        });
+    }
     SLIDING_WINDOW_DP_DEBUG.Log("DataPoint",d);
 }
 

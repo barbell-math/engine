@@ -10,6 +10,7 @@ import (
 )
 
 func TestSaveAllModelStates(t *testing.T) {
+    resetPredictionsTable();
     timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
     window:=dataStruct.Pair[int,int]{A: 1, B: 30};
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,10);

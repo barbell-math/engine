@@ -131,6 +131,8 @@ func NewBasicSurface() BasicSurface {
     };
 }
 
+func (b BasicSurface)ToGenericSurf() Surface { return &b; }
+
 func (b *BasicSurface)Id() PotentialSurfaceId { return BasicSurfaceId; }
 func (b *BasicSurface)Predictor() Predictor { return BasicSurfacePrediction; }
 

@@ -115,16 +115,16 @@ func generateModelStateHelper(scenarioName string,
         ExerciseID: 15,
         Date: baseTime,
     };
-    s:=potSurf.NewBasicSurface()
-    ms,err:=sw.GenerateModelState(&testDB,&s,&missingData);
+    s:=[]potSurf.Surface{potSurf.NewBasicSurface().ToGenericSurf()};
+    ms,err:=sw.GenerateModelState(&testDB,s,&missingData);
     closeLogs();
     runModelStateDebugLogTests(baseTime,
         missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-        timeFrame,window,ms.Mse,t,
+        timeFrame,window,ms[0].Mse,t,
     );
     runDataPointDebugLogTests(baseTime,t);
     runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
-    return ms,err;
+    return ms[0],err;
 }
 
 func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
@@ -293,9 +293,8 @@ func generateAllModelStatesHelper(scenarioName string,
     // Earilest data point is 8/10/2021, this date is small enough to get all values
     sw.GenerateClientModelStates(&testDB,c,time.Date(
         2020,time.Month(1),1,0,0,0,0,time.UTC,
-    ),func() potSurf.Surface {
-        tmp:=potSurf.NewBasicSurface();
-        return &tmp;
+    ),func() []potSurf.Surface {
+        return []potSurf.Surface{ potSurf.NewBasicSurface().ToGenericSurf() };
     });
     //fmt.Println(cnts,err);
     closeLogs();

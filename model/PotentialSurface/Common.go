@@ -25,4 +25,5 @@ type Surface interface {
     Run() (float64,error);
     Update(vals map[string]float64) error;
     GetConstant(idx int) float64;
+    ToGenericSurf() Surface;
 };
