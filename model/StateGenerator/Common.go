@@ -3,7 +3,9 @@ package stateGenerator
 import (
     "time"
     "github.com/barbell-math/block/db"
+	"github.com/barbell-math/block/util/dataStruct"
     logUtil "github.com/barbell-math/block/util/io/log"
+	potSurf "github.com/barbell-math/block/model/PotentialSurface"
 )
 
 type StateGeneratorId int;
@@ -11,6 +13,19 @@ type StateGeneratorId int;
 const (
     SlidingWindowStateGenId StateGeneratorId=iota+1
 );
+
+type StateGenerator interface {
+    Id() StateGeneratorId;
+    GenerateClientModelStates(d *db.DB,
+        c db.Client,
+        minTime time.Time,
+        surfaceFactory func() []potSurf.Surface,
+    ) (dataStruct.Pair[int,int],error);
+    GenerateModelState(d *db.DB,
+        surface []potSurf.Surface,
+        missingData *missingModelStateData,
+    ) ([]db.ModelState,error);
+};
 
 //The struct that holds values when linear regression is performed.
 //Note - THE ORDER OF THE STRUCT FIELDS MUST MATCH THE ORDER OF THE VALUES

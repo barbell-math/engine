@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/barbell-math/block/util/reflect"
 	"github.com/barbell-math/block/util/algo/iter"
 )
 
@@ -25,11 +26,8 @@ import (
 //in the structs that are generated will be zero-value initialized.
 func CSVToStruct[R any](src iter.Iter[[]string], timeDateFormat string) iter.Iter[R] {
     var tmp R;
-    if stdReflect.ValueOf(tmp).Kind()!=stdReflect.Struct {
-        return iter.ValElem(tmp,NonStructValue(fmt.Sprintf(
-            "CSVToStruct requires a struct as target. | Got: %s",
-            stdReflect.ValueOf(tmp).Kind().String(),
-        )),1);
+    if err:=reflect.IsStructVal(&tmp); err!=nil {
+        return iter.ValElem(tmp,err,1);
     }
     headers:=make([]string,0);
     return iter.Next(src,

@@ -7,7 +7,7 @@ import (
 )
 
 func GetStructName[S any](s *S) (string,error) {
-    err:=checkForStructVal(s);
+    err:=IsStructVal(s);
     if err==nil {
         val:=stdReflect.ValueOf(s).Elem();
         return val.Type().Name(),err;
@@ -19,7 +19,7 @@ func GetStructFieldNames[S any](
         s *S,
         filter algo.Filter[string]) ([]string,error) {
     rv:=make([]string,0);
-    err:=checkForStructVal(s);
+    err:=IsStructVal(s);
     if err==nil {
         val:=stdReflect.ValueOf(s).Elem();
         for i:=0; i<val.NumField(); i++ {
@@ -36,7 +36,7 @@ func GetStructVals[S any](
         s *S,
         filter algo.Filter[string]) ([]stdReflect.Value,error) {
     rv:=make([]stdReflect.Value,0);
-    err:=checkForStructVal(s);
+    err:=IsStructVal(s);
     if err==nil {
         val:=stdReflect.ValueOf(s).Elem();
         for i:=0; i<val.NumField(); i++ {
@@ -52,7 +52,7 @@ func GetStructFieldPntrs[S any](
         s *S,
         filter algo.Filter[string]) ([]stdReflect.Value,error) {
     rv:=make([]stdReflect.Value,0);
-    err:=checkForStructVal(s);
+    err:=IsStructVal(s);
     if err==nil {
         val:=stdReflect.ValueOf(s).Elem();
         for i:=0; i<val.NumField(); i++ {
@@ -65,8 +65,18 @@ func GetStructFieldPntrs[S any](
     return rv,err;
 }
 
-func checkForStructVal[S any](s *S) error {
+func IsStructVal[S any](s *S) error {
     if stdReflect.ValueOf(s).Elem().Kind()!=stdReflect.Struct {
+        return NonStructValue(fmt.Sprintf(
+            "Function requires a struct as target. | Got: %s",
+            stdReflect.ValueOf(s).Kind().String(),
+        ));
+    }
+    return nil;
+}
+
+func IsStructPntr[S any](s **S) error {
+    if stdReflect.ValueOf(s).Elem().Elem().Kind()!=stdReflect.Struct {
         return NonStructValue(fmt.Sprintf(
             "Function requires a struct as target. | Got: %s",
             stdReflect.ValueOf(s).Kind().String(),

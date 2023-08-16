@@ -16,7 +16,7 @@ func bookData_modelStateGeneratorHelper(surfFactory func() []potSurf.Surface, f 
     timeFrame:=dataStruct.Pair[int,int]{A: 1, B: 5000};
     window:=dataStruct.Pair[int,int]{A: 1, B: 30};
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,1);
-    c,_:=db.GetClientByEmail(&testDB,"testing@testing.com")
+    c,_:=db.GetClientByEmail(&testDB,"testing@testing.com");
     // Earilest data point is 8/10/2021, this date is small enough to get all values
     sw.GenerateClientModelStates(&testDB,c,time.Date(
         2020,time.Month(1),1,0,0,0,0,time.UTC,
@@ -31,7 +31,7 @@ func bookData_modelStateGeneratorHelper(surfFactory func() []potSurf.Surface, f 
     );
 }
 
-func TestBook_SlidingWindowWithBasicSurface(t *testing.T) {
+func TestBook_SlidingWindow(t *testing.T) {
     bookData_modelStateGeneratorHelper(func() []potSurf.Surface {
         return []potSurf.Surface{
             potSurf.NewBasicSurface().ToGenericSurf(),
@@ -39,10 +39,3 @@ func TestBook_SlidingWindowWithBasicSurface(t *testing.T) {
         };
     },"Client1.ms");
 }
-
-//func TestBook_SlidingWindowWithVolumeBaseSurface(t *testing.T) {
-//    bookData_modelStateGeneratorHelper(func() potSurf.Surface {
-//        tmp:=potSurf.NewVolumeBaseSurface();
-//        return &tmp;
-//    },"Client1_slidingWindow_volumeBaseSurface.ms");
-//}

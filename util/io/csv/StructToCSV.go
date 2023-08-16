@@ -14,11 +14,8 @@ func StructToCSV[R any](elems iter.Iter[R],
         addHeaders bool,
         timeDateFormat string) iter.Iter[[]string] {
     var tmp R;
-    if stdReflect.ValueOf(tmp).Kind()!=stdReflect.Struct {
-        return iter.ValElem([]string{},NonStructValue(fmt.Sprintf(
-            "CSVToStruct requires a struct as target. | Got: %s",
-            stdReflect.ValueOf(tmp).Kind().String(),
-        )),1);
+    if err:=reflect.IsStructVal(&tmp); err!=nil {
+        return iter.ValElem([]string{},err,1);
     }
     capFilter:=func(thing string) bool {
         return len(thing)>0 && unicode.IsUpper(rune(thing[0]));

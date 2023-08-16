@@ -7,13 +7,13 @@ import (
     customerr "github.com/barbell-math/block/util/err"
 )
 
-//func GetById[R DBTable](c *DB, id int) (R,error) {
-//    return getRowFromUniqueValGenerator(func(searchId int) (R,string) {
-//        var tmp R;
-//        tmp.Id=searchId;
-//        return R{Id: searchId},"Id";
-//    })(c,id);
-//}
+// func GetById[R DBTable](c *DB, id int) (R,error) {
+//     return getRowFromUniqueValGenerator(func(searchId int) (R,string) {
+//         var tmp R;
+//         tmp.SetId(searchId);
+//         return tmp,"Id";
+//     })(c,id);
+// }
 
 var GetClientByEmail=getRowFromUniqueValGenerator(
     func(email string) (Client,string) {

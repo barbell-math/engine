@@ -195,7 +195,7 @@ func (s *SlidingWindowStateGen)calcAndSetModelState(
             }
             numPoints+=float64(len(w));
             cumulativeSe+=totalSe;
-            if err==nil && cumulativeSe/numPoints<s.optimalMs[i].Mse {
+            if err==nil && cumulativeSe/numPoints<s.optimalMs[i].Mse { //&& m.GetConstant(1)>0 {
                 s.saveModelState(i,rcond,cumulativeSe/numPoints,
                     timeUtil.DaysBetween(missingData.Date,w[0].DatePerformed),
                     timeUtil.DaysBetween(missingData.Date,d.DatePerformed),

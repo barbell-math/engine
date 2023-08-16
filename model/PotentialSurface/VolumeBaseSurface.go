@@ -1,7 +1,7 @@
 package potentialSurface
 
 import (
-	//"fmt"
+	"math"
 	stdMath "math"
 
 	"github.com/barbell-math/block/db"
@@ -19,28 +19,33 @@ import (
 var VolumeBaseSurfacePrediction volumeBaseSurfacePrediction;
 type volumeBaseSurfacePrediction struct {};
 
-func (v volumeBaseSurfacePrediction)e(
-        ms *db.ModelState,
-        tl *db.TrainingLog) float64 {
-    return ms.Eps1*float64(tl.Effort);
-}
-
-func (v volumeBaseSurfacePrediction)f(
-        ms *db.ModelState,
-        tl *db.TrainingLog) float64 {
-    return (1+ms.Eps2*float64(tl.InterWorkoutFatigue)+
-        ms.Eps3*float64(tl.InterExerciseFatigue)+
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
-}
-
+// func (v volumeBaseSurfacePrediction)e(
+//         ms *db.ModelState,
+//         tl *db.TrainingLog) float64 {
+//     return ms.Eps1*float64(tl.Effort);
+// }
+// 
+// func (v volumeBaseSurfacePrediction)f(
+//         ms *db.ModelState,
+//         tl *db.TrainingLog) float64 {
+//     return (1+ms.Eps2*float64(tl.InterWorkoutFatigue)+
+//         ms.Eps3*float64(tl.InterExerciseFatigue)+
+//         ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
+//         ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
+//         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
+// }
+// 
 func (v volumeBaseSurfacePrediction)Intensity(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    E:=v.e(ms,tl);
-    F:=v.f(ms,tl);
-    return stdMath.Pow(E/(F+ms.Eps*E),0.5);
+    return math.Sqrt(1/(
+        ms.Eps+
+        ms.Eps1/tl.Effort+
+        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
+        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
+        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort+
+        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort+
+        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort));
 }
 
 func (v volumeBaseSurfacePrediction)Effort(
@@ -50,26 +55,29 @@ func (v volumeBaseSurfacePrediction)Effort(
     pSq:=tl.Intensity*tl.Intensity;
     return (pSq*F)/(ms.Eps1*(1-ms.Eps*pSq));
 }
+
 func (v volumeBaseSurfacePrediction)InterWorkoutFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    E:=v.e(ms,tl);
-    pSq:=tl.Intensity*tl.Intensity;
-    return ((E*(1/pSq-ms.Eps)-1-ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets)-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets)-1,2)-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps)-1,2))/ms.Eps2);
+    return (1/math.Pow(tl.Intensity,2)-
+        ms.Eps-
+        ms.Eps1/tl.Effort-
+        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort-
+        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort-
+        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort-
+        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort)*tl.Effort/ms.Eps2;
 }
 
 func (v volumeBaseSurfacePrediction)InterExerciseFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    E:=v.e(ms,tl);
-    pSq:=tl.Intensity*tl.Intensity;
-    return ((E*(1/pSq-ms.Eps)-1-ms.Eps2*float64(tl.InterWorkoutFatigue)-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets)-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets)-1,2)-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps)-1,2))/ms.Eps3);
+    return (1/math.Pow(tl.Intensity,2)-
+        ms.Eps-
+        ms.Eps1/tl.Effort-
+        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort-
+        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort-
+        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort-
+        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort)*tl.Effort/ms.Eps3;
 }
 
 func (v volumeBaseSurfacePrediction)Sets(
