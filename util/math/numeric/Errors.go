@@ -27,3 +27,4 @@ var MatrixSingularToWorkingPrecision,IsMatrixSingularToWorkingPrecision=customer
 var MissingVariable,IsMissingVariable=customerr.ErrorFactory(
     "The requested independent variable is not present.",
 );
+
