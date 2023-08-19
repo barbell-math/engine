@@ -37,7 +37,7 @@ func TestEuclideanVectorAddEuclideanVector(t *testing.T) {
             val:=v.(EuclideanVector[int]);
             for i,v:=range(val) {
                 test.BasicTest(int(2*i-2),v.(Scalar[int]).v,
-                    "EuclideanVector+EuclideanVector did not procuce correct value.",t,
+                    "EuclideanVector+EuclideanVector did not produce correct value.",t,
                 );
             }
         default: test.FormatError("SymbolicError[int]",reflect.TypeOf(v),
@@ -115,7 +115,7 @@ func TestEuclideanVectorSubEuclideanVector(t *testing.T) {
             val:=v.(EuclideanVector[int]);
             for i,v:=range(val) {
                 test.BasicTest(int(2*i-2),v.(Scalar[int]).v,
-                    "EuclideanVector-EuclideanVector did not procuce correct value.",t,
+                    "EuclideanVector-EuclideanVector did not produce correct value.",t,
                 );
             }
         default: test.FormatError("SymbolicError[int]",reflect.TypeOf(v),
@@ -173,7 +173,7 @@ func TestEuclideanVectorMulScalar(t *testing.T) {
             val:=v.(EuclideanVector[int]);
             for i,v:=range(val) {
                 test.BasicTest(int(2*i-2),v.(Scalar[int]).v,
-                    "EuclideanVector*Scalar did not procuce correct value.",t,
+                    "EuclideanVector*Scalar did not produce correct value.",t,
                 );
             }
         default: test.FormatError("SymbolicError[int]",reflect.TypeOf(v),
@@ -225,13 +225,13 @@ func TestEuclideanVectorMulPolarVector(t *testing.T) {
 func TestEuclideanVectorDivScalar(t *testing.T) {
     v:=EuclideanVector[float32]([]Symbol[float32]{
         Scalar[float32]{v: -1}, Scalar[float32]{v: 0}, Scalar[float32]{v: 1},
-    }).Mul(Scalar[float32]{v: 2});
+    }).Div(Scalar[float32]{v: 2});
     switch v.(type) {
         case EuclideanVector[float32]:
             val:=v.(EuclideanVector[float32]);
             for i,v:=range(val) {
-                test.BasicTest(float32(2.0*float32(i)-2.0),v.(Scalar[float32]).v,
-                    "EuclideanVector/Scalar did not procuce correct value.",t,
+                test.BasicTest(float32(float32(i-1)/2.0),v.(Scalar[float32]).v,
+                    "EuclideanVector/Scalar did not produce correct value.",t,
                 );
             }
         default: test.FormatError("SymbolicError[int]",reflect.TypeOf(v),
@@ -243,7 +243,7 @@ func TestEuclideanVectorDivScalar(t *testing.T) {
 func TestEuclideanVectorDivEuclideanVector(t *testing.T) {
     v:=EuclideanVector[int]([]Symbol[int]{
         Scalar[int]{v: -1}, Scalar[int]{v: 0}, Scalar[int]{v: 1},
-    }).Mul(EuclideanVector[int]([]Symbol[int]{
+    }).Div(EuclideanVector[int]([]Symbol[int]{
         Scalar[int]{v: 1}, Scalar[int]{v: 0}, Scalar[int]{v: -1},
     }));
     switch v.(type) {
@@ -263,7 +263,7 @@ func TestEuclideanVectorDivEuclideanVector(t *testing.T) {
 func TestEuclideanVectorDivPolarVector(t *testing.T) {
     v:=EuclideanVector[int]([]Symbol[int]{
         Scalar[int]{v: -1}, Scalar[int]{v: 0}, Scalar[int]{v: 1},
-    }).Mul(PolarVector[int]([]Symbol[int]{
+    }).Div(PolarVector[int]([]Symbol[int]{
         Scalar[int]{v: -1}, Scalar[int]{v: 0},
     }));
     switch v.(type) {

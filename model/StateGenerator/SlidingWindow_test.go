@@ -11,12 +11,13 @@ import (
 	"github.com/barbell-math/block/util/io/log"
 	"github.com/barbell-math/block/util/test"
 	potSurf "github.com/barbell-math/block/model/PotentialSurface"
+	customerr "github.com/barbell-math/block/util/err"
 )
 
 func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *testing.T)){
     return func(t *testing.T){
-        if !IsInvalidPredictionState(err) {
-            test.FormatError(InvalidPredictionState(""),err,
+        if !customerr.IsInvalidValue(err) {
+            test.FormatError(customerr.InvalidValue(""),err,
                 "The wrong error was raised when creating an invalid prediction generator.",t,
             );
         }

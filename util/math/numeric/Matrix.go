@@ -1,37 +1,39 @@
-package math;
+package numeric
 
 import (
-    "fmt"
-    customerr "github.com/barbell-math/block/util/err"
+	"fmt"
+
+	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/block/util/math"
 )
 
-type Matrix[N Number] struct {
+type Matrix[N math.Number] struct {
     V [][]N;
 };
 
-type RowColOps[N Number] func(r int, c int) N;
-func ZeroFill[N Number](r int, c int) N { return N(0); }
-func IdentityFill[N Number](r int, c int) N {
+type RowColOps[N math.Number] func(r int, c int) N;
+func ZeroFill[N math.Number](r int, c int) N { return N(0); }
+func IdentityFill[N math.Number](r int, c int) N {
     if r==c {
         return N(1);
     }
     return N(0);
 }
-func ConstFill[N Number](v N) RowColOps[N] {
+func ConstFill[N math.Number](v N) RowColOps[N] {
     return func(r int, c int) N {
         return v;
     }
 }
-func ArrayFill[N Number](vals [][]N) RowColOps[N] {
+func ArrayFill[N math.Number](vals [][]N) RowColOps[N] {
     return func(r int, c int) N {
         return vals[r][c];
     }
 }
-func DuplicateFill[N Number](m *Matrix[N]) RowColOps[N] {
+func DuplicateFill[N math.Number](m *Matrix[N]) RowColOps[N] {
     return ArrayFill(m.V);
 }
 
-func NewMatrix[N Number](r int, c int, fill RowColOps[N]) Matrix[N] {
+func NewMatrix[N math.Number](r int, c int, fill RowColOps[N]) Matrix[N] {
     var rv Matrix[N];
     rv.V=make([][]N,r);
     for i,_:=range(rv.V) {
@@ -185,7 +187,7 @@ func (m *Matrix[N])Inverse() (float64,error) {
     tmp:=NewMatrix(m.Rows(),m.Cols(),IdentityFill[N]);
     for i:=0; i<m.Rows(); i++ {
         if m.V[i][i]==N(0) {
-            rv=SingularMatrix(fmt.Sprintf("M[r=%d c=%d]=0",i,i));
+            rv=math.SingularMatrix(fmt.Sprintf("M[r=%d c=%d]=0",i,i));
         }
         tmp.divideRow(i,m.V[i][i]);
         m.divideRow(i,m.V[i][i]);
@@ -199,7 +201,7 @@ func (m *Matrix[N])Inverse() (float64,error) {
     invColMax:=Abs(m.getMaxColSum());
     rcond:=1.0/float64(colMax*invColMax);
     if rv==nil && rcond<WORKING_PRECISION {
-        rv=MatrixSingularToWorkingPrecision(fmt.Sprintf("RCOND=%e",rcond));
+        rv=math.MatrixSingularToWorkingPrecision(fmt.Sprintf("RCOND=%e",rcond));
     }
     return rcond,rv;
 }
@@ -220,7 +222,7 @@ func (m *Matrix[N])divideRow(r int, divVal N){
     }
 }
 
-func zeroVal[N Number](
+func zeroVal[N math.Number](
         m1 *Matrix[N],
         m2 *Matrix[N],
         pivot int,
@@ -232,11 +234,11 @@ func zeroVal[N Number](
     }
 }
 
-func matchingDimensionsErrorCheck[N Number](
+func matchingDimensionsErrorCheck[N math.Number](
         m *Matrix[N],
         other *Matrix[N]) error {
     if m.Rows()!=other.Rows() || m.Cols()!=other.Cols() {
-        return MatrixDimensionsDoNotAgree(
+        return math.MatrixDimensionsDoNotAgree(
             fmt.Sprintf("[r1=%d c1=%d] [r2=%d c2=%d] | Need r1=r2 and c1=c2",
                 m.Rows(),m.Cols(),other.Rows(),other.Cols(),
         ));
@@ -244,11 +246,11 @@ func matchingDimensionsErrorCheck[N Number](
     return nil;
 }
 
-func matchingInnerDimensionsErrorCheck[N Number](
+func matchingInnerDimensionsErrorCheck[N math.Number](
         m *Matrix[N],
         other *Matrix[N]) error {
     if m.Cols()!=other.Rows() {
-        return MatrixDimensionsDoNotAgree(
+        return math.MatrixDimensionsDoNotAgree(
             fmt.Sprintf("[r1=%d c1=%d] [r2=%d c2=%d] | Need c1=r2",
                 m.Rows(),m.Cols(),other.Rows(),other.Cols(),
         ));
@@ -256,9 +258,9 @@ func matchingInnerDimensionsErrorCheck[N Number](
     return nil;
 }
 
-func squareMatrixErrorCheck[N Number](m *Matrix[N]) error {
+func squareMatrixErrorCheck[N math.Number](m *Matrix[N]) error {
     if m.Cols()!=m.Rows() {
-        return InverseOfNonSquareMatrix(
+        return math.InverseOfNonSquareMatrix(
             fmt.Sprintf("[r1=%d c1=%d] | Need r1=c1",m.Rows(),m.Cols()),
         );
     }
@@ -274,7 +276,7 @@ func (m *Matrix[N])addFuncional(other *Matrix[N]) error {
         func(r ...any) (any,error) {
             return nil,customerr.ErrorOnBool(
                 len(other.V)==len(m.V) && len(other.V[0])==len(m.V[0]),
-                MatrixDimensionsDoNotAgree(
+                math.MatrixDimensionsDoNotAgree(
                     fmt.Sprintf("Given: [r=%d c=%d] Other: [r=%d c=%d]",
                         m.Rows(),m.Cols(),other.Rows(),other.Cols(),
             )));
@@ -287,7 +289,7 @@ func (m *Matrix[N])addFuncional(other *Matrix[N]) error {
 }
 func (m *Matrix[N])addIterCallback(other *Matrix[N]) error {
     if len(other.V)!=len(m.V) || len(other.V[0])!=len(m.V[0]) {
-        return MatrixDimensionsDoNotAgree(
+        return math.MatrixDimensionsDoNotAgree(
             fmt.Sprintf("Given: [r=%d c=%d] Other: [r=%d c=%d]",
                 m.Rows(),m.Cols(),other.Rows(),other.Cols(),
             ),
@@ -300,7 +302,7 @@ func (m *Matrix[N])addIterCallback(other *Matrix[N]) error {
 }
 func (m *Matrix[N])addTraditional(other *Matrix[N]) error {
     if len(other.V)!=len(m.V) || len(other.V[0])!=len(m.V[0]) {
-        return MatrixDimensionsDoNotAgree(
+        return math.MatrixDimensionsDoNotAgree(
             fmt.Sprintf("Given: [r=%d c=%d] Other: [r=%d c=%d]",
                 m.Rows(),m.Cols(),other.Rows(),other.Cols(),
             ),

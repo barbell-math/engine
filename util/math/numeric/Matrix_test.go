@@ -1,7 +1,10 @@
-package math;
+package numeric
+
 import (
-    "testing"
-    "github.com/barbell-math/block/util/test"
+	"testing"
+
+	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/block/util/math"
 )
 
 func TestCreateMatrix(t *testing.T){
@@ -89,9 +92,9 @@ func TestMatrixAdd(t *testing.T){
         return 1;
     });
     err:=m1.Add(&m3);
-    if !IsMatrixDimensionsDoNotAgree(err) {
+    if !math.IsMatrixDimensionsDoNotAgree(err) {
         test.FormatError(
-            MatrixDimensionsDoNotAgree(""),err,
+            math.MatrixDimensionsDoNotAgree(""),err,
             "Matrix dimensions were not successfully checked.",t,
         );
     }
@@ -123,9 +126,9 @@ func TestMatrixSub(t *testing.T){
         return 1;
     });
     err:=m1.Sub(&m3);
-    if !IsMatrixDimensionsDoNotAgree(err) {
+    if !math.IsMatrixDimensionsDoNotAgree(err) {
         test.FormatError(
-            MatrixDimensionsDoNotAgree(""),err,
+            math.MatrixDimensionsDoNotAgree(""),err,
             "Matrix dimensions were not successfully checked.",t,
         );
     }
@@ -154,9 +157,9 @@ func TestMatrixEquals(t *testing.T){
         return c-1;
     });
     res,err:=m1.Equals(&m2,0);
-    if !IsMatrixDimensionsDoNotAgree(err) {
+    if !math.IsMatrixDimensionsDoNotAgree(err) {
         test.FormatError(
-            MatrixDimensionsDoNotAgree(""),err,
+            math.MatrixDimensionsDoNotAgree(""),err,
             "Matrix dimensions were not successfully checked.",t,
         );
     }
@@ -187,9 +190,9 @@ func TestMatrixMul(t *testing.T){
         return 1;
     });
     err:=m1.Mul(&m3);
-    if !IsMatrixDimensionsDoNotAgree(err) {
+    if !math.IsMatrixDimensionsDoNotAgree(err) {
         test.FormatError(
-            MatrixDimensionsDoNotAgree(""),err,
+            math.MatrixDimensionsDoNotAgree(""),err,
             "Matrix dimensions were not successfully checked.",t,
         );
     }
@@ -229,17 +232,17 @@ func TestMatrixInverse(t *testing.T){
         return float32(c+4*r);
     });
     _,err:=m1.Inverse();
-    if !IsInverseOfNonSquareMatrix(err) {
+    if !math.IsInverseOfNonSquareMatrix(err) {
         test.FormatError(
-            InverseOfNonSquareMatrix(""),err,
+            math.InverseOfNonSquareMatrix(""),err,
             "Inverse of non square matrix was taken.",t,
         );
     }
     m1=NewMatrix[float32](2,2,ZeroFill[float32]);
     _,err=m1.Inverse();
-    if !IsSingularMatrix(err) {
+    if !math.IsSingularMatrix(err) {
         test.FormatError(
-            SingularMatrix(""),err,
+            math.SingularMatrix(""),err,
             "Inverse of singular matrix did not raise error.",t,
         );
     }
@@ -290,9 +293,9 @@ func TestMatrixRcond(t *testing.T){
         {0, 0, 0, 6.0e-14},
     };
     rcond,err=m3.Inverse();
-    if !IsMatrixSingularToWorkingPrecision(err) {
+    if !math.IsMatrixSingularToWorkingPrecision(err) {
         test.FormatError(
-            MatrixSingularToWorkingPrecision(""),err,
+            math.MatrixSingularToWorkingPrecision(""),err,
             "Rcond error was not created.",t,
         );
     }

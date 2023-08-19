@@ -1,7 +1,9 @@
-package math
+package numeric
 
 import (
 	"fmt"
+
+	"github.com/barbell-math/block/util/math"
 )
 
 //A summation op is the function that is associated with a variable
@@ -14,38 +16,38 @@ import (
 //  It may help to think of linear reg as using the following generic form:
 //      y=b_1*f_1(x_1,x_2,...,x_n)+b_2*f_2(x_1,...,x_n)+...+b_n*f_n(x_1,...,x_n)
 //  Where each function f_n is a 'summation op'
-type SummationOp[N Number] func(vals map[string]N) (N,error);
-func ConstSummationOp[N Number](v N) SummationOp[N] {
+type SummationOp[N math.Number] func(vals map[string]N) (N,error);
+func ConstSummationOp[N math.Number](v N) SummationOp[N] {
     return func(vals map[string]N) (N,error){
         return v,nil;
     }
 }
-func LinearSummationOp[N Number](_var string) SummationOp[N] {
+func LinearSummationOp[N math.Number](_var string) SummationOp[N] {
     return func(vals map[string]N) (N,error){
         return VarAcc[N](vals,_var);
     }
 }
-func NegatedLinearSummationOp[N Number](_var string) SummationOp[N] {
+func NegatedLinearSummationOp[N math.Number](_var string) SummationOp[N] {
     return func(vals map[string]N) (N,error){
         val,err:=VarAcc[N](vals,_var);
         return -val,err;
     }
 }
 
-func VarAcc[N Number](vals map[string]N, _var string) (N,error){
+func VarAcc[N math.Number](vals map[string]N, _var string) (N,error){
     if v,ok:=vals[_var]; ok {
         return v,nil;
     }
-    return N(0),MissingVariable(
+    return N(0),math.MissingVariable(
         fmt.Sprintf("Requested: %s Have: %v",_var,vals),
     );
 }
 
-type SummationOpGen[N Number] func(
+type SummationOpGen[N math.Number] func(
     iVars []string, dVar string,
 ) ([]SummationOp[N],SummationOp[N]);
 
-func ConstSumOpGen[N Number](v N) SummationOpGen[N] {
+func ConstSumOpGen[N math.Number](v N) SummationOpGen[N] {
     return func(iVars []string, dVar string) ([]SummationOp[N],SummationOp[N]) {
         rv:=make([]SummationOp[N],len(iVars));
         for i,_:=range(iVars) {
@@ -54,7 +56,7 @@ func ConstSumOpGen[N Number](v N) SummationOpGen[N] {
         return rv,ConstSummationOp[N](v);
     }
 }
-func LinearSumOpGen[N Number](
+func LinearSumOpGen[N math.Number](
         iVars []string,
         dVar string) ([]SummationOp[N],SummationOp[N]) {
     rv:=make([]SummationOp[N],len(iVars));
@@ -63,7 +65,7 @@ func LinearSumOpGen[N Number](
     }
     return rv,LinearSummationOp[N](dVar);
 }
-func LinearSumOpGenWithError[N Number](
+func LinearSumOpGenWithError[N math.Number](
         iVars []string,
         dVar string) ([]SummationOp[N],SummationOp[N]) {
     rv:=make([]SummationOp[N],len(iVars)+1);
@@ -74,7 +76,7 @@ func LinearSumOpGenWithError[N Number](
     return rv,LinearSummationOp[N](dVar);
 }
 
-type LinRegResult[N Number] struct {
+type LinRegResult[N math.Number] struct {
     Matrix[N];
     Predict func(iVars map[string]N) (N,error);
 };
@@ -96,7 +98,7 @@ func (l *LinearReg[N])genLinRegPredict(r *LinRegResult[N]){
     }
 }
 
-type LinearReg[N Number] struct {
+type LinearReg[N math.Number] struct {
     a Matrix[N];
     b Matrix[N];
     summationOps [][]SummationOp[N];
@@ -104,7 +106,7 @@ type LinearReg[N Number] struct {
     dVarOp SummationOp[N];
 };
 
-func NewLinearReg[N Number](
+func NewLinearReg[N math.Number](
         iVarOps []SummationOp[N],
         dVarOp SummationOp[N]) LinearReg[N] {
     var rv LinearReg[N];
@@ -201,7 +203,7 @@ func (l *LinearReg[N])Run() (LinRegResult[N],float64,error) {
     var rv LinRegResult[N];
     rv.Matrix=l.a.Copy();
     rcond,err:=rv.Matrix.Inverse();
-    if !IsInverseOfNonSquareMatrix(err) {
+    if !math.IsInverseOfNonSquareMatrix(err) {
         //err in RV can be ignored, matrices are guaranteed to have correct
         //dimensions because they are only managed by the linear reg struct
         rv.Matrix.Mul(&l.b);

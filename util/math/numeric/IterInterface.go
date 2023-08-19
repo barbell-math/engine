@@ -1,27 +1,28 @@
-package math;
+package numeric;
 
 import (
     "fmt"
+    "github.com/barbell-math/block/util/math"
 )
 
-func ReduceAdd[N Number](accum *N, iter N) error { 
+func Add[N math.Number](accum *N, iter N) error { 
     *accum=*accum+iter;
     return nil;
 }
 
-func ReduceSub[N Number](accum *N, iter N) error { 
+func Sub[N math.Number](accum *N, iter N) error { 
     *accum=*accum-iter;
     return nil;
 }
 
-func ReduceMul[N Number](accum *N, iter N) error { 
+func Mul[N math.Number](accum *N, iter N) error { 
     *accum=*accum*iter;
     return nil;
 }
 
-func ReduceDiv[N Number](accum *N, iter N) error { 
+func Div[N math.Number](accum *N, iter N) error { 
     if iter==N(0) {
-        return DivByZero(fmt.Sprintf("%v/%v",*accum,iter));
+        return math.DivByZero(fmt.Sprintf("%v/%v",*accum,iter));
     }
     *accum=*accum/iter;
     return nil;

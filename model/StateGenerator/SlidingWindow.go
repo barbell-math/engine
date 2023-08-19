@@ -9,9 +9,10 @@ import (
 	"github.com/barbell-math/block/db"
 	"github.com/barbell-math/block/util/algo/iter"
 	"github.com/barbell-math/block/util/dataStruct"
-	mathUtil "github.com/barbell-math/block/util/math"
+	mathUtil "github.com/barbell-math/block/util/math/numeric"
 	timeUtil "github.com/barbell-math/block/util/time"
 	potSurf "github.com/barbell-math/block/model/PotentialSurface"
+	customerr "github.com/barbell-math/block/util/err"
 )
 
 type SlidingWindowStateGen struct {
@@ -44,13 +45,13 @@ func NewSlidingWindowStateGen(
         }, 
     };
     if rv.timeFrameLimits.A<rv.timeFrameLimits.B {
-        return rv,InvalidPredictionState("min time frame > max time frame");
+        return rv,customerr.InvalidValue("min time frame > max time frame");
     } else if rv.windowLimits.A<rv.windowLimits.B {
-        return rv,InvalidPredictionState("min window >= max window, should be <");
+        return rv,customerr.InvalidValue("min window >= max window, should be <");
     } else if rv.windowLimits.B<rv.timeFrameLimits.B {
-        return rv,InvalidPredictionState("max window >= max time frame, should be <");
+        return rv,customerr.InvalidValue("max window >= max time frame, should be <");
     } else if rv.windowLimits.A>rv.timeFrameLimits.A {
-        return rv,InvalidPredictionState("min window <= min time frame, should be >");
+        return rv,customerr.InvalidValue("min window <= min time frame, should be >");
     }
     return rv,nil;
 }

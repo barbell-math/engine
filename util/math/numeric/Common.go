@@ -1,4 +1,4 @@
-package math
+package numeric
 
 import (
 	stdMath "math"

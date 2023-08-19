@@ -8,3 +8,6 @@ var DimensionsDoNotAgree,IsDimensionsDoNotAgree=ErrorFactory(
     "Dimensions do not agree.",
 );
 
+var InvalidValue,IsInvalidValue=ErrorFactory(
+    "The supplied value is not valid in the supplied context.",
+);

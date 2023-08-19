@@ -1,4 +1,4 @@
-package math
+package numeric
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/barbell-math/block/util/algo/iter"
 	"github.com/barbell-math/block/util/io/csv"
 	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/block/util/math"
 )
 
 func TestCreateLinReg(t *testing.T){
@@ -57,8 +58,8 @@ func TestConstantLinearReg(t *testing.T){
         );
     }
     _,_,err:=l.Run();
-    if !IsSingularMatrix(err) {
-        test.FormatError(SingularMatrix(""),err,
+    if !math.IsSingularMatrix(err) {
+        test.FormatError(math.SingularMatrix(""),err,
             "Result should have been singular.",t,
         );
     }
@@ -128,8 +129,8 @@ func Test2DLinearReg(t *testing.T){
     );
     for i:=-12; i<14; i+=2 {
         v,err:=res.Predict(map[string]float64{"x1": float64(i)});
-        if !IsMissingVariable(err) {
-            test.FormatError(MissingVariable(""),err,
+        if !math.IsMissingVariable(err) {
+            test.FormatError(math.MissingVariable(""),err,
                 "Missing variable not caught.",t,
             );
         }
