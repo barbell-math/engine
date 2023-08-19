@@ -22,3 +22,4 @@ func invalidBinaryOpFormater[N math.Number](
 func (e SymbolicError[N])Add(other Symbol[N]) Symbol[N] { return e; }
 func (e SymbolicError[N])Sub(other Symbol[N]) Symbol[N] { return e; }
 func (e SymbolicError[N])Mul(other Symbol[N]) Symbol[N] { return e; }
+func (e SymbolicError[N])Div(other Symbol[N]) Symbol[N] { return e; }
