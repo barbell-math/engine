@@ -12,6 +12,10 @@ type Float interface {
     ~float32 | ~float64
 };
 
+type SignedNumer interface {
+    Int | Float
+};
+
 type Number interface {
     Int | Uint | Float
 };

@@ -1,107 +1,103 @@
 package potentialSurface
 
 import (
-	"math"
 	stdMath "math"
 
 	"github.com/barbell-math/block/db"
 	"github.com/barbell-math/block/util/dataStruct"
-	mathUtil "github.com/barbell-math/block/util/math"
+	mathUtil "github.com/barbell-math/block/util/math/numeric"
 )
 
 //The basic surface follows the following equation:
-//  I^2(F+eps*E)=E
+//  I^2(F_tot+eps*E_tot)=E_tot
 // Where:
-//  E=eps_1*E
-//  F=1+eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
+//  E_tot=eps_1*E
+//  F_tot=1+eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
 //This equation does not take into account latent fatigue, which makes it naive
 //because it does not consider the relationship between lifts across time.
 var VolumeBaseSurfacePrediction volumeBaseSurfacePrediction;
 type volumeBaseSurfacePrediction struct {};
 
-// func (v volumeBaseSurfacePrediction)e(
-//         ms *db.ModelState,
-//         tl *db.TrainingLog) float64 {
-//     return ms.Eps1*float64(tl.Effort);
-// }
-// 
-// func (v volumeBaseSurfacePrediction)f(
-//         ms *db.ModelState,
-//         tl *db.TrainingLog) float64 {
-//     return (1+ms.Eps2*float64(tl.InterWorkoutFatigue)+
-//         ms.Eps3*float64(tl.InterExerciseFatigue)+
-//         ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
-//         ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
-//         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
-// }
-// 
 func (v volumeBaseSurfacePrediction)Intensity(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return math.Sqrt(1/(
+    return stdMath.Sqrt(1/(
         ms.Eps+
         ms.Eps1/tl.Effort+
         ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
         ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort+
-        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort+
-        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort));
+        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
+        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort+
+        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort));
 }
 
 func (v volumeBaseSurfacePrediction)Effort(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    F:=v.f(ms,tl);
-    pSq:=tl.Intensity*tl.Intensity;
-    return (pSq*F)/(ms.Eps1*(1-ms.Eps*pSq));
+    return (-tl.Intensity*tl.Intensity*(
+        ms.Eps1+
+        ms.Eps2*float64(tl.InterWorkoutFatigue)+
+        ms.Eps3*float64(tl.InterExerciseFatigue)+
+        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)+
+        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)+
+        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)))/(
+            1-tl.Intensity*tl.Intensity*ms.Eps);
 }
 
 func (v volumeBaseSurfacePrediction)InterWorkoutFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return (1/math.Pow(tl.Intensity,2)-
+    return (1/stdMath.Pow(tl.Intensity,2)-
         ms.Eps-
         ms.Eps1/tl.Effort-
         ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort-
-        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort-
-        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort-
-        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort)*tl.Effort/ms.Eps2;
+        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
+        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps2;
 }
 
 func (v volumeBaseSurfacePrediction)InterExerciseFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return (1/math.Pow(tl.Intensity,2)-
+    return (1/(tl.Intensity*tl.Intensity)-
         ms.Eps-
         ms.Eps1/tl.Effort-
         ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort-
-        ms.Eps4*math.Pow(float64(tl.Sets),2)*math.Pow(float64(tl.Reps),2)/tl.Effort-
-        ms.Eps5*math.Pow(float64(tl.Sets),2)/tl.Effort-
-        ms.Eps6*math.Pow(float64(tl.Reps),2)/tl.Effort)*tl.Effort/ms.Eps3;
+        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
+        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps3;
 }
 
 func (v volumeBaseSurfacePrediction)Sets(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
-    E:=v.e(ms,tl);
-    pSq:=tl.Intensity*tl.Intensity;
-    return stdMath.Pow((E*(1/pSq-ms.Eps)-1-
-        ms.Eps2*float64(tl.InterExerciseFatigue)-
-        ms.Eps3*float64(tl.InterWorkoutFatigue)-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps)-1,2))/
-    (ms.Eps4*stdMath.Pow(float64(tl.Reps)-1,2)+ms.Eps5),0.5)+1
+    return stdMath.Pow(-(ms.Eps+
+        ms.Eps1/tl.Effort+
+        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
+        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
+        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
+        1/(tl.Intensity*tl.Intensity))/(
+        ms.Eps4*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
+        ms.Eps5/tl.Effort),0.5)+1;
 }
 
 func (v volumeBaseSurfacePrediction)Reps(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
-    E:=v.e(ms,tl);
-    pSq:=tl.Intensity*tl.Intensity;
-    return stdMath.Pow((E*(1/pSq-ms.Eps)-1-
-        ms.Eps2*float64(tl.InterExerciseFatigue)-
-        ms.Eps3*float64(tl.InterWorkoutFatigue)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets)-1,2))/
-    (ms.Eps4*stdMath.Pow(float64(tl.Sets)-1,2)+ms.Eps6),0.5)+1
+    return stdMath.Pow(-(ms.Eps+
+        ms.Eps1/tl.Effort+
+        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
+        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
+        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        1/(tl.Intensity*tl.Intensity))/(
+        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort+
+        ms.Eps6/tl.Effort),0.5)+1;
+}
+
+func (v volumeBaseSurfacePrediction)VolumeSkew(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    return 0;
 }
 
 type VolumeBaseSurface struct {

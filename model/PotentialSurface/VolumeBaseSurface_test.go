@@ -23,15 +23,15 @@ func TestVolumeBaseSurfaceCreation(t *testing.T){
 
 func TestVolumeBaseSurfaceIntensityPrediction(t *testing.T){
     ms:=db.ModelState{
-        Eps: 0, Eps1: 0, Eps2: 0, Eps3: 0, Eps4: 0,
+        Eps: 1, Eps1: 0, Eps2: 0, Eps3: 0, Eps4: 0,
         Eps5: 0, Eps6: 0,
     };
     tl:=db.TrainingLog{
-        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 0,
+        Weight: 0, Sets: 0, Reps: 0, Intensity: 0, Effort: 1,
         InterWorkoutFatigue: 0, InterExerciseFatigue: 0,
     };
     res:=VolumeBaseSurfacePrediction.Intensity(&ms,&tl);
-    test.BasicTest(float64(0.0),res,
+    test.BasicTest(float64(1.0),res,
         "Intensity prediction produced incorrect value.",t,
     );
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/barbell-math/block/db"
 	"github.com/barbell-math/block/util/dataStruct"
-	mathUtil "github.com/barbell-math/block/util/math"
+	mathUtil "github.com/barbell-math/block/util/math/numeric"
 )
 
 //The basic surface follows the following equation:
@@ -89,6 +89,144 @@ func (b basicSurfacePrediction)Reps(
         ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
         ms.Eps6),0.5)+1.0;
 }
+
+func (b basicSurfacePrediction)VolumeSkew(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    return (b.volumeSkewIntegral1(ms,tl)+
+        b.volumeSkewIntegral2(ms,tl))/(
+        b.volumeSkewIntegral3(ms,tl)+
+        b.volumeSkewIntegral4(ms,tl));
+}
+
+//MENTAL NOTE TO FUTURE ME - this could be the negative root!
+func (b basicSurfacePrediction)volumeSkewDiagonal(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    return stdMath.Pow((ms.Eps5+ms.Eps6+
+        stdMath.Pow(stdMath.Pow(ms.Eps5+ms.Eps6,2)+
+            4*ms.Eps4*(
+                ms.Eps+
+                ms.Eps1*tl.Effort-
+                ms.Eps2*float64(tl.InterWorkoutFatigue)-
+                ms.Eps3*float64(tl.InterExerciseFatigue)),0.5))/(2*ms.Eps5),0.5)+1;
+}
+
+func (b basicSurfacePrediction)volumeSkewIntegral1(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Note - the order of the params is VERY important. It needs to correlate
+    // with the order of the params for the double integral. The only difference
+    // between this and integral 3 is the ordering of these values!
+    f:=func(r float64, s float64) float64 { 
+        tl.Sets=float32(s);
+        tl.Reps=int(r);
+        return s*r*b.Intensity(ms,tl); 
+    }
+    rv,_:=mathUtil.DoubleIntegral(f)(
+        0,
+        b.volumeSkewDiagonal(ms,tl),
+        mathUtil.ConstIntegralBound[float64](0),
+        func(s float64) float64 { return s; },
+        3,
+    );
+    return rv;
+}
+
+func (b basicSurfacePrediction)volumeSkewIntegral2(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Note - the order of the params is VERY important. It needs to correlate
+    // with the order of the params for the double integral. The only difference
+    // between this and integral 4 is the ordering of these values as well as
+    // the switching of the Eps5 and Eps6 constants.
+    f:=func(r float64, s float64) float64 { 
+        tl.Sets=float32(s);
+        tl.Reps=int(r);
+        return s*r*b.Intensity(ms,tl); 
+    }
+    rv,_:=mathUtil.DoubleIntegral(f)(
+        b.volumeSkewDiagonal(ms,tl),
+        stdMath.Pow((ms.Eps+ms.Eps1*tl.Effort-
+        ms.Eps2*float64(tl.InterWorkoutFatigue)-
+        ms.Eps3*float64(tl.InterExerciseFatigue)-
+        ms.Eps6)/(ms.Eps4+ms.Eps5),0.5)+1,
+        mathUtil.ConstIntegralBound[float64](0),
+        func(s float64) float64 {
+            return stdMath.Pow((
+                ms.Eps+ms.Eps1*tl.Effort-
+                ms.Eps2*float64(tl.InterWorkoutFatigue)-
+                ms.Eps3*float64(tl.InterExerciseFatigue)-
+                ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2))/(
+                ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
+                ms.Eps6),0.5)+1;
+        },
+        3,
+    );
+    return rv;
+}
+
+func (b basicSurfacePrediction)volumeSkewIntegral3(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Note - the order of the params is VERY important. It needs to correlate
+    // with the order of the params for the double integral. The only difference
+    // between this and integral 1 is the ordering of these values!
+    f:=func(s float64, r float64) float64 { 
+        tl.Sets=float32(s);
+        tl.Reps=int(r);
+        return s*r*b.Intensity(ms,tl); 
+    }
+    rv,_:=mathUtil.DoubleIntegral(f)(
+        0,
+        b.volumeSkewDiagonal(ms,tl),
+        mathUtil.ConstIntegralBound[float64](0),
+        func(r float64) float64 { return r; },
+        3,
+    );
+    return rv;
+}
+
+func (b basicSurfacePrediction)volumeSkewIntegral4(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Note - the order of the params is VERY important. It needs to correlate
+    // with the order of the params for the double integral. The only difference
+    // between this and integral 4 is the ordering of these values as well as
+    // the switching of the Eps5 and Eps6 constants.
+    f:=func(s float64, r float64) float64 { 
+        tl.Sets=float32(s);
+        tl.Reps=int(r);
+        return s*r*b.Intensity(ms,tl); 
+    }
+    rv,_:=mathUtil.DoubleIntegral(f)(
+        b.volumeSkewDiagonal(ms,tl),
+        stdMath.Pow((ms.Eps+ms.Eps1*tl.Effort-
+        ms.Eps2*float64(tl.InterWorkoutFatigue)-
+        ms.Eps3*float64(tl.InterExerciseFatigue)-
+        ms.Eps5)/(ms.Eps4+ms.Eps6),0.5)+1,
+        mathUtil.ConstIntegralBound[float64](0),
+        func(s float64) float64 {
+            return stdMath.Pow((
+                ms.Eps+ms.Eps1*tl.Effort-
+                ms.Eps2*float64(tl.InterWorkoutFatigue)-
+                ms.Eps3*float64(tl.InterExerciseFatigue)-
+                ms.Eps6*stdMath.Pow(float64(tl.Sets-1),2))/(
+                ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
+                ms.Eps5),0.5)+1;
+        },
+        3,
+    );
+    return rv;
+}
+
+func (b basicSurfacePrediction)VolumeSkewApprox(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Sets/Reps
+    return ms.Eps4/ms.Eps5;
+}
+
 
 type BasicSurface struct {
     mathUtil.LinearReg[float64];

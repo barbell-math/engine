@@ -11,7 +11,7 @@ import (
 	"github.com/barbell-math/block/util/dataStruct"
 	mathUtil "github.com/barbell-math/block/util/math/numeric"
 	timeUtil "github.com/barbell-math/block/util/time"
-	potSurf "github.com/barbell-math/block/model/PotentialSurface"
+	potSurf "github.com/barbell-math/block/model/potentialSurface"
 	customerr "github.com/barbell-math/block/util/err"
 )
 

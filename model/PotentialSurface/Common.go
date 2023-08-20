@@ -16,6 +16,8 @@ type Predictor interface {
     Reps(ms *db.ModelState, tl *db.TrainingLog) float64;
     InterWorkoutFatigue(ms *db.ModelState, tl *db.TrainingLog) float64;
     InterExerciseFatigue(ms *db.ModelState, tl *db.TrainingLog) float64;
+    VolumeSkew(ms *db.ModelState, tl *db.TrainingLog) float64;
+    VolumeSkewApprox(ms *db.ModelState, tl *db.TrainingLog) float64;
 };
 
 type Surface interface {

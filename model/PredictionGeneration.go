@@ -3,6 +3,7 @@ package model;
 import (
     "github.com/barbell-math/block/db"
     "github.com/barbell-math/block/util/algo/iter"
+    "github.com/barbell-math/block/model/potentialSurface"
 )
 
 //Given a set of values to use when making the prediction, the closest model
@@ -13,7 +14,8 @@ import (
 func GeneratePrediction(
         c *db.DB,
         tl *db.TrainingLog,
-        sg *db.StateGenerator) (db.Prediction,error) {
+        sg *db.StateGenerator,
+        pred potentialSurface.Predictor) (db.Prediction,error) {
     rv:=db.Prediction{ TrainingLogID: tl.Id };
     if cntr,err:=db.CustomReadQuery[db.ModelState](c,
         nearestModelStateToExerciseQuery(tl),[]any{
@@ -26,7 +28,7 @@ func GeneratePrediction(
         status iter.IteratorFeedback,
     ) (iter.IteratorFeedback, *db.ModelState, error) {
         if status!=iter.Break {
-            rv.IntensityPred=IntensityPrediction(val,tl);
+            rv.IntensityPred=pred.Intensity(val,tl);
             rv.StateGeneratorID=val.StateGeneratorID;
         }
         return iter.Continue,val,nil;

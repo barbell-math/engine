@@ -108,15 +108,15 @@ func TestIntegralQuadratic(t *testing.T){
 
 func TestDoubleIntegralHorizontalPlane(t *testing.T){
     f:=DoubleIntegral(func(x1, x2 float32) float32 { return 1;});
-    val,_:=f(0,1,0,1,3);
+    val,_:=f(0,1,ConstIntegralBound[float32](0),ConstIntegralBound[float32](1),3);
     test.BasicTest(float32(1),val,
         "Double integral of z=1 over x[0,1] y[0,1] with step num 3 did not return 1.",t,
     );
-    val,_=f(0,1,0,1,5);
+    val,_=f(0,1,ConstIntegralBound[float32](0),ConstIntegralBound[float32](1),5);
     test.BasicTest(float32(1),val,
         "Double integral of z=1 over x[0,1] y[0,1] with step num 5 did not return 1.",t,
     );
-    val,_=f(0,1,0,1,11);
+    val,_=f(0,1,ConstIntegralBound[float32](0),ConstIntegralBound[float32](1),11);
     test.BasicTest(float32(1),val,
         "Double integral of z=1 over x[0,1] y[0,1] with step num 11 did not return 1.",t,
     );
@@ -124,16 +124,54 @@ func TestDoubleIntegralHorizontalPlane(t *testing.T){
 
 func TestDoubleIntegralDiagonalPlane(t *testing.T){
     f:=DoubleIntegral(func(x1, x2 float32) float32 { return x1+x2;});
-    val,_:=f(0,2,0,2,3);
+    val,_:=f(0,2,ConstIntegralBound[float32](0),ConstIntegralBound[float32](2),3);
     test.BasicTest(float32(8),val,
         "Double integral of z=x+y over x[0,2] y[0,2] with step num 3 did not return 8.",t,
     );
-    val,_=f(0,2,0,2,5);
+    val,_=f(0,2,ConstIntegralBound[float32](0),ConstIntegralBound[float32](2),5);
     test.BasicTest(float32(8),val,
         "Double integral of z=x+y over x[0,2] y[0,2] with step num 5 did not return 8.",t,
     );
-    val,_=f(0,2,0,2,11);
+    val,_=f(0,2,ConstIntegralBound[float32](0),ConstIntegralBound[float32](2),11);
     test.BasicTest(true,Abs(float32(8)-val)<1e-6,
         "Double integral of z=x+y over x[0,2] y[0,2] with step num 11 did not return 8.",t,
+    );
+}
+
+func TestDoubleIntegralQuadratic(t *testing.T){
+    f:=DoubleIntegral(func(x1, x2 float32) float32 { return x1*x1+x2*x2;});
+    val,_:=f(0,3,ConstIntegralBound[float32](0),ConstIntegralBound[float32](3),3);
+    test.BasicTest(float32(54),val,
+        "Double integral of z=x^2+y^2 over x[0,3] y[0,3] with step num 3 did not return 54.",t,
+    );
+    val,_=f(0,3,ConstIntegralBound[float32](0),ConstIntegralBound[float32](3),5);
+    test.BasicTest(float32(54),val,
+        "Double integral of z=x^2+y^2 over x[0,3] y[0,3] with step num 5 did not return 54.",t,
+    );
+    val,_=f(0,3,ConstIntegralBound[float32](0),ConstIntegralBound[float32](3),11);
+    test.BasicTest(true,Abs(float32(54)-val)<1e-6,
+        "Double integral of z=x^2+y^2 over x[0,3] y[0,3] with step num 11 did not return 54.",t,
+    );
+}
+
+func TestDoubleIntegralQuadraticTriangle(t *testing.T){
+    f:=DoubleIntegral(func(x1, x2 float32) float32 { return x1*x1+x2*x2;});
+    val,_:=f(0,3,ConstIntegralBound[float32](0),func(x float32) float32 { 
+        return x;
+    },3);
+    test.BasicTest(float32(27),val,
+        "Double integral of z=x^2+y^2 over x[0,y] y[0,3] with step num 3 did not return 54.",t,
+    );
+    val,_=f(0,3,ConstIntegralBound[float32](0),func(x float32) float32 { 
+        return x;
+    },5);
+    test.BasicTest(float32(27),val,
+        "Double integral of z=x^2+y^2 over x[0,y] y[0,3] with step num 5 did not return 54.",t,
+    );
+    val,_=f(0,3,ConstIntegralBound[float32](0),func(x float32) float32 { 
+        return x;
+    },11);
+    test.BasicTest(float32(27),val,
+        "Double integral of z=x^2+y^2 over x[0,y] y[0,3] with step num 11 did not return 54.",t,
     );
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/barbell-math/block/util/dataStruct"
 	"github.com/barbell-math/block/util/io/csv"
 	"github.com/barbell-math/block/util/algo/iter"
-	potSurf "github.com/barbell-math/block/model/PotentialSurface"
+	potSurf "github.com/barbell-math/block/model/potentialSurface"
 )
 
 func bookData_modelStateGeneratorHelper(surfFactory func() []potSurf.Surface, f string) {
@@ -38,4 +38,10 @@ func TestBook_SlidingWindow(t *testing.T) {
             potSurf.NewVolumeBaseSurface().ToGenericSurf(),
         };
     },"Client1.ms");
+}
+
+func TestBook_VolumeSkew(t *testing.T){
+    //generate all model states
+    //iterate over all model states, get volume skew, get approximate
+    //put in csv file with date,client,exercise,sets?,reps?
 }

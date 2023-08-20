@@ -10,7 +10,7 @@ import (
 	"github.com/barbell-math/block/util/dataStruct"
 	"github.com/barbell-math/block/util/io/log"
 	"github.com/barbell-math/block/util/test"
-	potSurf "github.com/barbell-math/block/model/PotentialSurface"
+	potSurf "github.com/barbell-math/block/model/potentialSurface"
 	customerr "github.com/barbell-math/block/util/err"
 )
 
