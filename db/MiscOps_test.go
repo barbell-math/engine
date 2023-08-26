@@ -138,15 +138,15 @@ func TestInitClient(t *testing.T){
         );
         switch (val.ExerciseID){
             case sId.Id:
-                test.BasicTest(float32(446),val.Weight,
+                test.BasicTest(float64(446),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             case bId.Id:
-                test.BasicTest(float32(286),val.Weight,
+                test.BasicTest(float64(286),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             case dId.Id:
-                test.BasicTest(float32(545),val.Weight,
+                test.BasicTest(float64(545),val.Weight,
                     "Squat 1RM not set correctly in zero rotation.",t,
                 );
             default: t.Errorf(

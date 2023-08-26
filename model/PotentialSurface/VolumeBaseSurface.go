@@ -26,8 +26,8 @@ func (v volumeBaseSurfacePrediction)Intensity(
         ms.Eps1/tl.Effort+
         ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
         ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort+
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort));
 }
 
@@ -38,8 +38,8 @@ func (v volumeBaseSurfacePrediction)Effort(
         ms.Eps1+
         ms.Eps2*float64(tl.InterWorkoutFatigue)+
         ms.Eps3*float64(tl.InterExerciseFatigue)+
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)+
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)+
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)+
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)))/(
             1-tl.Intensity*tl.Intensity*ms.Eps);
 }
@@ -51,8 +51,8 @@ func (v volumeBaseSurfacePrediction)InterWorkoutFatigue(
         ms.Eps-
         ms.Eps1/tl.Effort-
         ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps2;
 }
 
@@ -63,8 +63,8 @@ func (v volumeBaseSurfacePrediction)InterExerciseFatigue(
         ms.Eps-
         ms.Eps1/tl.Effort-
         ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps3;
 }
 
@@ -88,9 +88,9 @@ func (v volumeBaseSurfacePrediction)Reps(
         ms.Eps1/tl.Effort+
         ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
         ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
         1/(tl.Intensity*tl.Intensity))/(
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)/tl.Effort+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)/tl.Effort+
         ms.Eps6/tl.Effort),0.5)+1;
 }
 
@@ -98,6 +98,13 @@ func (v volumeBaseSurfacePrediction)VolumeSkew(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     return 0;
+}
+
+func (v volumeBaseSurfacePrediction)VolumeSkewApprox(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    // Sets/Reps
+    return ms.Eps6/ms.Eps5;
 }
 
 type VolumeBaseSurface struct {

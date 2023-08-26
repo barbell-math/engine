@@ -22,8 +22,8 @@ func (b basicSurfacePrediction)Intensity(
         ms.Eps1*float64(tl.Effort)-
         ms.Eps2*float64(tl.InterWorkoutFatigue)-
         ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)-
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
@@ -33,8 +33,8 @@ func (b basicSurfacePrediction)Effort(
     return (tl.Intensity-ms.Eps+
         ms.Eps2*float64(tl.InterWorkoutFatigue)+
         ms.Eps3*float64(tl.InterExerciseFatigue)+
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)+
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)+
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)+
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2))/ms.Eps1;
 }
 
@@ -44,8 +44,8 @@ func (b basicSurfacePrediction)InterWorkoutFatigue(
     return (ms.Eps+
         ms.Eps1*tl.Effort-
         ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)-
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)-
         tl.Intensity)/ms.Eps2;
 }
@@ -56,8 +56,8 @@ func (b basicSurfacePrediction)InterExerciseFatigue(
     return (ms.Eps+
         ms.Eps1*tl.Effort-
         ms.Eps2*float64(tl.InterWorkoutFatigue)-
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)*stdMath.Pow(float64(tl.Reps-1),2)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)-
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)-
         tl.Intensity)/ms.Eps3;
 }
@@ -84,9 +84,9 @@ func (b basicSurfacePrediction)Reps(
         ms.Eps1*tl.Effort-
         ms.Eps2*float64(tl.InterWorkoutFatigue)-
         ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2)-
+        ms.Eps5*stdMath.Pow(tl.Sets-1,2)-
         tl.Intensity)/(
-        ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)+
         ms.Eps6),0.5)+1.0;
 }
 
@@ -99,17 +99,32 @@ func (b basicSurfacePrediction)VolumeSkew(
         b.volumeSkewIntegral4(ms,tl));
 }
 
-//MENTAL NOTE TO FUTURE ME - this could be the negative root!
 func (b basicSurfacePrediction)volumeSkewDiagonal(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
-    return stdMath.Pow((ms.Eps5+ms.Eps6+
-        stdMath.Pow(stdMath.Pow(ms.Eps5+ms.Eps6,2)+
+    return stdMath.Pow(stdMath.Max((-ms.Eps5-ms.Eps6+
+        stdMath.Pow(stdMath.Max(stdMath.Pow(ms.Eps5+ms.Eps6,2)+
             4*ms.Eps4*(
                 ms.Eps+
                 ms.Eps1*tl.Effort-
                 ms.Eps2*float64(tl.InterWorkoutFatigue)-
-                ms.Eps3*float64(tl.InterExerciseFatigue)),0.5))/(2*ms.Eps5),0.5)+1;
+                ms.Eps3*float64(tl.InterExerciseFatigue)),0),0.5))/(2*ms.Eps4),0),0.5)+1;
+}
+
+func (b basicSurfacePrediction)setsWhenRepsEquals1(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    return stdMath.Pow(stdMath.Max((ms.Eps+ms.Eps1*tl.Effort-
+        ms.Eps2*float64(tl.InterWorkoutFatigue)-
+        ms.Eps3*float64(tl.InterExerciseFatigue))/ms.Eps5,0),0.5)+1;
+}
+
+func (b basicSurfacePrediction)repsWhenSetsEquals1(
+    ms *db.ModelState,
+    tl *db.TrainingLog) float64 {
+    return stdMath.Pow(stdMath.Max((ms.Eps+ms.Eps1*tl.Effort-
+        ms.Eps2*float64(tl.InterWorkoutFatigue)-
+        ms.Eps3*float64(tl.InterExerciseFatigue))/ms.Eps6,0),0.5)+1;
 }
 
 func (b basicSurfacePrediction)volumeSkewIntegral1(
@@ -118,17 +133,17 @@ func (b basicSurfacePrediction)volumeSkewIntegral1(
     // Note - the order of the params is VERY important. It needs to correlate
     // with the order of the params for the double integral. The only difference
     // between this and integral 3 is the ordering of these values!
-    f:=func(r float64, s float64) float64 { 
-        tl.Sets=float32(s);
-        tl.Reps=int(r);
+    f:=func(s float64, r float64) float64 { 
+        tl.Sets=s;
+        tl.Reps=r;
         return s*r*b.Intensity(ms,tl); 
     }
     rv,_:=mathUtil.DoubleIntegral(f)(
-        0,
+        1,
         b.volumeSkewDiagonal(ms,tl),
-        mathUtil.ConstIntegralBound[float64](0),
+        mathUtil.ConstIntegralBound[float64](1),
         func(s float64) float64 { return s; },
-        3,
+        1201,
     );
     return rv;
 }
@@ -140,28 +155,25 @@ func (b basicSurfacePrediction)volumeSkewIntegral2(
     // with the order of the params for the double integral. The only difference
     // between this and integral 4 is the ordering of these values as well as
     // the switching of the Eps5 and Eps6 constants.
-    f:=func(r float64, s float64) float64 { 
-        tl.Sets=float32(s);
-        tl.Reps=int(r);
+    f:=func(s float64, r float64) float64 { 
+        tl.Sets=s;
+        tl.Reps=r;
         return s*r*b.Intensity(ms,tl); 
     }
     rv,_:=mathUtil.DoubleIntegral(f)(
         b.volumeSkewDiagonal(ms,tl),
-        stdMath.Pow((ms.Eps+ms.Eps1*tl.Effort-
-        ms.Eps2*float64(tl.InterWorkoutFatigue)-
-        ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps6)/(ms.Eps4+ms.Eps5),0.5)+1,
-        mathUtil.ConstIntegralBound[float64](0),
+        b.setsWhenRepsEquals1(ms,tl),
+        mathUtil.ConstIntegralBound[float64](1),
         func(s float64) float64 {
-            return stdMath.Pow((
+            return stdMath.Pow(stdMath.Max((
                 ms.Eps+ms.Eps1*tl.Effort-
                 ms.Eps2*float64(tl.InterWorkoutFatigue)-
                 ms.Eps3*float64(tl.InterExerciseFatigue)-
-                ms.Eps5*stdMath.Pow(float64(tl.Sets-1),2))/(
-                ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
-                ms.Eps6),0.5)+1;
+                ms.Eps5*stdMath.Pow(s-1,2))/(
+                ms.Eps4*stdMath.Pow(s-1,2)+
+                ms.Eps6),0),0.5)+1;
         },
-        3,
+        1201,
     );
     return rv;
 }
@@ -172,17 +184,17 @@ func (b basicSurfacePrediction)volumeSkewIntegral3(
     // Note - the order of the params is VERY important. It needs to correlate
     // with the order of the params for the double integral. The only difference
     // between this and integral 1 is the ordering of these values!
-    f:=func(s float64, r float64) float64 { 
-        tl.Sets=float32(s);
-        tl.Reps=int(r);
+    f:=func(r float64, s float64) float64 { 
+        tl.Sets=s;
+        tl.Reps=r;
         return s*r*b.Intensity(ms,tl); 
     }
     rv,_:=mathUtil.DoubleIntegral(f)(
-        0,
+        1,
         b.volumeSkewDiagonal(ms,tl),
-        mathUtil.ConstIntegralBound[float64](0),
+        mathUtil.ConstIntegralBound[float64](1),
         func(r float64) float64 { return r; },
-        3,
+        1201,
     );
     return rv;
 }
@@ -194,28 +206,25 @@ func (b basicSurfacePrediction)volumeSkewIntegral4(
     // with the order of the params for the double integral. The only difference
     // between this and integral 4 is the ordering of these values as well as
     // the switching of the Eps5 and Eps6 constants.
-    f:=func(s float64, r float64) float64 { 
-        tl.Sets=float32(s);
-        tl.Reps=int(r);
+    f:=func(r float64, s float64) float64 { 
+        tl.Sets=s;
+        tl.Reps=r;
         return s*r*b.Intensity(ms,tl); 
     }
     rv,_:=mathUtil.DoubleIntegral(f)(
         b.volumeSkewDiagonal(ms,tl),
-        stdMath.Pow((ms.Eps+ms.Eps1*tl.Effort-
-        ms.Eps2*float64(tl.InterWorkoutFatigue)-
-        ms.Eps3*float64(tl.InterExerciseFatigue)-
-        ms.Eps5)/(ms.Eps4+ms.Eps6),0.5)+1,
-        mathUtil.ConstIntegralBound[float64](0),
-        func(s float64) float64 {
-            return stdMath.Pow((
+        b.repsWhenSetsEquals1(ms,tl),
+        mathUtil.ConstIntegralBound[float64](1),
+        func(r float64) float64 {
+            return stdMath.Pow(stdMath.Max((
                 ms.Eps+ms.Eps1*tl.Effort-
                 ms.Eps2*float64(tl.InterWorkoutFatigue)-
                 ms.Eps3*float64(tl.InterExerciseFatigue)-
-                ms.Eps6*stdMath.Pow(float64(tl.Sets-1),2))/(
-                ms.Eps4*stdMath.Pow(float64(tl.Sets-1),2)+
-                ms.Eps5),0.5)+1;
+                ms.Eps6*stdMath.Pow(r-1,2))/(
+                ms.Eps4*stdMath.Pow(r-1,2)+
+                ms.Eps5),0),0.5)+1;
         },
-        3,
+        1201,
     );
     return rv;
 }
@@ -224,7 +233,7 @@ func (b basicSurfacePrediction)VolumeSkewApprox(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Sets/Reps
-    return ms.Eps4/ms.Eps5;
+    return ms.Eps6/ms.Eps5;
 }
 
 

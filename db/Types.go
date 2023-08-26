@@ -62,9 +62,9 @@ type TrainingLog struct {
     ExerciseID int;
     RotationID int;
     DatePerformed time.Time;
-    Weight float32;
-    Sets float32;
-    Reps int;
+    Weight float64;
+    Sets float64;
+    Reps float64;
     Intensity float64;
     Effort float64;
     Volume float64;

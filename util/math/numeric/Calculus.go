@@ -25,7 +25,7 @@ func Integral[N math.SignedNumer](
         rv:=N(0);
         //deltaX:=(end-start)/N(numPnts-1);
         for i:=uint(0); i<numPnts; i++ {
-            x_n:=end*N(i)/N(numPnts-1)+start;
+            x_n:=(end-start)*N(i)/N(numPnts-1)+start;
             if i==0 || i+1==numPnts {
                 rv+=f(x_n);
             } else if i%2==0 {
@@ -54,11 +54,11 @@ func DoubleIntegral[N math.SignedNumer](
         rv:=N(0);
         for i:=uint(0); i<numPnts; i++ {
             tmp:=N(0);
-            x1_n:=endX1*N(i)/N(numPnts-1)+startX1;
+            x1_n:=(endX1-startX1)*N(i)/N(numPnts-1)+startX1;
             _endX2:=endX2(N(x1_n));
             _startX2:=startX2(N(x1_n));
             for j:=uint(0); j<numPnts; j++ {
-                x2_n:=_endX2*N(j)/N(numPnts-1)+_startX2;
+                x2_n:=(_endX2-_startX2)*N(j)/N(numPnts-1)+_startX2;
                 if j==0 || j+1==numPnts {
                     tmp+=f(x1_n,x2_n);
                 } else if j%2==0 {

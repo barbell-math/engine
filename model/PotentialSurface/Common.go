@@ -9,6 +9,14 @@ const (
     VolumeBaseSurfaceId
 );
 
+func PredictorFromSurfaceId(id PotentialSurfaceId) Predictor {
+    switch id {
+        case BasicSurfaceId: return BasicSurfacePrediction;
+        case VolumeBaseSurfaceId: return VolumeBaseSurfacePrediction;
+        default: return nil;
+    }
+}
+
 type Predictor interface {
     Intensity(ms *db.ModelState, tl *db.TrainingLog) float64;
     Effort(ms *db.ModelState, tl *db.TrainingLog) float64;

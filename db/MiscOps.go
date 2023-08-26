@@ -57,17 +57,17 @@ func getRowFromUniqueValGenerator[
 func InitClient(
         db *DB,
         c *Client,
-        sMax float32,
-        bMax float32,
-        dMax float32) error {
-    f:=func(cId int, rId int, eId int, m float32) TrainingLog {
+        sMax float64,
+        bMax float64,
+        dMax float64) error {
+    f:=func(cId int, rId int, eId int, m float64) TrainingLog {
         return TrainingLog{
             ClientID: cId,
             ExerciseID: eId,
             RotationID: rId,
             DatePerformed: time.Now().AddDate(0, 0, -1),
             Weight: m,
-            Sets: float32(1),
+            Sets: 1,
             Reps: 1,
             Intensity: float64(1),
         };
