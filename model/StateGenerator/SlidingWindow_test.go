@@ -121,7 +121,9 @@ func generateModelStateHelper(scenarioName string,
     closeLogs();
     runModelStateDebugLogTests(baseTime,
         missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-        timeFrame,window,ms[0].Mse,t,
+        timeFrame,window,
+        ms[0].Mse,potSurf.BasicSurfaceCalculation.Stability(&ms[0]),
+        t,
     );
     runDataPointDebugLogTests(baseTime,t);
     runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
@@ -222,8 +224,10 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         timeFrame dataStruct.Pair[int,int],
         window dataStruct.Pair[int,int],
         optimalMse float64,
+        optimalStability int,
         t *testing.T){
     initialMse:=0.0;
+    initialStability:=0;
     err:=log.LogElems(SLIDING_WINDOW_MS_DEBUG).Next(
     func(index int,
         val log.LogEntry[db.ModelState],
@@ -256,9 +260,15 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
             test.BasicTest(y2,y1,"A model state had an incorrect year.",t);
             test.BasicTest(m2,m1,"A model state had an incorrect month.",t);
             test.BasicTest(d2,d1,"A model state had an incorrect day.",t);
-            test.BasicTest(true,optimalMse<=val.Val.Mse,
-                "The optimal model state was not correctly found.",t,
+            curStability:=potSurf.BasicSurfaceCalculation.Stability(&val.Val);
+            test.BasicTest(true,optimalStability>=curStability,
+                "The optimal model state stability was not correctly found.",t,
             );
+            if optimalStability==curStability {
+                test.BasicTest(true,optimalMse<=val.Val.Mse,
+                    "The optimal model state mse was not correctly found.",t,
+                );
+            }
         }
         return iter.Continue,val,nil;
     }).Filter(func(index int, val log.LogEntry[db.ModelState]) bool {
@@ -269,9 +279,16 @@ func runModelStateDebugLogTests(baseTime time.Time, cId int, eId int, sId int,
         return true;
     }).ForEach(
     func(index int, val log.LogEntry[db.ModelState]) (iter.IteratorFeedback, error) {
-        test.BasicTest(true,initialMse>val.Val.Mse,
-            "Mse values did not continually decrease.",t,
+        newStability:=potSurf.BasicSurfaceCalculation.Stability(&val.Val);
+        test.BasicTest(true,initialStability<=newStability,
+            "Stability values did not continually increase.",t,
         );
+        if initialStability==newStability {
+            test.BasicTest(true,initialMse>val.Val.Mse,
+                "Mse values did not continually decrease given equivalent stability.",t,
+            );
+        }
+        initialStability=newStability;
         initialMse=val.Val.Mse;
         return iter.Continue,nil;
     });

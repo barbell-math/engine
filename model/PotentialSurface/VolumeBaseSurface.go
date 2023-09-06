@@ -107,6 +107,10 @@ func (v volumeBaseSurfacePrediction)VolumeSkewApprox(
     return ms.Eps6/ms.Eps5;
 }
 
+func (v volumeBaseSurfacePrediction)Stability(ms *db.ModelState) int {
+    return 0;
+}
+
 type VolumeBaseSurface struct {
     mathUtil.LinearReg[float64];
     mathUtil.LinRegResult[float64];
@@ -192,7 +196,7 @@ func NewVolumeBaseSurface() VolumeBaseSurface {
 func (v VolumeBaseSurface)ToGenericSurf() Surface { return &v; }
 
 func (v *VolumeBaseSurface)Id() PotentialSurfaceId { return VolumeBaseSurfaceId; }
-func (v *VolumeBaseSurface)Predictor() Predictor { return VolumeBaseSurfacePrediction; }
+func (v *VolumeBaseSurface)Calculations() Calculations { return VolumeBaseSurfacePrediction; }
 
 func (v *VolumeBaseSurface)Update(vals map[string]float64) error {
     return v.UpdateSummations(vals);
@@ -247,4 +251,8 @@ func (v *VolumeBaseSurface)PredictIntensity(vals map[string]float64) (float64,er
         return tmp,err;
     }
     return 1/stdMath.Pow(tmp,0.5),err;
+}
+
+func (v *VolumeBaseSurface)Stability() int {
+    return 0;
 }

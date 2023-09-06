@@ -12,10 +12,10 @@ import (
 //  I=eps+eps_1*E-( eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2 )
 //This equation does not take into account latent fatigue, which makes it naive
 //because it does not consider the relationship between lifts across time.
-var BasicSurfacePrediction basicSurfacePrediction;
-type basicSurfacePrediction struct { };
+var BasicSurfaceCalculation basicSurfaceCalculation;
+type basicSurfaceCalculation struct { };
 
-func (b basicSurfacePrediction)Intensity(
+func (b basicSurfaceCalculation)Intensity(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
     return (ms.Eps+
@@ -27,7 +27,7 @@ func (b basicSurfacePrediction)Intensity(
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
-func (b basicSurfacePrediction)Effort(
+func (b basicSurfaceCalculation)Effort(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
     return (tl.Intensity-ms.Eps+
@@ -38,7 +38,7 @@ func (b basicSurfacePrediction)Effort(
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2))/ms.Eps1;
 }
 
-func (b basicSurfacePrediction)InterWorkoutFatigue(
+func (b basicSurfaceCalculation)InterWorkoutFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
     return (ms.Eps+
@@ -50,7 +50,7 @@ func (b basicSurfacePrediction)InterWorkoutFatigue(
         tl.Intensity)/ms.Eps2;
 }
 
-func (b basicSurfacePrediction)InterExerciseFatigue(
+func (b basicSurfaceCalculation)InterExerciseFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
     return (ms.Eps+
@@ -62,7 +62,7 @@ func (b basicSurfacePrediction)InterExerciseFatigue(
         tl.Intensity)/ms.Eps3;
 }
 
-func (b basicSurfacePrediction)Sets(
+func (b basicSurfaceCalculation)Sets(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
     return stdMath.Pow((
@@ -76,7 +76,7 @@ func (b basicSurfacePrediction)Sets(
         ms.Eps5),0.5)+1.0;
 }
 
-func (b basicSurfacePrediction)Reps(
+func (b basicSurfaceCalculation)Reps(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
     return stdMath.Pow((
@@ -90,7 +90,7 @@ func (b basicSurfacePrediction)Reps(
         ms.Eps6),0.5)+1.0;
 }
 
-func (b basicSurfacePrediction)VolumeSkew(
+func (b basicSurfaceCalculation)VolumeSkew(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     return (b.volumeSkewIntegral1(ms,tl)+
@@ -99,7 +99,7 @@ func (b basicSurfacePrediction)VolumeSkew(
         b.volumeSkewIntegral4(ms,tl));
 }
 
-func (b basicSurfacePrediction)volumeSkewDiagonal(
+func (b basicSurfaceCalculation)volumeSkewDiagonal(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     return stdMath.Pow(stdMath.Max((-ms.Eps5-ms.Eps6+
@@ -111,7 +111,7 @@ func (b basicSurfacePrediction)volumeSkewDiagonal(
                 ms.Eps3*float64(tl.InterExerciseFatigue)),0),0.5))/(2*ms.Eps4),0),0.5)+1;
 }
 
-func (b basicSurfacePrediction)setsWhenRepsEquals1(
+func (b basicSurfaceCalculation)setsWhenRepsEquals1(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     return stdMath.Pow(stdMath.Max((ms.Eps+ms.Eps1*tl.Effort-
@@ -119,7 +119,7 @@ func (b basicSurfacePrediction)setsWhenRepsEquals1(
         ms.Eps3*float64(tl.InterExerciseFatigue))/ms.Eps5,0),0.5)+1;
 }
 
-func (b basicSurfacePrediction)repsWhenSetsEquals1(
+func (b basicSurfaceCalculation)repsWhenSetsEquals1(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     return stdMath.Pow(stdMath.Max((ms.Eps+ms.Eps1*tl.Effort-
@@ -127,7 +127,7 @@ func (b basicSurfacePrediction)repsWhenSetsEquals1(
         ms.Eps3*float64(tl.InterExerciseFatigue))/ms.Eps6,0),0.5)+1;
 }
 
-func (b basicSurfacePrediction)volumeSkewIntegral1(
+func (b basicSurfaceCalculation)volumeSkewIntegral1(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Note - the order of the params is VERY important. It needs to correlate
@@ -148,7 +148,7 @@ func (b basicSurfacePrediction)volumeSkewIntegral1(
     return rv;
 }
 
-func (b basicSurfacePrediction)volumeSkewIntegral2(
+func (b basicSurfaceCalculation)volumeSkewIntegral2(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Note - the order of the params is VERY important. It needs to correlate
@@ -178,7 +178,7 @@ func (b basicSurfacePrediction)volumeSkewIntegral2(
     return rv;
 }
 
-func (b basicSurfacePrediction)volumeSkewIntegral3(
+func (b basicSurfaceCalculation)volumeSkewIntegral3(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Note - the order of the params is VERY important. It needs to correlate
@@ -199,7 +199,7 @@ func (b basicSurfacePrediction)volumeSkewIntegral3(
     return rv;
 }
 
-func (b basicSurfacePrediction)volumeSkewIntegral4(
+func (b basicSurfaceCalculation)volumeSkewIntegral4(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Note - the order of the params is VERY important. It needs to correlate
@@ -229,11 +229,53 @@ func (b basicSurfacePrediction)volumeSkewIntegral4(
     return rv;
 }
 
-func (b basicSurfacePrediction)VolumeSkewApprox(
+func (b basicSurfaceCalculation)VolumeSkewApprox(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
-    // Sets/Reps
-    return ms.Eps6/ms.Eps5;
+    return (stdMath.Pow(ms.Eps6,0.5)*(
+        stdMath.Pow(
+            ms.Eps+
+            ms.Eps1*tl.Effort-
+            ms.Eps2*float64(tl.InterWorkoutFatigue)-
+            ms.Eps3*float64(tl.InterExerciseFatigue),
+            0.5,
+        )+stdMath.Pow(ms.Eps5,0.5)))/(stdMath.Pow(ms.Eps5,0.5)*(
+        stdMath.Pow(
+            ms.Eps+
+            ms.Eps1*tl.Effort-
+            ms.Eps2*float64(tl.InterWorkoutFatigue)-
+            ms.Eps3*float64(tl.InterExerciseFatigue),
+            0.5,
+        )+stdMath.Pow(ms.Eps6,0.5)));
+}
+
+func (b basicSurfaceCalculation)Stability(ms *db.ModelState) int {
+    rv:=0;
+    if ms.Eps>0 {
+        rv++;
+    }
+    if ms.Eps1>0 {
+        rv++;
+    }
+    if ms.Eps2>0 {
+        rv++;
+    }
+    if ms.Eps3>0 {
+        rv++;
+    }
+    if ms.Eps4>0 {
+        rv++;
+    }
+    if ms.Eps5>0 {
+        rv++;
+    }
+    if ms.Eps6>0 {
+        rv++;
+    }
+    if ms.Eps7>0 {
+        rv++;
+    }
+    return rv;
 }
 
 
@@ -281,7 +323,7 @@ func NewBasicSurface() BasicSurface {
 func (b BasicSurface)ToGenericSurf() Surface { return &b; }
 
 func (b *BasicSurface)Id() PotentialSurfaceId { return BasicSurfaceId; }
-func (b *BasicSurface)Predictor() Predictor { return BasicSurfacePrediction; }
+func (b *BasicSurface)Calculations() Calculations { return BasicSurfaceCalculation; }
 
 func (b *BasicSurface)Update(vals map[string]float64) error {
     return b.UpdateSummations(vals);
@@ -297,9 +339,9 @@ func (b *BasicSurface)Run() (float64,error) {
 func (b *BasicSurface)imposeConstraints() {
     var constraints=[...]dataStruct.Pair[float64,float64]{
         {A: 0, B: stdMath.Inf(1)}, //Eps: Error
-        mathUtil.NoOpConstraint[float64](),     //Eps1: Effort
-        mathUtil.NoOpConstraint[float64](),     //Eps2: F_w
-        mathUtil.NoOpConstraint[float64](),     //Eps3: F_e
+        {A: 0, B: stdMath.Inf(1)}, //Eps1: Effort
+        {A: 0, B: stdMath.Inf(1)}, //Eps2: F_w
+        {A: 0, B: stdMath.Inf(1)}, //Eps3: F_e
         {A: 0, B: stdMath.Inf(1)}, //Eps4: s*r
         {A: 0, B: stdMath.Inf(1)}, //Eps5: s
         {A: 0, B: stdMath.Inf(1)}, //Eps6: r
@@ -311,4 +353,14 @@ func (b *BasicSurface)imposeConstraints() {
 
 func (b *BasicSurface)PredictIntensity(vals map[string]float64) (float64,error) {
     return b.LinRegResult.Predict(vals);
+}
+
+func (b *BasicSurface)Stability() int {
+    rv:=0;
+    for _,v:=range(b.LinRegResult.V) {
+        if v[0]>0 {
+            rv++;
+        }
+    }
+    return rv;
 }

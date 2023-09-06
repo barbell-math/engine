@@ -9,15 +9,15 @@ const (
     VolumeBaseSurfaceId
 );
 
-func PredictorFromSurfaceId(id PotentialSurfaceId) Predictor {
+func CalculationsFromSurfaceId(id PotentialSurfaceId) Calculations {
     switch id {
-        case BasicSurfaceId: return BasicSurfacePrediction;
+        case BasicSurfaceId: return BasicSurfaceCalculation;
         case VolumeBaseSurfaceId: return VolumeBaseSurfacePrediction;
         default: return nil;
     }
 }
 
-type Predictor interface {
+type Calculations interface {
     Intensity(ms *db.ModelState, tl *db.TrainingLog) float64;
     Effort(ms *db.ModelState, tl *db.TrainingLog) float64;
     Sets(ms *db.ModelState, tl *db.TrainingLog) float64;
@@ -26,14 +26,16 @@ type Predictor interface {
     InterExerciseFatigue(ms *db.ModelState, tl *db.TrainingLog) float64;
     VolumeSkew(ms *db.ModelState, tl *db.TrainingLog) float64;
     VolumeSkewApprox(ms *db.ModelState, tl *db.TrainingLog) float64;
+    Stability(ms *db.ModelState) int;
 };
 
 type Surface interface {
     Id() PotentialSurfaceId;
-    Predictor() Predictor;
+    Calculations() Calculations;
     PredictIntensity(vals map[string]float64) (float64,error);
     Run() (float64,error);
     Update(vals map[string]float64) error;
     GetConstant(idx int) float64;
+    Stability() int;
     ToGenericSurf() Surface;
 };
