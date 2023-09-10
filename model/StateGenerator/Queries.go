@@ -5,7 +5,7 @@ func timeFrameQuery() string {
             Sets, Reps, Effort, Intensity,
             InterExerciseFatigue, InterWorkoutFatigue
         FROM TrainingLog
-        WHERE TrainingLog.DatePerformed<$1
+        WHERE TrainingLog.DatePerformed<=$1
             AND TrainingLog.DatePerformed>$2
             AND TrainingLog.ExerciseID=$3
             AND TrainingLog.ClientID=$4

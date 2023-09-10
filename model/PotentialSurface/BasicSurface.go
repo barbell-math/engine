@@ -27,6 +27,16 @@ func (b basicSurfaceCalculation)Intensity(
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
+func (b basicSurfaceCalculation)OneRMEstimation(ms *db.ModelState) float64 {
+    tl:=db.TrainingLog{
+        Sets: 1, Reps: 1,
+        Effort: 10,
+        InterWorkoutFatigue: 0,
+        InterExerciseFatigue: 0,
+    };
+    return b.Intensity(ms,&tl);
+}
+
 func (b basicSurfaceCalculation)Effort(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {

@@ -282,8 +282,6 @@ func (s *SlidingWindowStateGen)updateModel(d *dataPoint){
 
 func (s *SlidingWindowStateGen)setWithinWindowLimits(
         missingDataTime stdTime.Time){
-    //fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.A));
-    //fmt.Println(missingDataTime.AddDate(0 ,0, s.windowLimits.B));
     s.withinWindowLimits=timeUtil.Between(
         missingDataTime.AddDate(0, 0, s.windowLimits.A),
         missingDataTime.AddDate(0, 0, s.windowLimits.B),

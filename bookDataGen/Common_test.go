@@ -99,6 +99,6 @@ func uploadTestData() error {
 }
 
 func teardown(){
-    testDB.ResetDB();
+    //testDB.ResetDB();
     testDB.Close();
 }

@@ -4,6 +4,7 @@ import (
     "fmt"
     "time"
     "testing"
+    stdMath "math"
 	"github.com/barbell-math/block/db"
 	"github.com/barbell-math/block/util/dataStruct"
 	"github.com/barbell-math/block/util/io/csv"
@@ -11,6 +12,7 @@ import (
 	math "github.com/barbell-math/block/util/math/numeric"
 	potSurf "github.com/barbell-math/block/model/potentialSurface"
     stateGen "github.com/barbell-math/block/model/stateGenerator" 
+    "github.com/barbell-math/block/model" 
 )
 
 func TestBook_GenerateSlidingWindowData(t *testing.T) {
@@ -28,16 +30,87 @@ func TestBook_GenerateSlidingWindowData(t *testing.T) {
             potSurf.NewVolumeBaseSurface().ToGenericSurf(),
         };
     });
+    db.ReadAll[db.TrainingLog](&testDB).ForEach(
+    func(index int, val *db.TrainingLog) (iter.IteratorFeedback, error) {
+        if pred,err:=model.GeneratePrediction(&testDB,
+            val,
+            stateGen.SlidingWindowStateGenId,
+            potSurf.BasicSurfaceId,
+        ); err==nil {
+            db.Create(&testDB,pred);
+        }
+        return iter.Continue,nil;
+    });
 }
 
-func TestBook_SaveSlidingWindow(t *testing.T) {
+func TestBook_SaveGeneratedData(t *testing.T) {
     csv.Flatten(csv.StructToCSV(iter.Map(db.CustomReadQuery[db.ModelState](&testDB,
-        "SELECT * FROM ModelState ORDER BY Date;", []any{},
+        fmt.Sprintf(`SELECT * 
+            FROM ModelState 
+            WHERE StateGeneratorID=%d 
+                AND ClientID=%d 
+            ORDER BY Date;`,
+        stateGen.SlidingWindowStateGenId,1),
+        []any{},
     ),func(index int, val *db.ModelState) (db.ModelState, error) {
         return *val,nil;
     }),true,"01/02/2006"),",").ToFile(
         "../../data/generatedData/Client1.ms.csv",true,
     );
+    csv.Flatten(csv.StructToCSV(iter.Map(db.CustomReadQuery[db.Prediction](&testDB,
+        fmt.Sprintf(`SELECT Prediction.*
+            FROM Prediction 
+            JOIN TrainingLog 
+            ON TrainingLog.Id=Prediction.TrainingLogID
+            WHERE StateGeneratorID=%d 
+                AND ClientID=%d 
+            ORDER BY DatePerformed;`,
+        stateGen.SlidingWindowStateGenId,1),
+        []any{},
+    ),func(index int, val *db.Prediction) (db.Prediction, error) {
+        return *val,nil;
+    }),true,"01/02/2006"),",").ToFile(
+        "../../data/generatedData/Client1.pred.csv",true,
+    );
+}
+
+func TestBook_SaveSlidingWindowBasicSurfaceEstimated1RM(t *testing.T){
+    type temp struct {
+        DatePerformed time.Time;
+        Exercise string;
+        IntensityPred float32;
+        Intensity float32;
+        Difference float32;
+    };
+    err:=csv.Flatten(csv.StructToCSV(iter.Map(db.CustomReadQuery[temp](&testDB,
+        fmt.Sprintf(`SELECT 
+                TrainingLog.DatePerformed,
+                Exercise.Name,
+                Prediction.IntensityPred,
+                TrainingLog.Intensity,
+                0.0 AS Difference
+            FROM Prediction 
+            JOIN TrainingLog 
+            ON TrainingLog.Id=Prediction.TrainingLogID
+            JOIN Exercise
+            ON TrainingLog.ExerciseID=Exercise.Id
+            WHERE StateGeneratorID=%d
+                AND PotentialSurfaceID=%d
+                AND ClientID=%d 
+                AND Sets=1
+                AND Reps=1
+                AND Effort=10
+                AND Intensity>0
+            ORDER BY DatePerformed;`,
+        stateGen.SlidingWindowStateGenId,potSurf.BasicSurfaceId,1),
+        []any{},
+    ),func(index int, val *temp) (temp, error) {
+        val.Difference=float32(stdMath.Abs(float64(val.Intensity-val.IntensityPred)));
+        return *val,nil;
+    }),true,"01/02/2006"),",").ToFile(
+        "../../data/generatedData/Client1.1RMPred.slidingWindow.basic.csv",true,
+    );
+    fmt.Println(err);
 }
 
 //func TestBook_SaveVolumeSkew(t *testing.T){

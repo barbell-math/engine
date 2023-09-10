@@ -31,6 +31,17 @@ func (v volumeBaseSurfacePrediction)Intensity(
         ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort));
 }
 
+func (v volumeBaseSurfacePrediction)OneRMEstimation(ms *db.ModelState) float64 {
+    tl:=db.TrainingLog{
+        Sets: 1, Reps: 1,
+        Effort: 10,
+        InterWorkoutFatigue: 0,
+        InterExerciseFatigue: 0,
+    };
+    return v.Intensity(ms,&tl);
+}
+
+
 func (v volumeBaseSurfacePrediction)Effort(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {

@@ -132,6 +132,7 @@ func generateModelStateHelper(scenarioName string,
 
 func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
     initialDate:=time.Time{};
+    baseTime=baseTime.AddDate(0,0,1);
     err:=log.LogElems(SLIDING_WINDOW_DP_DEBUG).Filter(
     func(index int, val log.LogEntry[*dataPoint]) bool {
         return val.Message=="DataPoint";
@@ -140,7 +141,9 @@ func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
         status iter.IteratorFeedback,
     ) (iter.IteratorFeedback, log.LogEntry[*dataPoint], error) {
         if status!=iter.Break {
-            test.BasicTest(true,val.Val.DatePerformed.Before(baseTime),
+            test.BasicTest(
+                true,
+                val.Val.DatePerformed.Before(baseTime),
                 "Window values occurred at or after the current time! (Implies generated data is no longer a prediction!!)",t,
             );
         }
@@ -170,6 +173,7 @@ func runWindowDataPointDebugLogTests(baseTime time.Time,
         numWindowVals int,
         t *testing.T){
     initialDate:=time.Time{};
+    baseTime=baseTime.AddDate(0,0,1);
     cnt,err:=log.LogElems(SLIDING_WINDOW_DP_DEBUG).Filter(
     func(index int, val log.LogEntry[*dataPoint]) bool {
         return val.Message=="WindowDataPoint";
@@ -179,15 +183,15 @@ func runWindowDataPointDebugLogTests(baseTime time.Time,
     ) (iter.IteratorFeedback, log.LogEntry[*dataPoint], error) {
         if status!=iter.Break {
             test.BasicTest(true,
-                val.Val.DatePerformed.After(baseTime.AddDate(0, 0, -window.B)),
+                val.Val.DatePerformed.After(baseTime.AddDate(0, 0, -window.B-1)),
                 "Window value is not after oldest allowed window value.",t,
             );
             test.BasicTest(true,
                 val.Val.DatePerformed.Before(baseTime.AddDate(0, 0, -window.A)),
-                "Window value is not after oldest allowed window value.",t,
+                "Window value is not before earliest allowed window value.",t,
             );
             test.BasicTest(true,val.Val.DatePerformed.Before(baseTime),
-                "Window values occurred at or before the current time! (Implies generated data is no longer a prediction!!)",t,
+                "Window values occurred after the current time! (Implies generated data is no longer a prediction!!)",t,
             );
         }
         return iter.Continue,val,nil;
