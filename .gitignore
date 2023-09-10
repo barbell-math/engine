@@ -3,4 +3,4 @@
 *.o
 *.db
 dbEnv.sh
-tex/build
+count.out
