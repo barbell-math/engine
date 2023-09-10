@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"reflect"
 
-	"github.com/barbell-math/block/util/algo"
-	"github.com/barbell-math/block/util/algo/iter"
-	customReflect "github.com/barbell-math/block/util/reflect"
+	"github.com/barbell-math/engine/util/algo"
+	"github.com/barbell-math/engine/util/algo/iter"
+	customReflect "github.com/barbell-math/engine/util/reflect"
 )
 
 func OnlyIDFilter(col string) bool { return col=="Id"; }

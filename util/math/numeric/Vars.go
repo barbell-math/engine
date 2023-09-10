@@ -1,6 +1,6 @@
 package numeric
 
-import "github.com/barbell-math/block/util/math"
+import "github.com/barbell-math/engine/util/math"
 
 type Vars[N math.Number] map[string]N;
 

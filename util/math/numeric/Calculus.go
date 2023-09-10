@@ -1,8 +1,8 @@
 package numeric
 
 import (
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/math"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/math"
 )
 
 func Derivative[N math.SignedNumer](f func(x N) N, h N) func(x N) N {

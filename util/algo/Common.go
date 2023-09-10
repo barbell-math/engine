@@ -2,8 +2,8 @@ package algo;
 
 import (
 	"fmt"
-	"github.com/barbell-math/block/util/algo/iter"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/util/algo/iter"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 func SlicesEqual[T comparable](one []T, two []T) bool {

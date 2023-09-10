@@ -7,8 +7,8 @@ import (
     "sync"
     "io/ioutil"
     "encoding/json"
-    customIO "github.com/barbell-math/block/util/io"
-    customerr "github.com/barbell-math/block/util/err"
+    customIO "github.com/barbell-math/engine/util/io"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 var mu sync.Mutex;

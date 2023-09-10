@@ -2,7 +2,7 @@ package iter;
 
 import (
 //    "fmt"
-    customerr "github.com/barbell-math/block/util/err"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 //ForEach is the only true consumer, all other consumers can be expressed using

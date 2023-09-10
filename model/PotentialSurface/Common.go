@@ -1,6 +1,6 @@
 package potentialSurface
 
-import "github.com/barbell-math/block/db"
+import "github.com/barbell-math/engine/db"
 
 type PotentialSurfaceId int;
 // SQL serial values default to starting at 1

@@ -2,7 +2,7 @@ package symbolic;
 
 import (
     "fmt"
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type Vars[N math.Number] map[string]Symbol[N];

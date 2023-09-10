@@ -3,10 +3,10 @@ package dataStruct
 import (
 	"testing"
 
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/dataStruct/types"
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/dataStruct/types"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func TestNewCircularQueue(t *testing.T) {

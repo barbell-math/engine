@@ -1,4 +1,4 @@
-module github.com/barbell-math/block
+module github.com/barbell-math/engine
 
 go 1.18
 

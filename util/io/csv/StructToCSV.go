@@ -6,8 +6,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/reflect"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/reflect"
 )
 
 func StructToCSV[R any](elems iter.Iter[R],

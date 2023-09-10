@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/test"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func TestCreateBufferedCreate(t *testing.T) {

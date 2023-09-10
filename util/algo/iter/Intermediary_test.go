@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/barbell-math/block/util/test"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/util/test"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 func TestNext(t *testing.T){

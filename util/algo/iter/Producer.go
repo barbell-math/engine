@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/barbell-math/block/util/dataStruct/types"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/util/dataStruct/types"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 func NoElem[T any]() Iter[T] {

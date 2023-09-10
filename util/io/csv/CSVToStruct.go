@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/barbell-math/block/util/reflect"
-	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/engine/util/reflect"
+	"github.com/barbell-math/engine/util/algo/iter"
 )
 
 //Only basic types are supported through the CSV interface (which mirrors the

@@ -3,7 +3,7 @@ package reflect;
 import (
     "fmt"
     stdReflect "reflect"
-    "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/engine/util/algo"
 )
 
 func GetStructName[S any](s *S) (string,error) {

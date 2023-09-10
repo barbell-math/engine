@@ -3,9 +3,9 @@ package potentialSurface
 import (
 	stdMath "math"
 
-	"github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/dataStruct"
-	mathUtil "github.com/barbell-math/block/util/math/numeric"
+	"github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/dataStruct"
+	mathUtil "github.com/barbell-math/engine/util/math/numeric"
 )
 
 //The basic surface follows the following equation:

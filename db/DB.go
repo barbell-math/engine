@@ -6,9 +6,9 @@ import (
     "bufio"
     "strings"
     "database/sql"
-    "github.com/barbell-math/block/settings"
-    customio "github.com/barbell-math/block/util/io"
-    customerr "github.com/barbell-math/block/util/err"
+    "github.com/barbell-math/engine/settings"
+    customio "github.com/barbell-math/engine/util/io"
+    customerr "github.com/barbell-math/engine/util/err"
 
     _ "github.com/lib/pq"
 )

@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func collectIterHelper[T any](vals []T, t *testing.T){

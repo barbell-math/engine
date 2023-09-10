@@ -1,7 +1,7 @@
 package reflect;
 
 import (
-    customerr "github.com/barbell-math/block/util/err"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 var NonStructValue,IsNonStructValue=customerr.ErrorFactory(

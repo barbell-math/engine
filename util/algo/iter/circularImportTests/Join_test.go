@@ -2,10 +2,10 @@ package circularImportTests;
 
 import (
     "testing"
-	"github.com/barbell-math/block/util/dataStruct/types"
-	"github.com/barbell-math/block/util/dataStruct"
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/dataStruct/types"
+	"github.com/barbell-math/engine/util/dataStruct"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/test"
 )
 
 

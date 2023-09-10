@@ -3,7 +3,7 @@ package iter;
 import (
     "fmt"
     "testing"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/util/test"
 )
 
 func valElemIterHelper[T any](val T, err error, r int, t *testing.T){

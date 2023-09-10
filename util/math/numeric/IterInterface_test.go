@@ -2,9 +2,9 @@ package numeric;
 
 import (
     "testing"
-	"github.com/barbell-math/block/util/math"
-	"github.com/barbell-math/block/util/test"
-	"github.com/barbell-math/block/util/algo/iter"
+	"github.com/barbell-math/engine/util/math"
+	"github.com/barbell-math/engine/util/test"
+	"github.com/barbell-math/engine/util/algo/iter"
 )
 
 func TestIterInterfaceAdd(t *testing.T){

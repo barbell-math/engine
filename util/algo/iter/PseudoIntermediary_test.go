@@ -3,9 +3,9 @@ package iter
 import (
     "fmt"
     "testing"
-    "github.com/barbell-math/block/util/test"
-    //"github.com/barbell-math/block/util/dataStruct"
-    //"github.com/barbell-math/block/util/dataStruct/types"
+    "github.com/barbell-math/engine/util/test"
+    //"github.com/barbell-math/engine/util/dataStruct"
+    //"github.com/barbell-math/engine/util/dataStruct/types"
 )
 
 func TestTake(t *testing.T) {

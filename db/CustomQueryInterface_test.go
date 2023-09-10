@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/barbell-math/block/util/algo/iter"
-	customReflect "github.com/barbell-math/block/util/reflect"
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/algo/iter"
+	customReflect "github.com/barbell-math/engine/util/reflect"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func TestCustomReadQueryWrongQueryType(t *testing.T){

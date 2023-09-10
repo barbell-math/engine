@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func TestDerivativeHorizontalLine(t *testing.T) {

@@ -2,8 +2,8 @@ package dataStruct;
 
 import (
 	"fmt"
-	"github.com/barbell-math/block/util/algo/iter"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/util/algo/iter"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 type CircularQueue[T any] struct {

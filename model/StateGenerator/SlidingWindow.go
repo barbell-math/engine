@@ -6,13 +6,13 @@ import (
 	stdMath "math"
 	stdTime "time"
 
-	"github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/dataStruct"
-	mathUtil "github.com/barbell-math/block/util/math/numeric"
-	timeUtil "github.com/barbell-math/block/util/time"
-	potSurf "github.com/barbell-math/block/model/potentialSurface"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/dataStruct"
+	mathUtil "github.com/barbell-math/engine/util/math/numeric"
+	timeUtil "github.com/barbell-math/engine/util/time"
+	potSurf "github.com/barbell-math/engine/model/potentialSurface"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 type SlidingWindowStateGen struct {

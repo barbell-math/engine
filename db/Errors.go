@@ -2,7 +2,7 @@ package db;
 
 import (
     "errors"
-    customerr "github.com/barbell-math/block/util/err"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 var DataVersionNotAvailable=errors.New("Data version could not be selected.");

@@ -3,8 +3,8 @@ package symbolic
 import (
 	"fmt"
 
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/math"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type EuclideanVector[N math.Number] []Symbol[N];

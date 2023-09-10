@@ -5,14 +5,14 @@ import (
     "time"
     "testing"
     stdMath "math"
-	"github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/dataStruct"
-	"github.com/barbell-math/block/util/io/csv"
-	"github.com/barbell-math/block/util/algo/iter"
-	math "github.com/barbell-math/block/util/math/numeric"
-	potSurf "github.com/barbell-math/block/model/potentialSurface"
-    stateGen "github.com/barbell-math/block/model/stateGenerator" 
-    "github.com/barbell-math/block/model" 
+	"github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/dataStruct"
+	"github.com/barbell-math/engine/util/io/csv"
+	"github.com/barbell-math/engine/util/algo/iter"
+	math "github.com/barbell-math/engine/util/math/numeric"
+	potSurf "github.com/barbell-math/engine/model/potentialSurface"
+    stateGen "github.com/barbell-math/engine/model/stateGenerator" 
+    "github.com/barbell-math/engine/model" 
 )
 
 func TestBook_GenerateSlidingWindowData(t *testing.T) {

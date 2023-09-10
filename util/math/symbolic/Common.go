@@ -1,7 +1,7 @@
 package symbolic
 
 import (
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type Symbol[N math.Number] interface {

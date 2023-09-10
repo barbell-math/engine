@@ -3,8 +3,8 @@ package dataStruct
 import (
 	"testing"
 
-	"github.com/barbell-math/block/util/dataStruct/types"
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/util/dataStruct/types"
+	"github.com/barbell-math/engine/util/test"
 )
 
 func TestVariantA(t *testing.T){

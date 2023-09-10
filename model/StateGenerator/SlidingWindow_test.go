@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/dataStruct"
-	"github.com/barbell-math/block/util/io/log"
-	"github.com/barbell-math/block/util/test"
-	potSurf "github.com/barbell-math/block/model/potentialSurface"
-	customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/dataStruct"
+	"github.com/barbell-math/engine/util/io/log"
+	"github.com/barbell-math/engine/util/test"
+	potSurf "github.com/barbell-math/engine/model/potentialSurface"
+	customerr "github.com/barbell-math/engine/util/err"
 )
 
 func invalidCheck(slidingWindowSg SlidingWindowStateGen, err error) (func(t *testing.T)){

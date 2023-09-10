@@ -3,8 +3,8 @@ package numeric
 import (
 	"testing"
 
-	"github.com/barbell-math/block/util/test"
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/test"
+	"github.com/barbell-math/engine/util/math"
 )
 
 func TestCreateMatrix(t *testing.T){

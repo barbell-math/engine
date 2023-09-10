@@ -1,6 +1,6 @@
 package symbolic
 
-import "github.com/barbell-math/block/util/math"
+import "github.com/barbell-math/engine/util/math"
 
 type PolarVector[N math.Number] []Symbol[N];
 

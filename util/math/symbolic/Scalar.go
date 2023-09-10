@@ -1,7 +1,7 @@
 package symbolic
 
 import (
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type Scalar[N math.Number] struct { v N };

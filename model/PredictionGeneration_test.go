@@ -4,8 +4,8 @@ import (
     "time"
     "testing"
     "database/sql"
-    "github.com/barbell-math/block/db"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/db"
+    "github.com/barbell-math/engine/util/test"
 )
 
 const TEST_SG_NAME string="TestSG";

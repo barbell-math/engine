@@ -5,9 +5,9 @@ import (
     "time"
     "database/sql"
     "testing"
-    "github.com/barbell-math/block/util/test"
-    "github.com/barbell-math/block/util/algo"
-    "github.com/barbell-math/block/util/algo/iter"
+    "github.com/barbell-math/engine/util/test"
+    "github.com/barbell-math/engine/util/algo"
+    "github.com/barbell-math/engine/util/algo/iter"
 )
 
 func createTestHelper[R DBTable](

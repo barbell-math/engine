@@ -2,8 +2,8 @@ package iter;
 
 import (
 	"testing"
-	"github.com/barbell-math/block/util/test"
-    customerr "github.com/barbell-math/block/util/err"
+	"github.com/barbell-math/engine/util/test"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 func parallelIterHelper(vals []int, numThreads int, t *testing.T){

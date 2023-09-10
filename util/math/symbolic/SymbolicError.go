@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type SymbolicError[N math.Number] struct { error; }

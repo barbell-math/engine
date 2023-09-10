@@ -2,10 +2,10 @@ package stateGenerator
 
 import (
     "time"
-    "github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/dataStruct"
-    logUtil "github.com/barbell-math/block/util/io/log"
-	potSurf "github.com/barbell-math/block/model/potentialSurface"
+    "github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/dataStruct"
+    logUtil "github.com/barbell-math/engine/util/io/log"
+	potSurf "github.com/barbell-math/engine/model/potentialSurface"
 )
 
 type StateGeneratorId int;

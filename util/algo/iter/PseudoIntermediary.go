@@ -1,7 +1,7 @@
 package iter;
 
 import (
-	"github.com/barbell-math/block/util/dataStruct/types"
+	"github.com/barbell-math/engine/util/dataStruct/types"
 )
 
 func (i Iter[T])Take(num int) Iter[T] {

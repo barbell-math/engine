@@ -1,7 +1,7 @@
 package dataStruct;
 
 import (
-    customerr "github.com/barbell-math/block/util/err"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 var QueueFull,IsQueueFull=customerr.ErrorFactory(

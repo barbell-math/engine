@@ -1,7 +1,7 @@
 package model;
 
 import (
-    "github.com/barbell-math/block/db"
+    "github.com/barbell-math/engine/db"
 )
 
 func nearestModelStateToExerciseQuery(tl *db.TrainingLog) string {

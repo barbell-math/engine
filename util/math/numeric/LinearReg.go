@@ -3,7 +3,7 @@ package numeric
 import (
 	"fmt"
 
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/math"
 )
 
 //A summation op is the function that is associated with a variable

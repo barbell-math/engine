@@ -2,7 +2,7 @@ package settings;
 
 import (
     "testing"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/util/test"
 )
 
 func TestReadSettings(t *testing.T){

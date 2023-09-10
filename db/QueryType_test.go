@@ -2,7 +2,7 @@ package db;
 
 import (
     "testing"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/util/test"
 )
 
 func TestQueryToString(t *testing.T){

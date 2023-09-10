@@ -3,10 +3,10 @@ package numeric
 import (
 	stdMath "math"
 
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/dataStruct"
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/dataStruct"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/math"
 )
 
 const WORKING_PRECISION float64=1e-16;

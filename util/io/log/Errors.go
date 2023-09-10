@@ -1,7 +1,7 @@
 package log;
 
 import (
-    customerr "github.com/barbell-math/block/util/err"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 var LogFileNotSpecified,IsLogFileNotSpecified=customerr.ErrorFactory(

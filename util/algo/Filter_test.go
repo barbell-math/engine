@@ -2,7 +2,7 @@ package algo;
 
 import (
     "testing"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/util/test"
 )
 
 var testVals []string=[]string{

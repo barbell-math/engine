@@ -3,8 +3,8 @@ package numeric
 import (
 	"fmt"
 
-	customerr "github.com/barbell-math/block/util/err"
-	"github.com/barbell-math/block/util/math"
+	customerr "github.com/barbell-math/engine/util/err"
+	"github.com/barbell-math/engine/util/math"
 )
 
 type Matrix[N math.Number] struct {

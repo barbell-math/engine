@@ -2,7 +2,7 @@ package numeric;
 
 import (
     "fmt"
-    "github.com/barbell-math/block/util/math"
+    "github.com/barbell-math/engine/util/math"
 )
 
 func Add[N math.Number](accum *N, iter N) error { 

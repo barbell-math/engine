@@ -2,8 +2,8 @@ package reflect;
 
 import (
     "testing"
-    "github.com/barbell-math/block/util/test"
-    "github.com/barbell-math/block/util/algo"
+    "github.com/barbell-math/engine/util/test"
+    "github.com/barbell-math/engine/util/algo"
 )
 
 type testStruct struct {

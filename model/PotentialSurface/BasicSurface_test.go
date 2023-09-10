@@ -4,8 +4,8 @@ import (
 	"testing"
     stdMath "math"
 
-	"github.com/barbell-math/block/db"
-	"github.com/barbell-math/block/util/test"
+	"github.com/barbell-math/engine/db"
+	"github.com/barbell-math/engine/util/test"
 )
 
 //All seemingly magic numbers come from: https://www.desmos.com/calculator/9zxa3zuum0

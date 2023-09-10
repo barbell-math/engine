@@ -3,8 +3,8 @@ package db;
 import (
     "fmt"
     "testing"
-    "github.com/barbell-math/block/settings"
-    "github.com/barbell-math/block/util/test"
+    "github.com/barbell-math/engine/settings"
+    "github.com/barbell-math/engine/util/test"
 )
 
 var testDB DB;

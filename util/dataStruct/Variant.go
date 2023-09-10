@@ -1,7 +1,7 @@
 package dataStruct;
 
 import (
-	"github.com/barbell-math/block/util/dataStruct/types"
+	"github.com/barbell-math/engine/util/dataStruct/types"
 )
 
 type VariantFlag int;

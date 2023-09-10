@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/barbell-math/block/util/algo/iter"
-	"github.com/barbell-math/block/util/io/csv"
-	"github.com/barbell-math/block/util/test"
-	"github.com/barbell-math/block/util/math"
+	"github.com/barbell-math/engine/util/algo/iter"
+	"github.com/barbell-math/engine/util/io/csv"
+	"github.com/barbell-math/engine/util/test"
+	"github.com/barbell-math/engine/util/math"
 )
 
 func TestCreateLinReg(t *testing.T){

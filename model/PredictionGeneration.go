@@ -1,9 +1,9 @@
 package model;
 
 import (
-    "github.com/barbell-math/block/db"
-    potSurf "github.com/barbell-math/block/model/potentialSurface"
-    stateGen "github.com/barbell-math/block/model/stateGenerator"
+    "github.com/barbell-math/engine/db"
+    potSurf "github.com/barbell-math/engine/model/potentialSurface"
+    stateGen "github.com/barbell-math/engine/model/stateGenerator"
 )
 
 //Given a set of values to use when making the prediction, the closest model

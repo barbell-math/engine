@@ -3,8 +3,8 @@ package db;
 import (
     "time"
     "database/sql"
-    "github.com/barbell-math/block/util/algo"
-    customerr "github.com/barbell-math/block/util/err"
+    "github.com/barbell-math/engine/util/algo"
+    customerr "github.com/barbell-math/engine/util/err"
 )
 
 // func GetById[R DBTable](c *DB, id int) (R,error) {
