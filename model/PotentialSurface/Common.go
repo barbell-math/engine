@@ -19,7 +19,6 @@ func CalculationsFromSurfaceId(id PotentialSurfaceId) Calculations {
 
 type Calculations interface {
     Intensity(ms *db.ModelState, tl *db.TrainingLog) float64;
-    OneRMEstimation(ms *db.ModelState) float64;
     Effort(ms *db.ModelState, tl *db.TrainingLog) float64;
     Sets(ms *db.ModelState, tl *db.TrainingLog) float64;
     Reps(ms *db.ModelState, tl *db.TrainingLog) float64;

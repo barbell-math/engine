@@ -63,7 +63,7 @@ func TestNewSlidingWindowConstrainedThreadAllocation(t *testing.T){
 }
 
 func TestNoDataForModelState(t *testing.T){
-    baseTime,_:=time.Parse("01/02/2006","09/10/2022");
+    baseTime,_:=time.Parse("01/02/2006","09/09/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 1};
     _,err:=generateModelStateHelper("noWinData",baseTime,timeFrame,window,0,t);
@@ -76,13 +76,14 @@ func TestNoDataForModelState(t *testing.T){
 
 func TestGenerateModelStateScenario1(t *testing.T){
     //Window limits: 8/31/2022-9/10/2022
-    //Looking at the data there are three deadlift entries in that time span:
+    //Looking at the data there are four deadlift entries in that time span:
     //  - Two on 9/1/2022
     //  - One on 9/7/2022
+    //  - One on 9/10/2022
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 0, B: 500};
     window:=dataStruct.Pair[int,int]{A: 0, B: 10};
-    _,err:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,3,t);
+    _,err:=generateModelStateHelper("scenario1",baseTime,timeFrame,window,4,t);
     test.BasicTest(nil,err,
         "Running the sliding window model state generator returned an error when it shouldn't have.",t,
     );
@@ -90,7 +91,7 @@ func TestGenerateModelStateScenario1(t *testing.T){
 
 func TestGenerateModelStateScenario2(t *testing.T){
     //Window limits: 8/31/2022-9/5/2022
-    //Looking at the data there are two deadlift entries in that time span:
+    //Looking at the data there are three deadlift entries in that time span:
     //  - Two on 9/1/2022
     baseTime,_:=time.Parse("01/02/2006","09/10/2022");
     timeFrame:=dataStruct.Pair[int,int]{A: 4, B: 500};
@@ -119,15 +120,20 @@ func generateModelStateHelper(scenarioName string,
     s:=[]potSurf.Surface{potSurf.NewBasicSurface().ToGenericSurf()};
     ms,err:=sw.GenerateModelState(&testDB,s,&missingData);
     closeLogs();
-    runModelStateDebugLogTests(baseTime,
-        missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
-        timeFrame,window,
-        ms[0].Mse,potSurf.BasicSurfaceCalculation.Stability(&ms[0]),
-        t,
-    );
+    if len(ms)>0 {
+        runModelStateDebugLogTests(baseTime,
+            missingData.ClientID,missingData.ExerciseID,int(SlidingWindowStateGenId),
+            timeFrame,window,
+            ms[0].Mse,potSurf.BasicSurfaceCalculation.Stability(&ms[0]),
+            t,
+        );
+    }
     runDataPointDebugLogTests(baseTime,t);
     runWindowDataPointDebugLogTests(baseTime,window,numWindowVals,t);
-    return ms[0],err;
+    if len(ms)>0 {
+        return ms[0],err;
+    }
+    return db.ModelState{},err;
 }
 
 func runDataPointDebugLogTests(baseTime time.Time, t *testing.T){
