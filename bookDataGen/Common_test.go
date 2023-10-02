@@ -44,56 +44,56 @@ func uploadTestData() error {
                 "../../data/testData/ClientTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.Client) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         }, func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.StateGenerator](csv.CSVFileSplitter(
                 "../../data/testData/StateGeneratorTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.StateGenerator) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         }, func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.ExerciseType](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseTypeTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.ExerciseType) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.ExerciseFocus](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseFocusTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.ExerciseFocus) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.Exercise](csv.CSVFileSplitter(
                 "../../data/testData/ExerciseTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.Exercise) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.Rotation](csv.CSVFileSplitter(
                 "../../data/testData/RotationTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.Rotation) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
         },func(r ...any) (any,error) {
             return nil,csv.CSVToStruct[db.TrainingLog](csv.CSVFileSplitter(
                 "../../data/testData/AugmentedTrainingLogTestData.csv",',','#',
             ),"1/2/2006").ForEach(
             func(index int, val db.TrainingLog) (iter.IteratorFeedback, error) {
-                db.Create(&testDB,val);
-                return iter.Continue,nil;
+                _,err:=db.Create(&testDB,val);
+                return iter.Continue,err;
             });
     });
 }

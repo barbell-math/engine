@@ -317,7 +317,7 @@ func generateAllModelStatesHelper(scenarioName string,
         "./debugLogs/SlidingWindowStateGenerator.%s",scenarioName,
     ),MS_PARALLEL_RESULT_DEBUG);
     sw,_:=NewSlidingWindowStateGen(timeFrame,window,numThreads);
-    c,_:=db.GetClientByEmail(&testDB,"testing@testing.com")
+    c,_:=db.GetClientByEmail(&testDB,"one")
     // Earilest data point is 8/10/2021, this date is small enough to get all values
     sw.GenerateClientModelStates(&testDB,c,time.Date(
         2020,time.Month(1),1,0,0,0,0,time.UTC,

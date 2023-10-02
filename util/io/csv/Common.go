@@ -50,7 +50,9 @@ func CSVFileSplitter(src string, delim rune, comment rune) iter.Iter[[]string] {
         reader=csv.NewReader(file);
         reader.Comma=delim;
         reader.Comment=comment;
-    }
+    } else {
+        return iter.ValElem([]string{},err,1);
+    };
     return func(f iter.IteratorFeedback) ([]string, error, bool) {
         if f==iter.Break || err!=nil {
             file.Close();
