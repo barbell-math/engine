@@ -9,7 +9,7 @@ import (
 	"github.com/barbell-math/engine/util/dataStruct"
 	"github.com/barbell-math/engine/util/io/csv"
 	"github.com/barbell-math/engine/util/algo/iter"
-	//math "github.com/barbell-math/engine/util/math/numeric"
+	math "github.com/barbell-math/engine/util/math/numeric"
 	potSurf "github.com/barbell-math/engine/model/potentialSurface"
     stateGen "github.com/barbell-math/engine/model/stateGenerator" 
     "github.com/barbell-math/engine/model" 
