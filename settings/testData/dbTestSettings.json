@@ -11,6 +11,11 @@
     "setupData": {
         "exerciseFocusInit": "testData/dummyFile.txt",
         "exerciseTypeInit": "testData/dummyFile.txt",
-        "exerciseInit": "testData/dummyFile.txt"
+        "exerciseInit": "testData/dummyFile.txt",
+        "clientInit": "testData/dummyFile.txt",
+        "stateGeneratorInit": "testData/dummyFile.txt",
+        "potentialSurfaceInit": "testData/dummyFile.txt",
+        "rotationInit": "testData/dummyFile.txt",
+        "trainingLogInit": "testData/dummyFile.txt"
     }
 }

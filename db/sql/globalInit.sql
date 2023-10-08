@@ -110,7 +110,8 @@ CREATE TABLE ModelState (
     Mse FLOAT NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES Client(Id),
     FOREIGN KEY (ExerciseID) REFERENCES Exercise(Id),
-    FOREIGN KEY (StateGeneratorID) REFERENCES StateGenerator(Id)
+    FOREIGN KEY (StateGeneratorID) REFERENCES StateGenerator(Id),
+    FOREIGN KEY (PotentialSurfaceID) REFERENCES PotentialSurface(Id)
 );
 
 CREATE TABLE Prediction (

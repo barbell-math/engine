@@ -111,6 +111,24 @@ func TestGetStateGeneratorByName(t *testing.T){
     }
 }
 
+func TestGetPotentialSurfaceByName(t *testing.T){
+    setup();
+    Create(&testDB,PotentialSurface{T: "TestingPotentialSurface"});
+    gen,err:=GetPotentialSurfaceByName(&testDB,"TestingPotentialSurface");
+    test.BasicTest(nil,err,
+        "Potential surface was not found when it should have been.",t,
+    );
+    if gen.Id<=0 {
+        test.FormatError(">0",gen.Id,"ID was not set appropriately.",t);
+    }
+    gen,err=GetPotentialSurfaceByName(&testDB,"NotAStateGenerator");
+    if err!=sql.ErrNoRows {
+        test.FormatError(nil,err,
+            "No error was generated when getting non-existent state generator.",t,
+        );
+    }
+}
+
 func TestInitClient(t *testing.T){
     setup();
     createExerciseTestData();
@@ -200,14 +218,19 @@ func TestRmClient(t *testing.T){
                 ClientID: 1, Weight: 148.0, Date: time.Now(),
             });
         }, func (r ...any) (any,error) {
-            return Create(&testDB,ModelState{
-                ClientID: 1, ExerciseID: 1, StateGeneratorID: 1,
-                Date: time.Now(), TimeFrame: 100,
-                Eps5: 1, Eps6: 1, Eps7: 1, Eps: 1, Eps2: 1, Eps3: 1,
-            });
-        }, func (r ...any) (any,error) {
             return Create(&testDB,StateGenerator{
                 T: "TestPredictor", Description: "TestDescription",
+            });
+        }, func (r ...any) (any,error) {
+            return Create(&testDB,PotentialSurface{
+                T: "PotSurf", Description: "PotSurf",
+            });
+        }, func (r ...any) (any,error) {
+            return Create(&testDB,ModelState{
+                ClientID: 1, ExerciseID: 1, 
+                StateGeneratorID: 1, PotentialSurfaceID: 1,
+                Date: time.Now(), TimeFrame: 100,
+                Eps5: 1, Eps6: 1, Eps7: 1, Eps: 1, Eps2: 1, Eps3: 1,
             });
         }, func (r ...any) (any,error) {
             return Create(&testDB,Prediction{

@@ -3,10 +3,10 @@
         "dataVersion": 0,
         "host": "localhost",
         "port": 5432,
-        "name": "dbTest"
+        "name": "modelTest"
     },
     "sqlScripts": {
-        "globalInit": "sql/globalInit.sql"
+        "globalInit": "../db/sql/globalInit.sql"
     },
     "setupData": {
         "exerciseFocusInit": "../../data/testData/ExerciseFocusTestData.csv",

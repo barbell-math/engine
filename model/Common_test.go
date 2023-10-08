@@ -1,11 +1,11 @@
-package bookDataGen;
+package model;
 
 import (
 	"testing"
 
 	"github.com/barbell-math/engine/db"
-	"github.com/barbell-math/engine/settings"
 	"github.com/barbell-math/engine/model/testSetup"
+	"github.com/barbell-math/engine/settings"
 )
 
 var testDB db.DB;

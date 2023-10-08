@@ -35,6 +35,10 @@ var GetStateGeneratorByName=getRowFromUniqueValGenerator(
     func(name string) (StateGenerator,string) {
         return StateGenerator{T: name},"T";
 });
+var GetPotentialSurfaceByName=getRowFromUniqueValGenerator(
+    func(name string) (PotentialSurface,string) {
+        return PotentialSurface{T: name},"T";
+});
 
 type ValGenerator[R DBTable, V any] func(data V) (R,string);
 type RowFromUniqueVal[R DBTable, V any] func(c *DB, data V) (R,error);
