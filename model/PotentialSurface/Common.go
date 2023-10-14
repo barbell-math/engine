@@ -1,6 +1,9 @@
 package potentialSurface
 
-import "github.com/barbell-math/engine/db"
+import (
+    "github.com/barbell-math/engine/db"
+	mathUtil "github.com/barbell-math/engine/util/math/numeric"
+)
 
 type PotentialSurfaceId int;
 // SQL serial values default to starting at 1
@@ -32,9 +35,9 @@ type Calculations interface {
 type Surface interface {
     Id() PotentialSurfaceId;
     Calculations() Calculations;
-    PredictIntensity(vals map[string]float64) (float64,error);
+    PredictIntensity(vals mathUtil.Vars[float64]) (float64,error);
     Run() (float64,error);
-    Update(vals map[string]float64) error;
+    Update(vals mathUtil.Vars[float64]) error;
     GetConstant(idx int) float64;
     Stability() int;
     ToGenericSurf() Surface;

@@ -201,13 +201,13 @@ func Test2DLinearRegWithError(t *testing.T){
 
 func TestNonStdLinearReg(t *testing.T){
     l:=NewLinearReg[float64]([]SummationOp[float64]{
-        func(vals map[string]float64) (float64,error) {
-            v1,_:=VarAcc(vals,"x1");
-            v2,_:=VarAcc(vals,"x2");
+        func(vals Vars[float64]) (float64,error) {
+            v1,_:=vals.Access("x1");
+            v2,_:=vals.Access("x2");
             return v1*v2,nil;
         },
-        func (vals map[string]float64) (float64,error) {
-            v1,_:=VarAcc(vals,"x2");
+        func (vals Vars[float64]) (float64,error) {
+            v1,_:=vals.Access("x2");
             return v1*v1,nil;
         },
     },LinearSummationOp[float64]("y"));

@@ -47,8 +47,14 @@ func (b *BufferedCreate[R])Flush(c *DB) error {
         bufPntr=&tmp;
     }
     added,err:=Create(c,*bufPntr...);
-    b.succeeded+=len(added);
-    b.failed+=(b.bufCntr-len(added));
+    succeeded:=0;
+    for _,v:=range(added) {
+        if v>0 {
+            succeeded+=1;
+        }
+    }
+    b.succeeded+=succeeded;
+    b.failed+=(b.bufCntr-succeeded);
     b.bufCntr-=len(*bufPntr);
     return err;
 }

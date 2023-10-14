@@ -8,11 +8,11 @@ import (
 	mathUtil "github.com/barbell-math/engine/util/math/numeric"
 )
 
-//The basic surface follows the following equation:
-//  I^2(F_tot+eps*E_tot)=E_tot
+//The volume base surface follows the following equation:
+//  I^2=eps+E_tot/F_tot
 // Where:
 //  E_tot=eps_1*E
-//  F_tot=1+eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
+//  F_tot=eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
 //This equation does not take into account latent fatigue, which makes it naive
 //because it does not consider the relationship between lifts across time.
 var VolumeBaseSurfacePrediction volumeBaseSurfacePrediction;
@@ -122,68 +122,68 @@ func NewVolumeBaseSurface() VolumeBaseSurface {
     return VolumeBaseSurface{
         LinearReg: mathUtil.NewLinearReg([]mathUtil.SummationOp[float64]{
             mathUtil.ConstSummationOp[float64](1),
-            func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
                 return 1/e,nil;
-            }, func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            }, func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
-                fw,err:=mathUtil.VarAcc(vals,"F_w");
+                fw,err:=vals.Access("F_w");
                 if err!=nil {
                     return 0,err;
                 }
                 return fw/e,nil;
-            }, func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            }, func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
-                fe,err:=mathUtil.VarAcc(vals,"F_e");
+                fe,err:=vals.Access("F_e");
                 if err!=nil {
                     return 0,err;
                 }
                 return fe/e,nil;
-            }, func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            }, func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
-                s,err:=mathUtil.VarAcc(vals,"S");
+                s,err:=vals.Access("S");
                 if err!=nil {
                     return 0,err;
                 }
-                r,err:=mathUtil.VarAcc(vals,"R");
+                r,err:=vals.Access("R");
                 if err!=nil {
                     return 0,err;
                 }
                 return stdMath.Pow(s-1,2)*stdMath.Pow(r-1,2)/e,nil;
-            }, func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            }, func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
-                s,err:=mathUtil.VarAcc(vals,"S");
+                s,err:=vals.Access("S");
                 if err!=nil {
                     return 0,err;
                 }
                 return stdMath.Pow(s-1,2)/e,nil;
-            }, func(vals map[string]float64) (float64, error) {
-                e,err:=mathUtil.VarAcc(vals,"E");
+            }, func(vals mathUtil.Vars[float64]) (float64, error) {
+                e,err:=vals.Access("E");
                 if err!=nil {
                     return 0,err;
                 }
-                r,err:=mathUtil.VarAcc(vals,"R");
+                r,err:=vals.Access("R");
                 if err!=nil {
                     return 0,err;
                 }
                 return stdMath.Pow(r-1,2)/e,nil;
-            }},func(vals map[string]float64) (float64,error) {
-                i,err:=mathUtil.VarAcc(vals,"I");
+            }},func(vals mathUtil.Vars[float64]) (float64,error) {
+                i,err:=vals.Access("I");
                 if err!=nil {
                     return 0,err;
                 }
@@ -198,7 +198,7 @@ func (v VolumeBaseSurface)ToGenericSurf() Surface { return &v; }
 func (v *VolumeBaseSurface)Id() PotentialSurfaceId { return VolumeBaseSurfaceId; }
 func (v *VolumeBaseSurface)Calculations() Calculations { return VolumeBaseSurfacePrediction; }
 
-func (v *VolumeBaseSurface)Update(vals map[string]float64) error {
+func (v *VolumeBaseSurface)Update(vals mathUtil.Vars[float64]) error {
     return v.UpdateSummations(vals);
 }
 
@@ -245,7 +245,7 @@ func (v *VolumeBaseSurface)imposeConstraints() {
 //     return tmp/v.LinRegResult.V[1][0];
 // }
 
-func (v *VolumeBaseSurface)PredictIntensity(vals map[string]float64) (float64,error) {
+func (v *VolumeBaseSurface)PredictIntensity(vals mathUtil.Vars[float64]) (float64,error) {
     tmp,err:=v.LinRegResult.Predict(vals);
     if err!=nil {
         return tmp,err;

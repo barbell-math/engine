@@ -56,7 +56,6 @@ func setupLogs(debugFile string, logFlags int) (func()) {
 
 func TestMain(m *testing.M){
     settings.ReadSettings("testData/testSettings.json");
-    fmt.Println(settings.DBName());
     testDB=testSetup.SetupDB();
     m.Run();
     testSetup.TeardownDB(&testDB);

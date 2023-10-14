@@ -47,7 +47,7 @@ func uploadFunc[R db.DBTable](testDB *db.DB, progressLineHeader string, fName st
     return func(index int, val R) (iter.IteratorFeedback, error) {
         _,err:=db.Create(testDB,val);
         fmt.Printf(
-            "%s (File: %s,Line: %d)\r",
+            "%s (File: %s, Line: %d)\r",
             progressLineHeader,
             fName,
             index+1,
@@ -71,9 +71,9 @@ func uploadTestData(testDB *db.DB, progressLineHeader string) error {
                 testDB,progressLineHeader,"StateGeneratorTestData",
             ));
         }, func(r ...any) (any,error) {
-            return nil,csv.CSVToStruct[db.StateGenerator](csv.CSVFileSplitter(
+            return nil,csv.CSVToStruct[db.PotentialSurface](csv.CSVFileSplitter(
                 settings.PotentialSurfaceInitData(),',','#',
-            ),"1/2/2006").ForEach(uploadFunc[db.StateGenerator](
+            ),"1/2/2006").ForEach(uploadFunc[db.PotentialSurface](
                 testDB,progressLineHeader,"PotentialSurfaceTestData",
             ));
         }, func(r ...any) (any,error) {

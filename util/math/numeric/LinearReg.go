@@ -1,8 +1,6 @@
 package numeric
 
 import (
-	"fmt"
-
 	"github.com/barbell-math/engine/util/math"
 )
 
@@ -16,31 +14,22 @@ import (
 //  It may help to think of linear reg as using the following generic form:
 //      y=b_1*f_1(x_1,x_2,...,x_n)+b_2*f_2(x_1,...,x_n)+...+b_n*f_n(x_1,...,x_n)
 //  Where each function f_n is a 'summation op'
-type SummationOp[N math.Number] func(vals map[string]N) (N,error);
+type SummationOp[N math.Number] func(vals Vars[N]) (N,error);
 func ConstSummationOp[N math.Number](v N) SummationOp[N] {
-    return func(vals map[string]N) (N,error){
+    return func(vals Vars[N]) (N,error){
         return v,nil;
     }
 }
 func LinearSummationOp[N math.Number](_var string) SummationOp[N] {
-    return func(vals map[string]N) (N,error){
-        return VarAcc[N](vals,_var);
+    return func(vals Vars[N]) (N,error){
+        return vals.Access(_var);
     }
 }
 func NegatedLinearSummationOp[N math.Number](_var string) SummationOp[N] {
-    return func(vals map[string]N) (N,error){
-        val,err:=VarAcc[N](vals,_var);
+    return func(vals Vars[N]) (N,error){
+        val,err:=vals.Access(_var);
         return -val,err;
     }
-}
-
-func VarAcc[N math.Number](vals map[string]N, _var string) (N,error){
-    if v,ok:=vals[_var]; ok {
-        return v,nil;
-    }
-    return N(0),math.MissingVariable(
-        fmt.Sprintf("Requested: %s Have: %v",_var,vals),
-    );
 }
 
 type SummationOpGen[N math.Number] func(
@@ -78,7 +67,7 @@ func LinearSumOpGenWithError[N math.Number](
 
 type LinRegResult[N math.Number] struct {
     Matrix[N];
-    Predict func(iVars map[string]N) (N,error);
+    Predict func(iVars Vars[N]) (N,error);
 };
 func (l *LinRegResult[N])GetConstant(i int) N {
     if i<l.Matrix.Rows() {
@@ -87,7 +76,7 @@ func (l *LinRegResult[N])GetConstant(i int) N {
     return N(0);
 }
 func (l *LinearReg[N])genLinRegPredict(r *LinRegResult[N]){
-    r.Predict=func(iVars map[string]N) (N,error) {
+    r.Predict=func(iVars Vars[N]) (N,error) {
         var err error;
         var rv,v N=N(0),N(0);
         for i:=0; err==nil && i<len(l.iVarOps); i++ {
@@ -136,7 +125,7 @@ func (l *LinearReg[N])populateSumOps(){
 }
 
 func (l *LinearReg[N])aSumOpGen(r int, c int) SummationOp[N] {
-    return func(vals map[string]N) (N,error) {
+    return func(vals Vars[N]) (N,error) {
         v1,err:=l.iVarOps[c](vals);
         if err!=nil {
             return 0, err;
@@ -150,7 +139,7 @@ func (l *LinearReg[N])aSumOpGen(r int, c int) SummationOp[N] {
 }
 
 func (l *LinearReg[N])bSumOpGen(r int, c int) SummationOp[N] {
-    return func(vals map[string]N) (N,error) {
+    return func(vals Vars[N]) (N,error) {
         v1,err:=l.dVarOp(vals);
         if err!=nil {
             return 0, err;
@@ -182,7 +171,7 @@ func (l *LinearReg[N])IterRHS(f func(r int, c int, v N)){
     l.b.Iter(f);
 }
 
-func (l *LinearReg[N])UpdateSummations(vals map[string]N) error {
+func (l *LinearReg[N])UpdateSummations(vals Vars[N]) error {
     for i,r:=range(l.summationOps) {
         for j,s:=range(r) {
             if v,err:=s(vals); err==nil {

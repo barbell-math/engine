@@ -1,13 +1,21 @@
 package numeric
 
-import "github.com/barbell-math/engine/util/math"
+import (
+    "fmt"
+    "github.com/barbell-math/engine/util/math"
+)
 
 type Vars[N math.Number] map[string]N;
 
 
-//func (v Vars[N])Access()  {
-//
-//}
+func (v Vars[N])Access(_var string) (N,error) {
+    if v,ok:=v[_var]; ok {
+        return v,nil;
+    }
+    return N(0),math.MissingVariable(
+        fmt.Sprintf("Requested: %s Have: %v",_var,v),
+    );
+}
 
 func (v Vars[N])Copy() Vars[N] {
     rv:=Vars[N](make(map[string]N,len(v)));

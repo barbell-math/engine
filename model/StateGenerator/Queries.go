@@ -9,7 +9,9 @@ func timeFrameQuery() string {
             AND TrainingLog.DatePerformed>$2
             AND TrainingLog.ExerciseID=$3
             AND TrainingLog.ClientID=$4
-        ORDER BY DatePerformed DESC;`;
+        ORDER BY 
+            DatePerformed DESC,
+            Id ASC;`;
 }
 
 func missingModelStatesForGivenStateGenQuery() string {

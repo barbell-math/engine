@@ -293,24 +293,24 @@ func NewBasicSurface() BasicSurface {
             mathUtil.LinearSummationOp[float64]("E"),
             mathUtil.NegatedLinearSummationOp[float64]("F_w"),
             mathUtil.NegatedLinearSummationOp[float64]("F_e"),
-            func(vals map[string]float64) (float64,error) {
-                s,err:=mathUtil.VarAcc(vals,"S");
+            func(vals mathUtil.Vars[float64]) (float64,error) {
+                s,err:=vals.Access("S");
                 if err!=nil {
                     return 0, err;
                 }
-                r,err:=mathUtil.VarAcc(vals,"R");
+                r,err:=vals.Access("R");
                 if err!=nil {
                     return 0, err;
                 }
                 return -(stdMath.Pow(s-1,2)*stdMath.Pow(r-1,2)),nil;
-            }, func(vals map[string]float64) (float64,error) {
-                s,err:=mathUtil.VarAcc(vals,"S");
+            }, func(vals mathUtil.Vars[float64]) (float64,error) {
+                s,err:=vals.Access("S");
                 if err!=nil {
                     return 0, err;
                 }
                 return -stdMath.Pow(s-1,2),nil;
-            }, func(vals map[string]float64) (float64,error) {
-                r,err:=mathUtil.VarAcc(vals,"R");
+            }, func(vals mathUtil.Vars[float64]) (float64,error) {
+                r,err:=vals.Access("R");
                 if err!=nil {
                     return 0, err;
                 }
@@ -325,7 +325,7 @@ func (b BasicSurface)ToGenericSurf() Surface { return &b; }
 func (b *BasicSurface)Id() PotentialSurfaceId { return BasicSurfaceId; }
 func (b *BasicSurface)Calculations() Calculations { return BasicSurfaceCalculation; }
 
-func (b *BasicSurface)Update(vals map[string]float64) error {
+func (b *BasicSurface)Update(vals mathUtil.Vars[float64]) error {
     return b.UpdateSummations(vals);
 }
 
@@ -351,7 +351,7 @@ func (b *BasicSurface)imposeConstraints() {
     }
 }
 
-func (b *BasicSurface)PredictIntensity(vals map[string]float64) (float64,error) {
+func (b *BasicSurface)PredictIntensity(vals mathUtil.Vars[float64]) (float64,error) {
     return b.LinRegResult.Predict(vals);
 }
 
