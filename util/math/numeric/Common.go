@@ -65,6 +65,12 @@ func MeanSqErr[N math.Number](act []N, given []N) (N,error) {
 func NoOpConstraint[N math.Number]() dataStruct.Pair[N,N] {
     return dataStruct.Pair[N, N]{A: N(stdMath.Inf(-1)), B: N(stdMath.Inf(1))};
 }
+func PositiveConstraint[N math.Number]() dataStruct.Pair[N,N] {
+    return dataStruct.Pair[N, N]{A: N(0), B: N(stdMath.Inf(1))};
+}
+func NegativeConstraint[N math.Number]() dataStruct.Pair[N,N] {
+    return dataStruct.Pair[N, N]{A: N(stdMath.Inf(-1)), B: N(0)};
+}
 func Constrain[N math.Number](given N, minMax dataStruct.Pair[N,N]) N {
     if given<minMax.A {
         return minMax.A;

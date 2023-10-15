@@ -9,10 +9,15 @@ import (
 )
 
 //The volume base surface follows the following equation:
-//  I^2=eps+E_tot/F_tot
+//  I=E_tot/F_tot
 // Where:
 //  E_tot=eps_1*E
-//  F_tot=eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
+//  F_tot=eps+eps_2*F_w+eps_3*F_e+eps_4*(s-1)^2(r-1)^2+eps_5*(s-1)^2+eps_6*(r-1)^2
+// However the new constants that result from making the equation lin regressable 
+// result in this equation:
+//  I=E/F_tot
+// Where:
+//  F_tot=eps+eps_1*F_w+eps_2*F_e+eps_3*(s-1)^2(r-1)^2+eps_4*(s-1)^2+eps_5*(r-1)^2
 //This equation does not take into account latent fatigue, which makes it naive
 //because it does not consider the relationship between lifts across time.
 var VolumeBaseSurfacePrediction volumeBaseSurfacePrediction;
@@ -21,77 +26,73 @@ type volumeBaseSurfacePrediction struct {};
 func (v volumeBaseSurfacePrediction)Intensity(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return stdMath.Sqrt(1/(
+    return stdMath.Pow((tl.Effort)/(
         ms.Eps+
-        ms.Eps1/tl.Effort+
-        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
-        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
-        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort+
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort));
+        ms.Eps1*float64(tl.InterWorkoutFatigue)+
+        ms.Eps2*float64(tl.InterExerciseFatigue)+
+        ms.Eps3*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)+
+        ms.Eps5*stdMath.Pow(float64(tl.Reps-1),2)),0.5);
 }
 
 func (v volumeBaseSurfacePrediction)Effort(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return (-tl.Intensity*tl.Intensity*(
-        ms.Eps1+
-        ms.Eps2*float64(tl.InterWorkoutFatigue)+
-        ms.Eps3*float64(tl.InterExerciseFatigue)+
-        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)+
-        ms.Eps5*stdMath.Pow(tl.Sets-1,2)+
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)))/(
-            1-tl.Intensity*tl.Intensity*ms.Eps);
+    return (tl.Intensity*tl.Intensity)*(
+        ms.Eps+
+        ms.Eps1*float64(tl.InterWorkoutFatigue)+
+        ms.Eps2*float64(tl.InterExerciseFatigue)+
+        ms.Eps3*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)+
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2)+
+        ms.Eps5*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
 func (v volumeBaseSurfacePrediction)InterWorkoutFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return (1/stdMath.Pow(tl.Intensity,2)-
-        ms.Eps-
-        ms.Eps1/tl.Effort-
-        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort-
-        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
-        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps2;
+    return ((tl.Effort)/(ms.Eps1*tl.Intensity*tl.Intensity)-
+        ms.Eps/ms.Eps1-
+        ms.Eps2/ms.Eps1*float64(tl.InterExerciseFatigue)-
+        ms.Eps3/ms.Eps1*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
+        ms.Eps4/ms.Eps1*stdMath.Pow(tl.Sets-1,2)-
+        ms.Eps5/ms.Eps1*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
 func (v volumeBaseSurfacePrediction)InterExerciseFatigue(
         ms *db.ModelState, 
         tl *db.TrainingLog) float64 {
-    return (1/(tl.Intensity*tl.Intensity)-
-        ms.Eps-
-        ms.Eps1/tl.Effort-
-        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort-
-        ms.Eps4*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
-        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort)*tl.Effort/ms.Eps3;
+    return ((tl.Effort)/(ms.Eps2*tl.Intensity*tl.Intensity)-
+        ms.Eps/ms.Eps2-
+        ms.Eps1/ms.Eps2*float64(tl.InterWorkoutFatigue)-
+        ms.Eps3/ms.Eps2*stdMath.Pow(tl.Sets-1,2)*stdMath.Pow(float64(tl.Reps-1),2)-
+        ms.Eps4/ms.Eps2*stdMath.Pow(tl.Sets-1,2)-
+        ms.Eps5/ms.Eps2*stdMath.Pow(float64(tl.Reps-1),2));
 }
 
 func (v volumeBaseSurfacePrediction)Sets(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
-    return stdMath.Pow(-(ms.Eps+
-        ms.Eps1/tl.Effort+
-        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
-        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps6*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort-
-        1/(tl.Intensity*tl.Intensity))/(
-        ms.Eps4*stdMath.Pow(float64(tl.Reps-1),2)/tl.Effort+
-        ms.Eps5/tl.Effort),0.5)+1;
+    return stdMath.Pow((
+        tl.Effort/(tl.Intensity*tl.Intensity)-
+        ms.Eps-
+        ms.Eps1*float64(tl.InterWorkoutFatigue)-
+        ms.Eps2*float64(tl.InterExerciseFatigue)-
+        ms.Eps5*stdMath.Pow(tl.Reps-1,2))/(
+            ms.Eps3*stdMath.Pow(tl.Reps-1,2)+
+            ms.Eps4),0.5)+1;
 }
 
 func (v volumeBaseSurfacePrediction)Reps(
         ms *db.ModelState,
         tl *db.TrainingLog) float64 {
-    return stdMath.Pow(-(ms.Eps+
-        ms.Eps1/tl.Effort+
-        ms.Eps2*float64(tl.InterWorkoutFatigue)/tl.Effort+
-        ms.Eps3*float64(tl.InterExerciseFatigue)/tl.Effort+
-        ms.Eps5*stdMath.Pow(tl.Sets-1,2)/tl.Effort-
-        1/(tl.Intensity*tl.Intensity))/(
-        ms.Eps4*stdMath.Pow(tl.Sets-1,2)/tl.Effort+
-        ms.Eps6/tl.Effort),0.5)+1;
+    return stdMath.Pow((
+        tl.Effort/(tl.Intensity*tl.Intensity)-
+        ms.Eps-
+        ms.Eps1*float64(tl.InterWorkoutFatigue)-
+        ms.Eps2*float64(tl.InterExerciseFatigue)-
+        ms.Eps4*stdMath.Pow(tl.Sets-1,2))/(
+            ms.Eps3*stdMath.Pow(tl.Sets-1,2)+
+            ms.Eps5),0.5)+1;
 }
 
 func (v volumeBaseSurfacePrediction)VolumeSkew(
@@ -104,11 +105,36 @@ func (v volumeBaseSurfacePrediction)VolumeSkewApprox(
     ms *db.ModelState,
     tl *db.TrainingLog) float64 {
     // Sets/Reps
-    return ms.Eps6/ms.Eps5;
+    return 0;
 }
 
 func (v volumeBaseSurfacePrediction)Stability(ms *db.ModelState) int {
-    return 0;
+    rv:=0;
+    if ms.Eps>0 {
+        rv++;
+    }
+    if ms.Eps1>0 {
+        rv++;
+    }
+    if ms.Eps2>0 {
+        rv++;
+    }
+    if ms.Eps3>0 {
+        rv++;
+    }
+    if ms.Eps4>0 {
+        rv++;
+    }
+    if ms.Eps5>0 {
+        rv++;
+    }
+    if ms.Eps6>0 {
+        rv++;
+    }
+    // if ms.Eps7>0 {
+    //     rv++;
+    // }
+    return rv;
 }
 
 type VolumeBaseSurface struct {
@@ -117,11 +143,10 @@ type VolumeBaseSurface struct {
 };
 
 //The ordering of the functions makes for this ordering of constants:
-//  Eps,Eps1,Eps2,Eps3,Eps4,Eps5,Eps6
+//  Eps8,Eps1,Eps2,Eps3,Eps4,Eps5,Eps6
 func NewVolumeBaseSurface() VolumeBaseSurface {
     return VolumeBaseSurface{
         LinearReg: mathUtil.NewLinearReg([]mathUtil.SummationOp[float64]{
-            mathUtil.ConstSummationOp[float64](1),
             func(vals mathUtil.Vars[float64]) (float64, error) {
                 e,err:=vals.Access("E");
                 if err!=nil {
@@ -211,14 +236,12 @@ func (v *VolumeBaseSurface)Run() (float64,error) {
 
 func (v *VolumeBaseSurface)imposeConstraints() {
     var constraints=[...]dataStruct.Pair[float64,float64]{
-        {A: 0, B: stdMath.Inf(1)}, //Eps: Error
-        {A: 0, B: stdMath.Inf(1)}, //Eps1: Effort
-        //mathUtil.NoOpConstraint[float64](),     //Eps1: Effort
-        mathUtil.NoOpConstraint[float64](),     //Eps2: F_w
-        mathUtil.NoOpConstraint[float64](),     //Eps3: F_e
-        {A: 0, B: stdMath.Inf(1)}, //Eps4: s*r
-        {A: 0, B: stdMath.Inf(1)}, //Eps5: s
-        {A: 0, B: stdMath.Inf(1)}, //Eps6: r
+        mathUtil.PositiveConstraint[float64](), //Eps: Div by zero term
+        mathUtil.PositiveConstraint[float64](), //Eps1: F_w
+        mathUtil.PositiveConstraint[float64](), //Eps2: F_e
+        mathUtil.PositiveConstraint[float64](), //Eps3: s*r
+        mathUtil.PositiveConstraint[float64](), //Eps4: s
+        mathUtil.PositiveConstraint[float64](), //Eps5: r
     };
     for i,iterV:=range(v.LinRegResult.V) {
         v.LinRegResult.V[i][0]=mathUtil.Constrain(iterV[0],constraints[i]);
@@ -246,13 +269,20 @@ func (v *VolumeBaseSurface)imposeConstraints() {
 // }
 
 func (v *VolumeBaseSurface)PredictIntensity(vals mathUtil.Vars[float64]) (float64,error) {
+    // Result from predict is the inverse square of intensity
     tmp,err:=v.LinRegResult.Predict(vals);
-    if err!=nil {
-        return tmp,err;
+    if tmp!=0 {
+        return 1/stdMath.Pow(tmp,0.5),err;
     }
-    return 1/stdMath.Pow(tmp,0.5),err;
+    return 0,err;
 }
 
 func (v *VolumeBaseSurface)Stability() int {
-    return 0;
+    rv:=0;
+    for _,v:=range(v.LinRegResult.V) {
+        if v[0]>0 {
+            rv++;
+        }
+    }
+    return rv;
 }

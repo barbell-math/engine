@@ -338,13 +338,13 @@ func (b *BasicSurface)Run() (float64,error) {
 
 func (b *BasicSurface)imposeConstraints() {
     var constraints=[...]dataStruct.Pair[float64,float64]{
-        {A: 0, B: stdMath.Inf(1)}, //Eps: Error
-        {A: 0, B: stdMath.Inf(1)}, //Eps1: Effort
-        {A: 0, B: stdMath.Inf(1)}, //Eps2: F_w
-        {A: 0, B: stdMath.Inf(1)}, //Eps3: F_e
-        {A: 0, B: stdMath.Inf(1)}, //Eps4: s*r
-        {A: 0, B: stdMath.Inf(1)}, //Eps5: s
-        {A: 0, B: stdMath.Inf(1)}, //Eps6: r
+        mathUtil.PositiveConstraint[float64](), //Eps: Error
+        mathUtil.PositiveConstraint[float64](), //Eps1: Effort
+        mathUtil.PositiveConstraint[float64](), //Eps2: F_w
+        mathUtil.PositiveConstraint[float64](), //Eps3: F_e
+        mathUtil.PositiveConstraint[float64](), //Eps4: s*r
+        mathUtil.PositiveConstraint[float64](), //Eps5: s
+        mathUtil.PositiveConstraint[float64](), //Eps6: r
     };
     for i,v:=range(b.LinRegResult.V) {
         b.LinRegResult.V[i][0]=mathUtil.Constrain(v[0],constraints[i]);
