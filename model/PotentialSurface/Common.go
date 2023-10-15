@@ -1,7 +1,9 @@
 package potentialSurface
 
 import (
-    "github.com/barbell-math/engine/db"
+	"fmt"
+
+	"github.com/barbell-math/engine/db"
 	mathUtil "github.com/barbell-math/engine/util/math/numeric"
 )
 
@@ -12,11 +14,13 @@ const (
     VolumeBaseSurfaceId
 );
 
-func CalculationsFromSurfaceId(id PotentialSurfaceId) Calculations {
+func CalculationsFromSurfaceId(id PotentialSurfaceId) (Calculations,error) {
     switch id {
-        case BasicSurfaceId: return BasicSurfaceCalculation;
-        case VolumeBaseSurfaceId: return VolumeBaseSurfacePrediction;
-        default: return nil;
+        case BasicSurfaceId: return BasicSurfaceCalculation,nil;
+        case VolumeBaseSurfaceId: return VolumeBaseSurfacePrediction,nil;
+        default: return nil,InvalidPotentialSurfaceId(
+            fmt.Sprintf("Id: %d",id),
+        );
     }
 }
 

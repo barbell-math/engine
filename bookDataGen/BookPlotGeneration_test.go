@@ -194,7 +194,7 @@ func TestBook_SaveSlidingWindowBasicSurfaceEstimated1RM(t *testing.T){
 //        ORDER BY Date ASC;`,[]any{},
 //    ), func(index int, val *tempStruct) (tempStruct, error) {
 //        fmt.Print("Working: ",index,"\r");
-//        predictor:=potSurf.CalculationsFromSurfaceId(potSurf.PotentialSurfaceId(val.PotentalSurfaceID));
+//        predictor,_:=potSurf.CalculationsFromSurfaceId(potSurf.PotentialSurfaceId(val.PotentalSurfaceID));
 //        tmpMs:=db.ModelState{
 //            Eps: val.Eps, Eps1: val.Eps1, Eps2: val.Eps2, Eps3: val.Eps3,
 //            Eps4: val.Eps4, Eps5: val.Eps5, Eps6: val.Eps6, Eps7: val.Eps7,

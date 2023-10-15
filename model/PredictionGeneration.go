@@ -25,14 +25,16 @@ func GeneratePrediction(
             surf,
             tl.ClientID,
     }).Nth(0); err==nil && found {
-        pred:=potSurf.CalculationsFromSurfaceId(
+        pred,err:=potSurf.CalculationsFromSurfaceId(
             potSurf.PotentialSurfaceId(ms.PotentialSurfaceID),
         );
-        rv.TrainingLogID=tl.Id;
-        rv.IntensityPred=pred.Intensity(ms,tl);
-        rv.StateGeneratorID=ms.StateGeneratorID;
-        rv.PotentialSurfaceID=ms.PotentialSurfaceID;
-        return rv,nil;
+        if err==nil {
+            rv.TrainingLogID=tl.Id;
+            rv.IntensityPred=pred.Intensity(ms,tl);
+            rv.StateGeneratorID=ms.StateGeneratorID;
+            rv.PotentialSurfaceID=ms.PotentialSurfaceID;
+        }
+        return rv,err;
     } else {
         return rv,err;
     }

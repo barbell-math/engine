@@ -19,3 +19,7 @@ var NoDataInSelectedTimeFrame,IsNoDataInSelectedTimeFrame=customerr.ErrorFactory
 var NotEnoughData,IsNotEnoughData=customerr.ErrorFactory(
     "Not enough data was available.",
 );
+
+var InvalidStateGeneratorId,IsInvalidStateGeneratorId=customerr.ErrorFactory(
+    "The supplied state generator id is not mapped to any surface.",
+);
